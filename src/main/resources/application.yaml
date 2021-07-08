@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./target/db/gestionecontenuti
+    username: sa
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  mail:
+    host: cs03.imgwebsolutions.it
+    username: info@tilinkotool.it
+    port: 25
+    password: Osuu19_2
+
+gestionalecontenuti:
+  ftp:
+    host: 80.241.142.27
+    user: admintlt
+    password: Qw9o&26g
