@@ -8,10 +8,9 @@ import it.xtreamdev.gestioneattivita.model.Customer;
 import it.xtreamdev.gestioneattivita.model.Newspaper;
 import it.xtreamdev.gestioneattivita.model.User;
 import it.xtreamdev.gestioneattivita.model.enumerations.ContentStatus;
-import it.xtreamdev.gestioneattivita.gestioneattivita.repository.*;
 import it.xtreamdev.gestioneattivita.repository.*;
+import it.xtreamdev.gestioneattivita.security.JwtTokenUtil;
 import it.xtreamdev.gestioneattivita.security.UserPrincipal;
-import it.xtreamdev.gestioneattivita.utils.JwtUtils;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-;
 
 @Service
 public class ContentService {
@@ -50,6 +47,9 @@ public class ContentService {
     private FtpService ftpService;
     @Autowired
     private ContentMailService contentMailService;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     public Long count() {
         return this.contentRepository.count();
@@ -95,7 +95,7 @@ public class ContentService {
 
         this.contentRulesRepository.save(content.getContentRules());
         this.contentRepository.save(content);
-        content.setCustomerToken(JwtUtils.createJwtCustomerCodeFromContentId(content.getId()));
+        content.setCustomerToken(this.jwtTokenUtil.createJwtCustomerCodeFromContentId(content.getId()));
         this.contentRepository.save(content);
         this.contentMailService.sendCreationMail(content);
     }
@@ -179,12 +179,12 @@ public class ContentService {
     }
 
     public Content loadByIdAndToken(Integer id, String token) {
-        JwtUtils.verifyJwt(token, id);
+        this.jwtTokenUtil.verifyCustomerJwt(token, id);
         return this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
     }
 
     public void approveContent(Integer id, String token) {
-        JwtUtils.verifyJwt(token, id);
+        this.jwtTokenUtil.verifyCustomerJwt(token, id);
         Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
         content.setContentStatus(ContentStatus.APPROVED);
         this.contentRepository.save(content);
@@ -233,7 +233,7 @@ public class ContentService {
     }
 
     public void saveNotesToContent(Integer id, String notes, String token) {
-        JwtUtils.verifyJwt(token, id);
+        this.jwtTokenUtil.verifyCustomerJwt(token, id);
 
         Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
         content.setCustomerNotes(notes);

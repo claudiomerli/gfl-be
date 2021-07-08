@@ -1,8 +1,11 @@
 package it.xtreamdev.gestioneattivita.service;
 
+import it.xtreamdev.gestioneattivita.dto.AccessTokenDto;
+import it.xtreamdev.gestioneattivita.dto.SigninDTO;
 import it.xtreamdev.gestioneattivita.model.User;
 import it.xtreamdev.gestioneattivita.model.enumerations.RoleName;
 import it.xtreamdev.gestioneattivita.repository.UserRepository;
+import it.xtreamdev.gestioneattivita.security.JwtTokenUtil;
 import it.xtreamdev.gestioneattivita.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +33,20 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    public AccessTokenDto signin(SigninDTO signinDTO) {
+        User user = this.userRepository.findByUsername(signinDTO.getUsername()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Wrong credentials"));
+
+        if (!this.passwordEncoder.matches(signinDTO.getPassword(), user.getPassword())) {
+            throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Wrong credentials");
+        }
+
+        String token = this.jwtTokenUtil.generateToken(user);
+        return AccessTokenDto.builder().accessToken(token).build();
+    }
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {

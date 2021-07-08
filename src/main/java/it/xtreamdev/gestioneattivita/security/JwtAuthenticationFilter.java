@@ -1,7 +1,13 @@
 package it.xtreamdev.gestioneattivita.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import it.xtreamdev.gestioneattivita.security.model.JwtUserPrincipal;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -12,9 +18,12 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 
+@Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -31,10 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Jws<Claims> claimsJws = this.jwtTokenUtil.validateToken(token);
 
-            String username = claimsJws.getBody().getSubject();
-            User user = this.userService.findByUsername(username);
-
-            SecurityContextHolder.getContext().setAuthentication(new JwtAuthentication(new JwtUserPrincipal(user), Collections.emptyList()));
+            SecurityContextHolder.getContext().setAuthentication(new JwtAuthentication(new JwtUserPrincipal(claimsJws), Collections.emptyList()));
         } catch (Exception e) {
             log.error("Error during authentication", e);
 
