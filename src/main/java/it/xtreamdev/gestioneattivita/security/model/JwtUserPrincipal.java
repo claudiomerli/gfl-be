@@ -3,7 +3,6 @@ package it.xtreamdev.gestioneattivita.security.model;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import it.xtreamdev.gestioneattivita.model.User;
 
 public class JwtUserPrincipal {
 
