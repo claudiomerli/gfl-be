@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,5 +22,20 @@ public class Suggest {
     private String keyword;
     @Lob
     private String suggests;
+
+    private LocalDateTime createdDate;
+
+    private LocalDateTime modifiedDate;
+
+
+    @PrePersist
+    public void prePersist() {
+        this.createdDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.modifiedDate = LocalDateTime.now();
+    }
 
 }
