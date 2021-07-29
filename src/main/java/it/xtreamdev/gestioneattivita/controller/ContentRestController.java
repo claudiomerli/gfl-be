@@ -1,5 +1,6 @@
 package it.xtreamdev.gestioneattivita.controller;
 
+import it.xtreamdev.gestioneattivita.dto.ResponseContentDTO;
 import it.xtreamdev.gestioneattivita.dto.SaveContentDTO;
 import it.xtreamdev.gestioneattivita.dto.SearchContentDTO;
 import it.xtreamdev.gestioneattivita.model.Content;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +28,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Objects;
 
-@Deprecated
-@Controller
-public class ContentController {
+@RestController
+public class ContentRestController {
 
     @Autowired
     private ContentService contentService;
@@ -43,62 +44,55 @@ public class ContentController {
     private NewspaperService newspaperService;
 
     @GetMapping("admin/contents")
-    public String findAll(
+    public ResponseEntity<ResponseContentDTO> findAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @ModelAttribute("searchContentDto") SearchContentDTO searchContentDTO,
-            Model model
-    ) {
-        model.addAttribute("customers", this.customerService.findAll());
-        model.addAttribute("editors", this.userService.findEditors());
-        model.addAttribute("newspapers", this.newspaperService.findAll());
-        model.addAttribute("contents", this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
-        return "views/admin/content-list";
+            @ModelAttribute("searchContentDto") SearchContentDTO searchContentDTO) {
+
+        ResponseContentDTO contents = ResponseContentDTO.builder()
+                .customers(this.customerService.findAll())
+                .editors(this.userService.findEditors())
+                .newspapers(this.newspaperService.findAll())
+                .contents(this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)))
+                .build();
+
+        return ResponseEntity.ok(contents);
     }
 
     @GetMapping("admin/contents/create")
-    public String create(
+    public ResponseEntity<ResponseContentDTO> create(
             @RequestParam(value = "editorId", required = false) Integer editorId,
             @RequestParam(value = "customerId", required = false) Integer customerId,
-            @RequestParam(value = "newspaperId", required = false) Integer newspaperId,
-            @ModelAttribute("saveContentDto") SaveContentDTO saveContentDto,
-            Model model
-    ) {
+            @RequestParam(value = "newspaperId", required = false) Integer newspaperId) {
+
         Page<User> allEditors = this.userService.findEditors(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "fullname"));
         Page<Customer> allCustomers = this.customerService.findAll(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "name"));
         List<Newspaper> newspapers = this.newspaperService.findAll();
-        model.addAttribute("editors", allEditors);
-        model.addAttribute("customers", allCustomers);
-        model.addAttribute("newspapers", newspapers);
 
-        if (Objects.nonNull(customerId)) {
-            model.addAttribute("selectedCustomer", allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
-            saveContentDto.setCustomerId(customerId);
-        }
 
-        if (Objects.nonNull(editorId)) {
-            saveContentDto.setEditorId(editorId);
-        }
+        ResponseContentDTO contents = ResponseContentDTO.builder()
+                .customers(allCustomers.getContent())
+                .editors(allEditors.getContent())
+                .newspapers(newspapers)
+                .selectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null))
+                .editorId(editorId)
+                .customerId(customerId)
+                .newspaperId(newspaperId)
+                .build();
 
-        if (Objects.nonNull(newspaperId)) {
-            saveContentDto.setNewspaperId(newspaperId);
-        }
-
-        return "views/admin/content-create";
+        return ResponseEntity.ok(contents);
     }
 
     @PostMapping("admin/contents/create")
-    public String create(
-            @ModelAttribute("saveContentDto") SaveContentDTO saveContentDTO
-    ) {
+    public ResponseEntity<Void> create(@RequestBody SaveContentDTO saveContentDTO) {
         this.contentService.save(saveContentDTO);
-        return "redirect:/admin/contents/";
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("admin/contents/{contentId}/edit")
-    public String edit(
+    public ResponseEntity<ResponseContentDTO> edit(
             @PathVariable Integer contentId,
             @RequestParam(value = "editorId", required = false) Integer editorId,
             @RequestParam(value = "customerId", required = false) Integer customerId,
@@ -108,44 +102,45 @@ public class ContentController {
         Page<User> allEditors = this.userService.findEditors(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "fullname"));
         Page<Customer> allCustomers = this.customerService.findAll(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "name"));
         List<Newspaper> newspapers = this.newspaperService.findAll();
-        model.addAttribute("editors", allEditors);
-        model.addAttribute("customers", allCustomers);
-        model.addAttribute("newspapers", newspapers);
+
+
+        ResponseContentDTO responseContentDTO = ResponseContentDTO.builder()
+                .customers(allCustomers.getContent())
+                .editors(allEditors.getContent())
+                .newspapers(newspapers)
+                .selectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null))
+                .editorId(editorId)
+                .customerId(customerId)
+                .newspaperId(newspaperId)
+                .build();
+
 
         SaveContentDTO saveContentDto = this.contentService.loadSaveContentDto(contentId);
-        model.addAttribute("selectedCustomer", saveContentDto.getContent().getCustomer());
+        responseContentDTO.setSelectedCustomer(saveContentDto.getContent().getCustomer());
 
-        if (Objects.nonNull(editorId)) {
-            saveContentDto.setEditorId(editorId);
-        }
-
-        if (Objects.nonNull(newspaperId)) {
-            saveContentDto.setNewspaperId(newspaperId);
-        }
 
         if (Objects.nonNull(customerId)) {
-            model.addAttribute("selectedCustomer", allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
+            responseContentDTO.setSelectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
             saveContentDto.setCustomerId(customerId);
         }
 
 
-        model.addAttribute("saveContentDto", saveContentDto);
-        return "views/admin/content-edit";
+        responseContentDTO.setSaveContent(saveContentDto);
+        return ResponseEntity.ok(responseContentDTO);
     }
 
-    @PostMapping("admin/contents/{contentId}/edit")
-    public String editContent(
-            @PathVariable Integer contentId,
-            @ModelAttribute("saveContentDto") SaveContentDTO saveContentDTO
-    ) {
+    @PutMapping("admin/contents/{contentId}/edit")
+    public ResponseEntity<Void> editContent(@PathVariable Integer contentId,
+                                            @RequestBody SaveContentDTO saveContentDTO) {
+
         this.contentService.update(contentId, saveContentDTO);
-        return "redirect:/admin/contents/" + contentId + "/edit";
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("admin/contents/{contentId}/delete")
-    public String deleteContent(@PathVariable Integer contentId) {
+    @DeleteMapping("admin/contents/{contentId}/delete")
+    public ResponseEntity<Void> deleteContent(@PathVariable Integer contentId) {
         this.contentService.delete(contentId);
-        return "redirect:/admin/contents";
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("admin/contents/{contentId}/exportDocx")
@@ -169,65 +164,66 @@ public class ContentController {
     }
 
     @GetMapping("editor/contents")
-    public String editorContents(
+    public ResponseEntity<Page<Content>> editorContents(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @RequestParam(value = "globalSearch", required = false) String globalSearch,
-            Model model
+            @RequestParam(value = "globalSearch", required = false) String globalSearch
     ) {
-        model.addAttribute("contents", this.contentService.loadCurrentEditorContents(PageRequest.of(page, Integer.MAX_VALUE, Sort.Direction.fromString(sortDirection), sortBy)));
-        return "views/editor/contents-assigned";
+
+        return ResponseEntity.ok(
+                this.contentService.loadCurrentEditorContents(PageRequest.of(page, Integer.MAX_VALUE, Sort.Direction.fromString(sortDirection), sortBy))
+        );
     }
 
     @GetMapping("editor/contents/{contentId}/edit")
-    public String editorEditContent(
+    public ResponseEntity<Content> editorEditContent(
             @PathVariable Integer contentId,
-            @AuthenticationPrincipal UserPrincipal principal,
-            Model model
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        model.addAttribute("content", this.contentService.loadContentByIdAndUser(contentId, principal));
-        return "views/editor/content-edit";
+        return ResponseEntity.ok(
+                this.contentService.loadContentByIdAndUser(contentId, principal)
+        );
     }
 
-    @PostMapping("editor/contents/{contentId}/edit")
-    public String editorEditContent(
+    @PutMapping("editor/contents/{contentId}/edit")
+    public ResponseEntity<Void> editorEditContent(
             @PathVariable Integer contentId,
             @AuthenticationPrincipal UserPrincipal principal,
-            @ModelAttribute("content") Content content
+            @RequestBody Content content
     ) {
         this.contentService.update(contentId, principal, content);
-        return "redirect:/editor/contents/" + contentId + "/edit";
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("customer/content/{contentId}")
-    public String viewContentCustomer(
+    public ResponseEntity<Content> viewContentCustomer(
             @PathVariable Integer contentId,
-            @RequestParam("token") String token,
-            Model model
+            @RequestParam("token") String token
     ) {
-        model.addAttribute("content", this.contentService.loadByIdAndToken(contentId, token));
-        return "views/customer/content-view";
+        return ResponseEntity.ok(
+                this.contentService.loadByIdAndToken(contentId, token)
+        );
     }
 
-    @GetMapping("customer/approve/{contentId}")
-    public String approveContent(
+    @PostMapping("customer/approve/{contentId}")
+    public ResponseEntity<Void> approveContent(
             @PathVariable Integer contentId,
             @RequestParam("token") String token
     ) {
         this.contentService.approveContent(contentId, token);
-        return "redirect:/customer/content/" + contentId + "?token=" + token;
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("customer/notes/{contentId}")
-    public String saveNotes(
+    public ResponseEntity<Void> saveNotes(
             @PathVariable Integer contentId,
             @RequestParam("token") String token,
             @RequestParam("notes") String notes
     ) {
         this.contentService.saveNotesToContent(contentId, notes, token);
-        return "redirect:/customer/content/" + contentId + "?token=" + token;
+        return ResponseEntity.ok().build();
     }
 
 
