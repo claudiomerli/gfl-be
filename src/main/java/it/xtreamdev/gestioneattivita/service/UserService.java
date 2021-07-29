@@ -2,6 +2,7 @@ package it.xtreamdev.gestioneattivita.service;
 
 import it.xtreamdev.gestioneattivita.dto.AccessTokenDto;
 import it.xtreamdev.gestioneattivita.dto.SigninDTO;
+import it.xtreamdev.gestioneattivita.exception.GLFException;
 import it.xtreamdev.gestioneattivita.model.User;
 import it.xtreamdev.gestioneattivita.model.enumerations.RoleName;
 import it.xtreamdev.gestioneattivita.repository.UserRepository;
@@ -66,9 +67,16 @@ public class UserService implements UserDetailsService {
         return this.userRepository.findByRole(RoleName.EDITOR, pageable);
     }
 
+    @Deprecated
     public void validateCreateEditor(User user, BindingResult bindingResult) {
         this.userRepository.findByUsername(user.getUsername()).ifPresent(userFound -> {
             bindingResult.addError(new FieldError("editor", "username", "Username already exists"));
+        });
+    }
+
+    public void validateCreateEditor(User user) {
+        this.userRepository.findByUsername(user.getUsername()).ifPresent(userFound -> {
+            throw new GLFException("Username already exists", HttpStatus.BAD_REQUEST);
         });
     }
 

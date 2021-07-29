@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+@Deprecated
 @Controller
 @RequestMapping("admin")
 public class AdminController {
