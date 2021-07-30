@@ -82,6 +82,22 @@ public class ContentRestController {
                 .newspaperId(newspaperId)
                 .build();
 
+        SaveContentDTO saveContentDTO = new SaveContentDTO();
+        if (Objects.nonNull(customerId)) {
+            contents.setSelectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
+            saveContentDTO.setCustomerId(customerId);
+        }
+
+        if (Objects.nonNull(editorId)) {
+            saveContentDTO.setEditorId(editorId);
+        }
+
+        if (Objects.nonNull(newspaperId)) {
+            saveContentDTO.setNewspaperId(newspaperId);
+        }
+
+        contents.setSaveContent(saveContentDTO);
+
         return ResponseEntity.ok(contents);
     }
 
