@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./target/db/gestionecontenuti
+    url: jdbc:h2:file:./target/db/glfbe
     username: sa
     password: password
   jpa:

@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.controller;
+package it.xtreamdev.gflbe.controller.advisors;
 
 import it.xtreamdev.gflbe.dto.ErrorDTO;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,7 @@ import java.util.List;
 
 @ControllerAdvice
 @RestController
-public class ExceptionHandlerController {
-
+public class ExceptionHandlerAdvisor {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)

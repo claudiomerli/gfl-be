@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 @EnableScheduling
 @SpringBootApplication
-public class GestioneAttivitaApplication {
+public class GLFBeApplication {
 
     @Bean
     public RestTemplate restTemplate() {
@@ -16,7 +16,7 @@ public class GestioneAttivitaApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(GestioneAttivitaApplication.class, args);
+        SpringApplication.run(GLFBeApplication.class, args);
     }
 
 }
