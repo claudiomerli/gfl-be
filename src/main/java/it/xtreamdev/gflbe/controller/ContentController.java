@@ -28,6 +28,7 @@ import java.util.Objects;
 
 @Deprecated
 @Controller
+@RequestMapping("old")
 public class ContentController {
 
     @Autowired

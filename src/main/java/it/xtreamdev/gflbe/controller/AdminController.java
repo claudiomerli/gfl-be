@@ -20,7 +20,7 @@ import javax.validation.Valid;
 
 @Deprecated
 @Controller
-@RequestMapping("admin")
+@RequestMapping("old/admin")
 public class AdminController {
 
     @Autowired
