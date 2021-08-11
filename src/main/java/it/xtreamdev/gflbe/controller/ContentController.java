@@ -76,7 +76,7 @@ public class ContentController {
 
         if (Objects.nonNull(customerId)) {
             model.addAttribute("selectedCustomer", allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
-            saveContentDto.setCustomerId(customerId);
+            //saveContentDto.setCustomerId(customerId);
         }
 
         if (Objects.nonNull(editorId)) {
@@ -114,7 +114,7 @@ public class ContentController {
         model.addAttribute("newspapers", newspapers);
 
         SaveContentDTO saveContentDto = this.contentService.loadSaveContentDto(contentId);
-        model.addAttribute("selectedCustomer", saveContentDto.getContent().getCustomer());
+        //model.addAttribute("selectedCustomer", saveContentDto.getContent().getCustomer());
 
         if (Objects.nonNull(editorId)) {
             saveContentDto.setEditorId(editorId);
@@ -126,7 +126,7 @@ public class ContentController {
 
         if (Objects.nonNull(customerId)) {
             model.addAttribute("selectedCustomer", allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
-            saveContentDto.setCustomerId(customerId);
+            //saveContentDto.setCustomerId(customerId);
         }
 
 

@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.model;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

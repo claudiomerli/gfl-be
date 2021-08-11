@@ -16,7 +16,7 @@ public class ContentEntityListener {
     private void postLoad(Content content) {
         RuleSatisfation ruleSatisfation = RuleSatisfation.builder().build();
         Integer contentCharacterBodyLenght = content.getContentRules().getMaxCharacterBodyLength();
-        Integer customerCharacterBodyLeght = content.getCustomer().getContentRules().getMaxCharacterBodyLength();
+        Integer customerCharacterBodyLeght = content.getProject().getCustomer().getContentRules().getMaxCharacterBodyLength();
 
         Integer characterToCheck = Optional.ofNullable(contentCharacterBodyLenght).orElse(customerCharacterBodyLeght);
 
@@ -54,21 +54,21 @@ public class ContentEntityListener {
         ruleSatisfation.setLinkUrlSatisfied(true);
         ruleSatisfation.setLinkTextSatisfied(true);
 
-        String titleRule = StringUtils.isNotBlank(content.getContentRules().getTitle()) ?  content.getContentRules().getTitle() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getTitle())  ? content.getCustomer().getContentRules().getTitle() : null;
+        String titleRule = StringUtils.isNotBlank(content.getContentRules().getTitle()) ?  content.getContentRules().getTitle() : StringUtils.isNotBlank(content.getProject().getCustomer().getContentRules().getTitle())  ? content.getProject().getCustomer().getContentRules().getTitle() : null;
 
         if(Objects.nonNull(titleRule)){
             ruleSatisfation.setTitleSatisfied(false);
             ruleSatisfation.setTitleError("Il titolo non rispetta la regola impostata");
         }
 
-        String linkTextRule = StringUtils.isNotBlank(content.getContentRules().getLinkText()) ?  content.getContentRules().getLinkText() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getLinkText())  ? content.getCustomer().getContentRules().getLinkText() : null;
+        String linkTextRule = StringUtils.isNotBlank(content.getContentRules().getLinkText()) ?  content.getContentRules().getLinkText() : StringUtils.isNotBlank(content.getProject().getCustomer().getContentRules().getLinkText())  ? content.getProject().getCustomer().getContentRules().getLinkText() : null;
 
         if(Objects.nonNull(linkTextRule)){
             ruleSatisfation.setLinkTextSatisfied(false);
             ruleSatisfation.setLinkTextError("Il testo del link non rispetta la regola impostata");
         }
 
-        String linkUrlRule = StringUtils.isNotBlank(content.getContentRules().getLinkUrl()) ?  content.getContentRules().getLinkUrl() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getLinkUrl())  ? content.getCustomer().getContentRules().getLinkUrl() : null;
+        String linkUrlRule = StringUtils.isNotBlank(content.getContentRules().getLinkUrl()) ?  content.getContentRules().getLinkUrl() : StringUtils.isNotBlank(content.getProject().getCustomer().getContentRules().getLinkUrl())  ? content.getProject().getCustomer().getContentRules().getLinkUrl() : null;
 
         if(Objects.nonNull(linkUrlRule)){
             ruleSatisfation.setLinkUrlSatisfied(false);

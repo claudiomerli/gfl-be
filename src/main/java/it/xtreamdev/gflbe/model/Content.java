@@ -59,7 +59,7 @@ public class Content {
     private User editor;
 
     @ManyToOne
-    private Customer customer;
+    private Project project;
 
     @ManyToOne
     private Newspaper newspaper;

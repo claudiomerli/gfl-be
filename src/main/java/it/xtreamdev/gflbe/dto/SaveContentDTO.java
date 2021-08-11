@@ -14,7 +14,7 @@ public class SaveContentDTO {
 
     private Content content;
     private Integer editorId;
-    private Integer customerId;
+    private Integer projectId;
     private Integer newspaperId;
 
 
