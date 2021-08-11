@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/gestionalecontenuti
+    url: jdbc:mysql://localhost:3306/gfl
     username: root
     password: root
