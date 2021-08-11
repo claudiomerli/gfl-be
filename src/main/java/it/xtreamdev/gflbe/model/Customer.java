@@ -1,22 +1,22 @@
 package it.xtreamdev.gflbe.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 @Entity
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @NotBlank

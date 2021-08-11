@@ -3,10 +3,7 @@ package it.xtreamdev.gflbe.service;
 import com.itextpdf.html2pdf.HtmlConverter;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
-import it.xtreamdev.gflbe.model.Content;
-import it.xtreamdev.gflbe.model.Customer;
-import it.xtreamdev.gflbe.model.Newspaper;
-import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.repository.*;
 import it.xtreamdev.gflbe.security.JwtTokenUtil;
@@ -35,7 +32,7 @@ public class ContentService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private CustomerRepository customerRepository;
+    private ProjectRepository projectRepository;
     @Autowired
     private ContentRulesRepository contentRulesRepository;
     @Autowired
@@ -86,11 +83,11 @@ public class ContentService {
         content.setContentStatus(ContentStatus.WORKING);
 
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
-        Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
+        Project project = this.projectRepository.findById(saveContentDTO.getProjectId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
 
         content.setEditor(editor);
-        content.setCustomer(customer);
+        content.setProject(project);
         content.setNewspaper(newspaper);
 
         this.contentRulesRepository.save(content.getContentRules());
@@ -106,7 +103,7 @@ public class ContentService {
                 .builder()
                 .content(content)
                 .newspaperId(content.getNewspaper().getId())
-                .customerId(content.getCustomer().getId())
+                .projectId(content.getProject().getId())
                 .editorId(content.getEditor().getId())
                 .build();
     }
@@ -117,7 +114,7 @@ public class ContentService {
         boolean statusUpdated = !contentUpdated.getContentStatus().equals(contentToUpdate.getContentStatus());
 
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
-        Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
+        Project project = this.projectRepository.findById(saveContentDTO.getProjectId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
 
         contentToUpdate.setContentRules(contentUpdated.getContentRules());
@@ -131,7 +128,7 @@ public class ContentService {
         contentToUpdate.setAdminNotes(contentUpdated.getAdminNotes());
 
         contentToUpdate.setEditor(editor);
-        contentToUpdate.setCustomer(customer);
+        contentToUpdate.setProject(project);
         contentToUpdate.setNewspaper(newspaper);
 
         this.contentRulesRepository.save(contentToUpdate.getContentRules());
@@ -212,7 +209,7 @@ public class ContentService {
                             .replace("&igrave;", "ì"), null));
 
             wordMLPackage.save(baos);
-            this.ftpService.storeFile(String.format("%s.docx", content.getTitle()), content.getCustomer().getName(), baos);
+            this.ftpService.storeFile(String.format("%s.docx", content.getTitle()), content.getProject().getCustomer().getName(), baos);
             return baos.toByteArray();
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Error exporting file");
@@ -225,7 +222,7 @@ public class ContentService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             HtmlConverter.convertToPdf(content.getBody(), baos);
 
-            this.ftpService.storeFile(String.format("%s.pdf", content.getTitle()), content.getCustomer().getName(), baos);
+            this.ftpService.storeFile(String.format("%s.pdf", content.getTitle()), content.getProject().getCustomer().getName(), baos);
             return baos.toByteArray();
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Error exporting file");

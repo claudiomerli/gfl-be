@@ -60,88 +60,10 @@ public class ContentRestController {
         return ResponseEntity.ok(contents);
     }
 
-    @GetMapping("admin/contents/create")
-    public ResponseEntity<ResponseContentDTO> create(
-            @RequestParam(value = "editorId", required = false) Integer editorId,
-            @RequestParam(value = "customerId", required = false) Integer customerId,
-            @RequestParam(value = "newspaperId", required = false) Integer newspaperId) {
-
-        Page<User> allEditors = this.userService.findEditors(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "fullname"));
-        Page<Customer> allCustomers = this.customerService.findAll(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "name"));
-        List<Newspaper> newspapers = this.newspaperService.findAll();
-
-
-        ResponseContentDTO contents = ResponseContentDTO.builder()
-                .customers(allCustomers.getContent())
-                .editors(allEditors.getContent())
-                .newspapers(newspapers)
-                .selectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null))
-                .editorId(editorId)
-                .customerId(customerId)
-                .newspaperId(newspaperId)
-                .build();
-
-        SaveContentDTO saveContentDTO = new SaveContentDTO();
-        if (Objects.nonNull(customerId)) {
-            contents.setSelectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
-            saveContentDTO.setCustomerId(customerId);
-        }
-
-        if (Objects.nonNull(editorId)) {
-            saveContentDTO.setEditorId(editorId);
-        }
-
-        if (Objects.nonNull(newspaperId)) {
-            saveContentDTO.setNewspaperId(newspaperId);
-        }
-
-        contents.setSaveContent(saveContentDTO);
-
-        return ResponseEntity.ok(contents);
-    }
-
     @PostMapping("admin/contents/create")
     public ResponseEntity<Void> create(@RequestBody SaveContentDTO saveContentDTO) {
         this.contentService.save(saveContentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @GetMapping("admin/contents/{contentId}/edit")
-    public ResponseEntity<ResponseContentDTO> edit(
-            @PathVariable Integer contentId,
-            @RequestParam(value = "editorId", required = false) Integer editorId,
-            @RequestParam(value = "customerId", required = false) Integer customerId,
-            @RequestParam(value = "newspaperId", required = false) Integer newspaperId,
-            Model model
-    ) {
-        Page<User> allEditors = this.userService.findEditors(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "fullname"));
-        Page<Customer> allCustomers = this.customerService.findAll(PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString("ASC"), "name"));
-        List<Newspaper> newspapers = this.newspaperService.findAll();
-
-
-        ResponseContentDTO responseContentDTO = ResponseContentDTO.builder()
-                .customers(allCustomers.getContent())
-                .editors(allEditors.getContent())
-                .newspapers(newspapers)
-                .selectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null))
-                .editorId(editorId)
-                .customerId(customerId)
-                .newspaperId(newspaperId)
-                .build();
-
-
-        SaveContentDTO saveContentDto = this.contentService.loadSaveContentDto(contentId);
-        responseContentDTO.setSelectedCustomer(saveContentDto.getContent().getCustomer());
-
-
-        if (Objects.nonNull(customerId)) {
-            responseContentDTO.setSelectedCustomer(allCustomers.stream().filter(customer -> customer.getId().equals(customerId)).findFirst().orElse(null));
-            saveContentDto.setCustomerId(customerId);
-        }
-
-
-        responseContentDTO.setSaveContent(saveContentDto);
-        return ResponseEntity.ok(responseContentDTO);
     }
 
     @PutMapping("admin/contents/{contentId}/edit")

@@ -2,8 +2,10 @@ package it.xtreamdev.gflbe.model;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,30 +15,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Suggest {
+public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Integer id;
 
-    private String keyword;
-    @Lob
-    private String suggests;
+    private String name;
 
+    @ManyToOne
+    private Customer customer;
+
+    @CreatedDate
     private LocalDateTime createdDate;
 
-    private LocalDateTime modifiedDate;
-
-
-    @PrePersist
-    public void prePersist() {
-        this.createdDate = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.modifiedDate = LocalDateTime.now();
-    }
-
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
 }

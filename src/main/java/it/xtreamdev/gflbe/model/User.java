@@ -1,24 +1,24 @@
 package it.xtreamdev.gflbe.model;
 
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 @Entity
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @NotBlank

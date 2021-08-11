@@ -2,10 +2,7 @@ package it.xtreamdev.gflbe.model;
 
 import it.xtreamdev.gflbe.model.entitylisteners.ContentEntityListener;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,16 +11,19 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDate;
 
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 @Entity
 @EntityListeners({AuditingEntityListener.class, ContentEntityListener.class})
 public class Content {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
     private String title;
@@ -59,7 +59,7 @@ public class Content {
     private User editor;
 
     @ManyToOne
-    private Customer customer;
+    private Project project;
 
     @ManyToOne
     private Newspaper newspaper;
