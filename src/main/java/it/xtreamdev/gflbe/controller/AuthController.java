@@ -16,7 +16,7 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("login")
+    @PostMapping("signin")
     public AccessTokenDto login(@RequestBody SigninDTO signinDTO) {
         return this.userService.signin(signinDTO);
     }

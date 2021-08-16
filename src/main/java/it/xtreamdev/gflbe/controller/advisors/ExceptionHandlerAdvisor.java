@@ -2,22 +2,33 @@ package it.xtreamdev.gflbe.controller.advisors;
 
 import it.xtreamdev.gflbe.dto.ErrorDTO;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
-@RestController
 public class ExceptionHandlerAdvisor {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ErrorDTO> handleValidationExceptions(HttpClientErrorException ex) {
+
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(ErrorDTO.builder()
+                        .message(ex.getStatusText())
+                        .statusCode(ex.getRawStatusCode())
+                        .build());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorDTO handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
 
         List<String> errorMessage = new ArrayList<>();
 
@@ -25,10 +36,12 @@ public class ExceptionHandlerAdvisor {
             if (error.getDefaultMessage() != null)
                 errorMessage.add(error.getDefaultMessage());
         });
-        return ErrorDTO.builder()
-                .message(String.join("|", errorMessage))
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorDTO.builder()
+                        .message(String.join("|", errorMessage))
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
     }
 
 
