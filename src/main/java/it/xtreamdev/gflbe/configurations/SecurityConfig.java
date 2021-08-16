@@ -39,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/customer/**").permitAll()
                         .antMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .antMatchers("/api/editor/**").hasAuthority("EDITOR")
+                        .antMatchers("/api/**").authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
