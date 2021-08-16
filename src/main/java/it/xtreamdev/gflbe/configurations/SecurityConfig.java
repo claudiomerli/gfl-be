@@ -1,5 +1,7 @@
 package it.xtreamdev.gflbe.configurations;
 
+import it.xtreamdev.gflbe.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -19,6 +24,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -31,7 +39,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/customer/**").permitAll()
                         .antMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .antMatchers("/api/editor/**").hasAuthority("EDITOR")
-                );
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
+                    httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> {
+                        httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    });
+                });
     }
 
 }

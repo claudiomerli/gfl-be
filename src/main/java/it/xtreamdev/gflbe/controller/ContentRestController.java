@@ -4,10 +4,7 @@ import it.xtreamdev.gflbe.dto.ResponseContentDTO;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
 import it.xtreamdev.gflbe.model.Content;
-import it.xtreamdev.gflbe.model.Customer;
-import it.xtreamdev.gflbe.model.Newspaper;
-import it.xtreamdev.gflbe.model.User;
-import it.xtreamdev.gflbe.security.UserPrincipal;
+import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import it.xtreamdev.gflbe.service.ContentService;
 import it.xtreamdev.gflbe.service.CustomerService;
 import it.xtreamdev.gflbe.service.NewspaperService;
@@ -21,11 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Objects;
 
 @RestController
 public class ContentRestController {
@@ -117,7 +110,7 @@ public class ContentRestController {
     @GetMapping("editor/contents/{contentId}/edit")
     public ResponseEntity<Content> editorEditContent(
             @PathVariable Integer contentId,
-            @AuthenticationPrincipal UserPrincipal principal
+            @AuthenticationPrincipal JwtUserPrincipal principal
     ) {
         return ResponseEntity.ok(
                 this.contentService.loadContentByIdAndUser(contentId, principal)
@@ -127,7 +120,7 @@ public class ContentRestController {
     @PutMapping("editor/contents/{contentId}/edit")
     public ResponseEntity<Void> editorEditContent(
             @PathVariable Integer contentId,
-            @AuthenticationPrincipal UserPrincipal principal,
+            @AuthenticationPrincipal JwtUserPrincipal principal,
             @RequestBody Content content
     ) {
         this.contentService.update(contentId, principal, content);

@@ -2,16 +2,16 @@ package it.xtreamdev.gflbe.security;
 
 import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
+import java.util.Collections;
 
 public class JwtAuthentication extends AbstractAuthenticationToken {
 
-    private JwtUserPrincipal jwtUserPrincipal;
+    private final JwtUserPrincipal jwtUserPrincipal;
 
-    public JwtAuthentication(JwtUserPrincipal jwtUserPrincipal, Collection<? extends GrantedAuthority> authorities) {
-        super(authorities);
+    public JwtAuthentication(JwtUserPrincipal jwtUserPrincipal) {
+        super(Collections.singletonList(new SimpleGrantedAuthority(jwtUserPrincipal.getUser().getRole().name())));
         this.jwtUserPrincipal = jwtUserPrincipal;
     }
 

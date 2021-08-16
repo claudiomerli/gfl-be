@@ -7,7 +7,7 @@ import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.UserRepository;
 import it.xtreamdev.gflbe.security.JwtTokenUtil;
-import it.xtreamdev.gflbe.security.UserPrincipal;
+import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +26,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private final UserRepository userRepository;
 
@@ -49,10 +47,8 @@ public class UserService implements UserDetailsService {
         return AccessTokenDto.builder().accessToken(token).build();
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        User user = this.userRepository.findByUsername(s).orElseThrow(() -> new UsernameNotFoundException(s));
-        return new UserPrincipal(user);
+    public User findByUsername(String username) throws UsernameNotFoundException {
+        return this.userRepository.findByUsername(username).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Username not found"));
     }
 
     public Long countEditors() {
@@ -115,7 +111,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User currentUserAuthentication() {
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        JwtUserPrincipal userPrincipal = (JwtUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userPrincipal.getUser();
     }
 }

@@ -24,10 +24,9 @@ public class JwtTokenUtil {
 
     public Jws<Claims> validateToken(String token) {
         try {
-            Jws<Claims> claimsJws = Jwts.parser()
+            return Jwts.parser()
                     .setSigningKey(authTokenSecret)
                     .parseClaimsJws(token);
-            return claimsJws;
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
             throw new RuntimeException("Token not valid", e);
         }

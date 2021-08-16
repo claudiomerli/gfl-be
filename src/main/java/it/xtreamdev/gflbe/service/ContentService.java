@@ -7,7 +7,7 @@ import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.repository.*;
 import it.xtreamdev.gflbe.security.JwtTokenUtil;
-import it.xtreamdev.gflbe.security.UserPrincipal;
+import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,11 +148,11 @@ public class ContentService {
         return this.contentRepository.findByEditorOrderByDeliveryDateDesc(user, pageRequest);
     }
 
-    public Content loadContentByIdAndUser(Integer contentId, UserPrincipal userPrincipal) {
+    public Content loadContentByIdAndUser(Integer contentId, JwtUserPrincipal userPrincipal) {
         return this.contentRepository.findByIdAndEditor(contentId, userPrincipal.getUser()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Cannot access to content"));
     }
 
-    public void update(Integer contentId, UserPrincipal principal, Content content) {
+    public void update(Integer contentId, JwtUserPrincipal principal, Content content) {
         Content contentToUpdate = this.loadContentByIdAndUser(contentId, principal);
         boolean statusUpdated = !contentToUpdate.getContentStatus().equals(content.getContentStatus());
 
