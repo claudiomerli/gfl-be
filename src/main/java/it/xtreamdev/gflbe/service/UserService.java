@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.AccessTokenDto;
+import it.xtreamdev.gflbe.dto.SaveEditorDTO;
 import it.xtreamdev.gflbe.dto.SigninDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.User;
@@ -76,12 +77,24 @@ public class UserService {
         });
     }
 
-    public User createEditor(User user) {
+    public void createEditor(SaveEditorDTO editor) {
+        this.userRepository.findByUsername(editor.getUsername()).ifPresent((user) -> {
+            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Username already exists");
+        });
 
-        user.setRole(RoleName.EDITOR);
-        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        User user = User
+                .builder()
+                .username(editor.getUsername())
+                .fullname(editor.getFullname())
+                .email(editor.getEmail())
+                .mobilePhone(editor.getMobilephone())
+                .remuneration(editor.getRemuneration())
+                .level(editor.getLevel())
+                .role(RoleName.EDITOR)
+                .password(this.passwordEncoder.encode(editor.getPassword()))
+                .build();
 
-        return this.userRepository.save(user);
+        this.userRepository.save(user);
     }
 
     public User updateEditor(Integer id, User userUpdated) {

@@ -61,12 +61,12 @@ public class AdminRestController {
     }
 
 
-    @PostMapping("editors/create")
-    public ResponseEntity<Void> createEditor(@Valid @RequestBody User editor) {
-        this.userService.validateCreateEditor(editor);
-        this.userService.createEditor(editor);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+//    @PostMapping("editors/create")
+//    public ResponseEntity<Void> createEditor(@Valid @RequestBody User editor) {
+//        this.userService.validateCreateEditor(editor);
+//        this.userService.createEditor(editor);
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//    }
 
     @DeleteMapping("editors/{id}/delete")
     public ResponseEntity<Void> deleteEditor(@PathVariable Integer id) {
