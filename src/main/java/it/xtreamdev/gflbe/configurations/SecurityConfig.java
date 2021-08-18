@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().disable()
                 .authorizeRequests(expressionInterceptUrlRegistry -> expressionInterceptUrlRegistry
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                        .antMatchers("/api/auth/**").permitAll()
+                        .antMatchers("/api/auth/**").permitAll()
 //                        .antMatchers("/api/customer/**").permitAll()
 //                        .antMatchers("/api/admin/**").hasAuthority("ADMIN")
 //                        .antMatchers("/api/editor/**").hasAuthority("EDITOR")
