@@ -47,19 +47,6 @@ public class AdminRestController {
         return ResponseEntity.ok(adminStatusDTO);
     }
 
-    @GetMapping("editors")
-    public ResponseEntity<Page<User>> findEditors(
-            @RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy,
-            @RequestParam(value = "sortDirection", required = false, defaultValue = "ASC") String sortDirection
-    ) {
-
-        Page<User> result = this.userService
-                .findEditors(
-                        PageRequest.of(0, Integer.MAX_VALUE, Direction.fromString(sortDirection), sortBy.split(",")));
-
-        return ResponseEntity.ok(result);
-    }
-
 
 //    @PostMapping("editors/create")
 //    public ResponseEntity<Void> createEditor(@Valid @RequestBody User editor) {
@@ -68,22 +55,22 @@ public class AdminRestController {
 //        return ResponseEntity.status(HttpStatus.CREATED).build();
 //    }
 
-    @DeleteMapping("editors/{id}/delete")
-    public ResponseEntity<Void> deleteEditor(@PathVariable Integer id) {
-        this.userService.delete(id);
-        return ResponseEntity.ok().build();
-    }
+//    @DeleteMapping("editors/{id}/delete")
+//    public ResponseEntity<Void> deleteEditor(@PathVariable Integer id) {
+//        this.userService.delete(id);
+//        return ResponseEntity.ok().build();
+//    }
 
-    @GetMapping("editors/{id}/edit")
-    public ResponseEntity<User> editEditor(@PathVariable Integer id) {
-        User result = this.userService.findById(id);
-        return ResponseEntity.ok(result);
-    }
+//    @GetMapping("editors/{id}/edit")
+//    public ResponseEntity<User> editEditor(@PathVariable Integer id) {
+//        User result = this.userService.findById(id);
+//        return ResponseEntity.ok(result);
+//    }
 
-    @PutMapping("editors/{id}/edit")
-    public ResponseEntity<User> editEditor(@PathVariable Integer id, @RequestBody User user) {
-        return ResponseEntity.ok(this.userService.updateEditor(id, user));
-    }
+//    @PutMapping("editors/{id}/edit")
+//    public ResponseEntity<User> editEditor(@PathVariable Integer id, @RequestBody User user) {
+//        return ResponseEntity.ok(this.userService.updateEditor(id, user));
+//    }
 
     @GetMapping("customers")
     public ResponseEntity<Page<Customer>> findCustomers(

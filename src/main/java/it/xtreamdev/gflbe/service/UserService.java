@@ -1,7 +1,8 @@
 package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.AccessTokenDto;
-import it.xtreamdev.gflbe.dto.SaveEditorDTO;
+import it.xtreamdev.gflbe.dto.editor.EditEditorDTO;
+import it.xtreamdev.gflbe.dto.editor.SaveEditorDTO;
 import it.xtreamdev.gflbe.dto.SigninDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.User;
@@ -23,6 +24,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -60,8 +64,25 @@ public class UserService {
         return this.userRepository.findByRole(RoleName.EDITOR);
     }
 
-    public Page<User> findEditors(Pageable pageable) {
-        return this.userRepository.findByRole(RoleName.EDITOR, pageable);
+    public Page<User> findEditors(String gloabalSearch, Pageable pageable) {
+        return this.userRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(criteriaBuilder.equal(root.get("role"), RoleName.EDITOR));
+
+            if (StringUtils.isNotBlank(gloabalSearch)) {
+                Arrays.asList(gloabalSearch.split(" ")).forEach(searchPortion -> {
+                    predicates.add(criteriaBuilder.or(
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get("fullname")), "%" + searchPortion.toUpperCase() + "%"),
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get("email")), "%" + searchPortion.toUpperCase() + "%"),
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get("username")), "%" + searchPortion.toUpperCase() + "%"),
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get("mobilePhone")), "%" + searchPortion.toUpperCase() + "%")
+                    ));
+                });
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        }, pageable);
     }
 
     @Deprecated
@@ -87,7 +108,7 @@ public class UserService {
                 .username(editor.getUsername())
                 .fullname(editor.getFullname())
                 .email(editor.getEmail())
-                .mobilePhone(editor.getMobilephone())
+                .mobilePhone(editor.getMobilePhone())
                 .remuneration(editor.getRemuneration())
                 .level(editor.getLevel())
                 .role(RoleName.EDITOR)
@@ -97,7 +118,7 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    public User updateEditor(Integer id, User userUpdated) {
+    public User updateEditor(Integer id, EditEditorDTO userUpdated) {
         User userFromDB = this.userRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found"));
 
@@ -114,13 +135,17 @@ public class UserService {
         return this.userRepository.save(userFromDB);
     }
 
-    public void delete(Integer id) {
-        this.userRepository.deleteById(id);
+    public void deleteEditor(Integer id) {
+        this.userRepository.deleteByIdAndRole(id, RoleName.EDITOR);
     }
 
     public User findById(Integer id) {
-        return this.userRepository.findById(id)
+        User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found"));
+
+        user.setPassword(null);
+
+        return user;
     }
 
     public User currentUserAuthentication() {
