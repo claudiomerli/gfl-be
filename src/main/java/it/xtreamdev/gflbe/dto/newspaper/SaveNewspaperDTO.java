@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.model;
+package it.xtreamdev.gflbe.dto.newspaper;
 
 import it.xtreamdev.gflbe.dto.enumerations.NewspaperTopic;
 import lombok.*;
@@ -7,17 +7,10 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-public class Newspaper {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private Integer id;
+public class SaveNewspaperDTO {
 
     private String name;
 
@@ -29,7 +22,6 @@ public class Newspaper {
 
     private String regionalGeolocalization;
 
-    @Enumerated(EnumType.STRING)
     private NewspaperTopic topic;
 
 }

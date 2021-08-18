@@ -106,21 +106,21 @@ public class AdminRestController {
         return ResponseEntity.ok(this.customerService.updateCustomer(id, saveCustomerDTO));
     }
 
-    @GetMapping("newspapers")
-    public ResponseEntity<List<Newspaper>> newspaperList() {
-        return ResponseEntity.ok(this.newspaperService.findAll());
-    }
-
-    @PostMapping("newspapers")
-    public ResponseEntity<Void> newspaperSave(@RequestBody Newspaper newspaper) {
-        this.newspaperService.save(newspaper);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @GetMapping("newspapers/{id}/delete")
-    public ResponseEntity<Void> newspaperList(@PathVariable Integer id) {
-        this.newspaperService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+//    @GetMapping("newspapers")
+//    public ResponseEntity<List<Newspaper>> newspaperList() {
+//        return ResponseEntity.ok(this.newspaperService.findAll());
+//    }
+//
+//    @PostMapping("newspapers")
+//    public ResponseEntity<Void> newspaperSave(@RequestBody Newspaper newspaper) {
+//        this.newspaperService.save(newspaper);
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//    }
+//
+//    @GetMapping("newspapers/{id}/delete")
+//    public ResponseEntity<Void> newspaperList(@PathVariable Integer id) {
+//        this.newspaperService.delete(id);
+//        return ResponseEntity.status(HttpStatus.OK).build();
+//    }
 
 }

@@ -46,7 +46,7 @@ public class ContentRestController {
         ResponseContentDTO contents = ResponseContentDTO.builder()
                 .customers(this.customerService.findAll())
                 .editors(this.userService.findEditors())
-                .newspapers(this.newspaperService.findAll())
+                .newspapers(this.newspaperService.findAll(""))
                 .contents(this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)))
                 .build();
 
