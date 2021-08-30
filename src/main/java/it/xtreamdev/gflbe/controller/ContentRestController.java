@@ -7,7 +7,6 @@ import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import it.xtreamdev.gflbe.service.ContentService;
 import it.xtreamdev.gflbe.service.CustomerService;
-import it.xtreamdev.gflbe.service.NewspaperService;
 import it.xtreamdev.gflbe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,9 +31,6 @@ public class ContentRestController {
     @Autowired
     private CustomerService customerService;
 
-    @Autowired
-    private NewspaperService newspaperService;
-
     @GetMapping("admin/contents")
     public ResponseEntity<ResponseContentDTO> findAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -46,7 +42,6 @@ public class ContentRestController {
         ResponseContentDTO contents = ResponseContentDTO.builder()
                 .customers(this.customerService.findAll())
                 .editors(this.userService.findEditors())
-                .newspapers(this.newspaperService.findAll(""))
                 .contents(this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)))
                 .build();
 
