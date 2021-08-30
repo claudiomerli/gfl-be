@@ -6,6 +6,7 @@ import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Customer;
 import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.repository.CustomerRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +65,13 @@ public class ProjectService {
                 customerRepository.findById(updateProjectDTO.getCustomerId())
                         .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
         );
+        return projectRepository.save(project);
+    }
+
+    public Project changeStatus(Integer id, ProjectStatus status) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
+        project.setStatus(status);
         return projectRepository.save(project);
     }
 }

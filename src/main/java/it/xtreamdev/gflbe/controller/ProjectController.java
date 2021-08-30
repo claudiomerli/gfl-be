@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.ChangeStatusProjectDTO;
 import it.xtreamdev.gflbe.dto.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.SearchProjectDTO;
 import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController
@@ -52,5 +55,12 @@ public class ProjectController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         projectRepository.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("{id}/change-status")
+    public ResponseEntity<Project> changeStatus(@PathVariable Integer id, @Valid @RequestBody ChangeStatusProjectDTO changeStatusProjectDTO) {
+        return ResponseEntity.ok(
+                projectService.changeStatus(id, changeStatusProjectDTO.getStatus())
+        );
     }
 }
