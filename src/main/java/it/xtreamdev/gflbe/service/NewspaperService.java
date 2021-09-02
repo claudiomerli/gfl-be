@@ -5,6 +5,8 @@ import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,22 +22,22 @@ public class NewspaperService {
     @Autowired
     private NewspaperRepository newspaperRepository;
 
-    public List<Newspaper> findAll(String globalSearch) {
+    public Page<Newspaper> findAll(String globalSearch, PageRequest pageRequest) {
         return this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.isNotBlank(globalSearch)) {
-                Arrays.asList(globalSearch.split(" ")).forEach(searchPortion -> {
-                    predicates.add(criteriaBuilder.or(
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchPortion.toUpperCase() + "%"),
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("email")), "%" + searchPortion.toUpperCase() + "%"),
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("regionalGeolocalization")), "%" + searchPortion.toUpperCase() + "%")
-                    ));
-                });
+                Arrays.asList(globalSearch.split(" ")).forEach(searchPortion ->
+                        predicates.add(criteriaBuilder.or(
+                                criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchPortion.toUpperCase() + "%"),
+                                criteriaBuilder.like(criteriaBuilder.upper(root.get("email")), "%" + searchPortion.toUpperCase() + "%"),
+                                criteriaBuilder.like(criteriaBuilder.upper(root.get("regionalGeolocalization")), "%" + searchPortion.toUpperCase() + "%")
+                        ))
+                );
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        });
+        }, pageRequest);
     }
 
     public void save(SaveNewspaperDTO newspaper) {
