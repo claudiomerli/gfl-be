@@ -198,15 +198,21 @@ public class ContentService {
             wordMLPackage
                     .getMainDocumentPart()
                     .getContent()
-                    .addAll(XHTMLImporter.convert(content
-                            .getBody()
-                            .replace("&nbsp;", " ")
-                            .replace("&ograve;", "ò")
-                            .replace("&agrave;", "à")
-                            .replace("&eacute;", "é")
-                            .replace("&egrave;", "è")
-                            .replace("&ugrave;", "ù")
-                            .replace("&igrave;", "ì"), null));
+                    .addAll(XHTMLImporter.convert(
+                            "<div>" + content
+                                    .getBody()
+                                    .replace("&nbsp;", " ")
+                                    .replace("&ograve;", "ò")
+                                    .replace("&agrave;", "à")
+                                    .replace("&eacute;", "é")
+                                    .replace("&egrave;", "è")
+                                    .replace("&ugrave;", "ù")
+                                    .replace("&igrave;", "ì")
+                                    .replace("&Egrave;", "È")
+                                    .replace("&Eacute;", "É")
+                                    .replace("&rsquo;", "’")
+                                    .replace("&lsquo;", "‘") +
+                                    "</div>", null));
 
             wordMLPackage.save(baos);
             this.ftpService.storeFile(String.format("%s.docx", content.getTitle()), content.getProject().getCustomer().getName(), baos);
