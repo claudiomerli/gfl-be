@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,25 +43,6 @@ public class CustomerService {
         return this.customerRepository.findAll(pageable);
     }
 
-    public List<Customer> search(String globalSearch) {
-        return this.customerRepository.findAll((root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            Optional.ofNullable(globalSearch)
-                    .filter(Strings::isNotBlank)
-                    .ifPresent(globalSearchValue ->
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + globalSearchValue.toUpperCase() + "%"))
-                    );
-            Optional.ofNullable(globalSearch)
-                    .filter(Strings::isNotBlank)
-                    .ifPresent(customerIdValue -> {
-                        Join<Customer, ContentRules> customerJoin = root.join("contentRules");
-                        predicates.add(criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("title")), "%" + globalSearch.toUpperCase() + "%"));
-                    });
-
-            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
-        });
-    }
 
     public Page<Customer> search(String globalSearch, PageRequest pageRequest) {
         return this.customerRepository.findAll((root, query, criteriaBuilder) -> {
@@ -70,30 +52,25 @@ public class CustomerService {
                     .ifPresent(globalSearchValue ->
                             predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + globalSearchValue.toUpperCase() + "%"))
                     );
-            Optional.ofNullable(globalSearch)
-                    .ifPresent(customerIdValue -> {
-                        Join<Customer, ContentRules> customerJoin = root.join("content-rules");
-                        predicates.add(criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("title")), "%" + globalSearch.toUpperCase() + "%"));
-                    });
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         }, pageRequest);
     }
 
-    public Customer save(SaveCustomerDTO saveCustomerDTO) {
-        ContentRules contentRules = this.contentRulesRepository.save(saveCustomerDTO.getContentRules());
-        Customer customer = saveCustomerDTO.getCustomer();
-        customer.setContentRules(contentRules);
-        return this.customerRepository.save(customer);
-    }
-
+    @Transactional
     public Customer save(SaveCustomerRestDTO saveCustomerRestDTO) {
         return this.customerRepository.save(
                 Customer.builder()
                         .name(saveCustomerRestDTO.getName())
                         .contentRules(
-                                this.contentRulesRepository.findById(saveCustomerRestDTO.getContentRulesId())
-                                        .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "ContentRules not found"))
+                                ContentRules
+                                        .builder()
+                                        .body(saveCustomerRestDTO.getContentRules().getBody())
+                                        .linkText(saveCustomerRestDTO.getContentRules().getLinkText())
+                                        .linkUrl(saveCustomerRestDTO.getContentRules().getLinkUrl())
+                                        .maxCharacterBodyLength(saveCustomerRestDTO.getContentRules().getMaxCharacterBodyLength())
+                                        .title(saveCustomerRestDTO.getContentRules().getTitle())
+                                        .build()
                         )
                         .build()
         );
@@ -133,9 +110,14 @@ public class CustomerService {
         Customer customer = this.customerRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer not found"));
         customer.setName(saveCustomerRestDTO.getName());
-        customer.setContentRules(
-                this.contentRulesRepository.findById(saveCustomerRestDTO.getContentRulesId())
-                        .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "ContentRules not found"))
+        customer.setContentRules(ContentRules
+                .builder()
+                .body(saveCustomerRestDTO.getContentRules().getBody())
+                .linkText(saveCustomerRestDTO.getContentRules().getLinkText())
+                .linkUrl(saveCustomerRestDTO.getContentRules().getLinkUrl())
+                .maxCharacterBodyLength(saveCustomerRestDTO.getContentRules().getMaxCharacterBodyLength())
+                .title(saveCustomerRestDTO.getContentRules().getTitle())
+                .build()
         );
         return this.customerRepository.save(customer);
     }

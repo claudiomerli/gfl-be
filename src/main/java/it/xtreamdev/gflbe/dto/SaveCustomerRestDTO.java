@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SaveCustomerRestDTO {
     private String name;
-    private Integer contentRulesId;
+    private SaveContentRulesDTO contentRules;
 }

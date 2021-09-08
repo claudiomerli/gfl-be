@@ -62,9 +62,12 @@ public class Content {
     private Project project;
 
     @ManyToOne
+    private Customer customer;
+
+    @ManyToOne
     private Newspaper newspaper;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private ContentRules contentRules;
 
     @Transient

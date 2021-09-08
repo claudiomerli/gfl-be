@@ -20,7 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class ContentRestController {
+@RequestMapping("api/content")
+public class ContentController {
 
     @Autowired
     private ContentService contentService;
@@ -31,30 +32,24 @@ public class ContentRestController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping("admin/contents")
-    public ResponseEntity<ResponseContentDTO> findAll(
+    @GetMapping
+    public ResponseEntity<Page<Content>> search(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @ModelAttribute("searchContentDto") SearchContentDTO searchContentDTO) {
+            SearchContentDTO searchContentDTO) {
 
-        ResponseContentDTO contents = ResponseContentDTO.builder()
-                .customers(this.customerService.findAll())
-                .editors(this.userService.findEditors())
-                .contents(this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)))
-                .build();
-
-        return ResponseEntity.ok(contents);
+        return ResponseEntity.ok(this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
     }
 
-    @PostMapping("admin/contents/create")
+    @PostMapping
     public ResponseEntity<Void> create(@RequestBody SaveContentDTO saveContentDTO) {
         this.contentService.save(saveContentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("admin/contents/{contentId}/edit")
+    @PutMapping("{contentId}")
     public ResponseEntity<Void> editContent(@PathVariable Integer contentId,
                                             @RequestBody SaveContentDTO saveContentDTO) {
 
@@ -62,13 +57,13 @@ public class ContentRestController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("admin/contents/{contentId}/delete")
+    @DeleteMapping("{contentId}")
     public ResponseEntity<Void> deleteContent(@PathVariable Integer contentId) {
         this.contentService.delete(contentId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("admin/contents/{contentId}/exportDocx")
+    @GetMapping("{contentId}/exportDocx")
     public ResponseEntity<byte[]> exportDocx(
             @PathVariable Integer contentId
     ) {
@@ -78,7 +73,7 @@ public class ContentRestController {
                 .body(this.contentService.exportDocx(contentId));
     }
 
-    @GetMapping("admin/contents/{contentId}/exportPdf")
+    @GetMapping("{contentId}/exportPdf")
     public ResponseEntity<byte[]> exportPdf(
             @PathVariable Integer contentId
     ) {

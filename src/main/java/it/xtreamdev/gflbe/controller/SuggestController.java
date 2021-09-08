@@ -20,7 +20,6 @@ public class SuggestController {
 
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody RequestSuggest requestSuggest){
-
         suggestService.saveKeyWord(requestSuggest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
