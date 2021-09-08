@@ -22,7 +22,7 @@ public class Customer {
     @NotBlank
     private String name;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private ContentRules contentRules;
 
 }
