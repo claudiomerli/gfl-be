@@ -152,4 +152,8 @@ public class UserService {
         JwtUserPrincipal userPrincipal = (JwtUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userPrincipal.getUser();
     }
+
+    public User userInfo() {
+        return ((JwtUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+    }
 }

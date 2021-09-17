@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import it.xtreamdev.gflbe.model.entitylisteners.ContentEntityListener;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import lombok.*;
@@ -44,12 +45,15 @@ public class Content {
     private String adminNotes;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate deliveryDate;
 
     @CreatedDate
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDate;
 
     @LastModifiedDate
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate lastModifiedDate;
 
     @Enumerated(EnumType.STRING)

@@ -5,6 +5,7 @@ import it.xtreamdev.gflbe.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenUtil {
@@ -34,9 +35,9 @@ public class JwtTokenUtil {
 
     private static final String customerKey = "6SCSj39TF74qAgL4SYM2BnLJkuLZeyBg";
 
-    public String createJwtCustomerCodeFromContentId(Integer id) {
+    public String createJwtCustomerCodeFromContentId() {
         return Jwts.builder()
-                .setSubject(Integer.toString(id))
+                .setSubject(UUID.randomUUID().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + (3154000000L * 1000)))
                 .signWith(SignatureAlgorithm.HS256, customerKey)

@@ -26,12 +26,6 @@ public class ContentController {
     @Autowired
     private ContentService contentService;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CustomerService customerService;
-
     @GetMapping
     public ResponseEntity<Page<Content>> search(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -43,6 +37,11 @@ public class ContentController {
         return ResponseEntity.ok(this.contentService.findAll(searchContentDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
     }
 
+    @GetMapping("{contentId}")
+    public ResponseEntity<Content> findById(@PathVariable Integer contentId) {
+        return ResponseEntity.ok(this.contentService.findById(contentId));
+    }
+
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody SaveContentDTO saveContentDTO) {
         this.contentService.save(saveContentDTO);
@@ -50,8 +49,8 @@ public class ContentController {
     }
 
     @PutMapping("{contentId}")
-    public ResponseEntity<Void> editContent(@PathVariable Integer contentId,
-                                            @RequestBody SaveContentDTO saveContentDTO) {
+    public ResponseEntity<Void> update(@PathVariable Integer contentId,
+                                       @RequestBody SaveContentDTO saveContentDTO) {
 
         this.contentService.update(contentId, saveContentDTO);
         return ResponseEntity.ok().build();
@@ -60,6 +59,12 @@ public class ContentController {
     @DeleteMapping("{contentId}")
     public ResponseEntity<Void> deleteContent(@PathVariable Integer contentId) {
         this.contentService.delete(contentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("{contentId}/deliver")
+    public ResponseEntity<Void> deliverContent(@PathVariable Integer contentId) {
+        this.contentService.deliverContent(contentId);
         return ResponseEntity.ok().build();
     }
 
@@ -83,39 +88,6 @@ public class ContentController {
                 .body(this.contentService.exportPdf(contentId));
     }
 
-    @GetMapping("editor/contents")
-    public ResponseEntity<Page<Content>> editorContents(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
-            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @RequestParam(value = "globalSearch", required = false) String globalSearch
-    ) {
-
-        return ResponseEntity.ok(
-                this.contentService.loadCurrentEditorContents(PageRequest.of(page, Integer.MAX_VALUE, Sort.Direction.fromString(sortDirection), sortBy))
-        );
-    }
-
-    @GetMapping("editor/contents/{contentId}/edit")
-    public ResponseEntity<Content> editorEditContent(
-            @PathVariable Integer contentId,
-            @AuthenticationPrincipal JwtUserPrincipal principal
-    ) {
-        return ResponseEntity.ok(
-                this.contentService.loadContentByIdAndUser(contentId, principal)
-        );
-    }
-
-    @PutMapping("editor/contents/{contentId}/edit")
-    public ResponseEntity<Void> editorEditContent(
-            @PathVariable Integer contentId,
-            @AuthenticationPrincipal JwtUserPrincipal principal,
-            @RequestBody Content content
-    ) {
-        this.contentService.update(contentId, principal, content);
-        return ResponseEntity.ok().build();
-    }
 
     @GetMapping("customer/content/{contentId}")
     public ResponseEntity<Content> viewContentCustomer(

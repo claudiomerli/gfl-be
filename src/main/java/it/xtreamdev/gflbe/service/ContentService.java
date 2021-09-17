@@ -5,9 +5,11 @@ import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
+import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import it.xtreamdev.gflbe.security.JwtTokenUtil;
 import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +19,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.Transient;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class ContentService {
 
     @Autowired
@@ -37,6 +43,8 @@ public class ContentService {
     private ContentRulesRepository contentRulesRepository;
     @Autowired
     private NewspaperRepository newspaperRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
     private UserService userService;
@@ -56,6 +64,20 @@ public class ContentService {
             SearchContentDTO searchContentDTO,
             PageRequest pageRequest
     ) {
+        User user = this.userService.userInfo();
+        if (user.getRole() == RoleName.ADMIN) {
+            return this.findAllAdmin(searchContentDTO, pageRequest);
+        }
+
+        if (user.getRole() == RoleName.EDITOR) {
+            return this.findAllEditor(user, searchContentDTO, pageRequest);
+        }
+
+        throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Role not found");
+    }
+
+    private Page<Content> findAllAdmin(SearchContentDTO searchContentDTO,
+                                       PageRequest pageRequest) {
         return this.contentRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -63,121 +85,165 @@ public class ContentService {
             Join<Content, User> editorJoin = root.join("editor");
             Join<Content, Newspaper> newspaperJoin = root.join("newspaper");
 
-            Optional.ofNullable(searchContentDTO.getGlobalSearch()).ifPresent(globalSearchValue -> predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("title")), "%" + globalSearchValue.toUpperCase() + "%")));
             Optional.ofNullable(searchContentDTO.getCustomerId()).ifPresent(customerIdValue -> predicates.add(criteriaBuilder.equal(customerJoin.get("id"), customerIdValue)));
             Optional.ofNullable(searchContentDTO.getEditorId()).ifPresent(editorIdValue -> predicates.add(criteriaBuilder.equal(editorJoin.get("id"), editorIdValue)));
             Optional.ofNullable(searchContentDTO.getNewspaperId()).ifPresent(newspaperIdValue -> predicates.add(criteriaBuilder.equal(newspaperJoin.get("id"), newspaperIdValue)));
-            Optional.ofNullable(searchContentDTO.getStatus()).ifPresent(contentStatusValue -> predicates.add(criteriaBuilder.equal(root.get("contentStatus"), contentStatusValue)));
 
-            Optional.ofNullable(searchContentDTO.getCreatedDateFrom()).ifPresent(date -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdDate"), date)));
-            Optional.ofNullable(searchContentDTO.getCreatedDateTo()).ifPresent(date -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdDate"), date)));
-            Optional.ofNullable(searchContentDTO.getDeliveryDateFrom()).ifPresent(date -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("deliveryDate"), date)));
-            Optional.ofNullable(searchContentDTO.getDeliveryDateTo()).ifPresent(date -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("deliveryDate"), date)));
-
-            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+            return getPredicateForCommonParameter(searchContentDTO, root, criteriaBuilder, predicates);
         }, pageRequest);
     }
 
+    private Predicate getPredicateForCommonParameter(SearchContentDTO searchContentDTO, Root<Content> root, CriteriaBuilder criteriaBuilder, List<Predicate> predicates) {
+        Optional.ofNullable(searchContentDTO.getStatus()).ifPresent(contentStatusValue -> predicates.add(criteriaBuilder.equal(root.get("contentStatus"), contentStatusValue)));
+        Optional.ofNullable(searchContentDTO.getGlobalSearch()).ifPresent(globalSearchValue -> predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("title")), "%" + globalSearchValue.toUpperCase() + "%")));
+        Optional.ofNullable(searchContentDTO.getCreatedDateFrom()).ifPresent(date -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdDate"), date)));
+        Optional.ofNullable(searchContentDTO.getCreatedDateTo()).ifPresent(date -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdDate"), date)));
+        Optional.ofNullable(searchContentDTO.getDeliveryDateFrom()).ifPresent(date -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("deliveryDate"), date)));
+        Optional.ofNullable(searchContentDTO.getDeliveryDateTo()).ifPresent(date -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("deliveryDate"), date)));
+
+        return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+    }
+
+    private Page<Content> findAllEditor(User user, SearchContentDTO searchContentDTO, PageRequest pageRequest) {
+        return this.contentRepository.findAll((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            Join<Content, User> editorJoin = root.join("editor");
+            predicates.add(criteriaBuilder.equal(editorJoin.get("id"), user.getId()));
+
+            return getPredicateForCommonParameter(searchContentDTO, root, criteriaBuilder, predicates);
+        }, pageRequest);
+    }
+
+    @Transient
     public void save(SaveContentDTO saveContentDTO) {
-        Content content = saveContentDTO.getContent();
+        Content content = Content.builder().build();
         content.setContentStatus(ContentStatus.WORKING);
 
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
-        Project project = this.projectRepository.findById(saveContentDTO.getProjectId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
+        Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
+
+        content.setTitle(saveContentDTO.getTitle());
+        content.setLinkText(saveContentDTO.getLinkText());
+        content.setLinkUrl(saveContentDTO.getLinkUrl());
+        content.setBody(saveContentDTO.getBody());
+        content.setDeliveryDate(saveContentDTO.getDeliveryDate());
 
         content.setEditor(editor);
-        content.setProject(project);
         content.setNewspaper(newspaper);
-
-        this.contentRulesRepository.save(content.getContentRules());
-        this.contentRepository.save(content);
-        content.setCustomerToken(this.jwtTokenUtil.createJwtCustomerCodeFromContentId(content.getId()));
+        content.setCustomer(customer);
+        content.setCustomerToken(this.jwtTokenUtil.createJwtCustomerCodeFromContentId());
+        content.setContentRules(ContentRules.builder()
+                .maxCharacterBodyLength(saveContentDTO.getContentRules().getMaxCharacterBodyLength())
+                .title(saveContentDTO.getContentRules().getTitle())
+                .body(saveContentDTO.getContentRules().getBody())
+                .linkText(saveContentDTO.getContentRules().getLinkText())
+                .linkUrl(saveContentDTO.getContentRules().getLinkUrl())
+                .build()
+        );
         this.contentRepository.save(content);
         this.contentMailService.sendCreationMail(content);
     }
 
-    public SaveContentDTO loadSaveContentDto(Integer contentId) {
-        Content content = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
-        return SaveContentDTO
-                .builder()
-                .content(content)
-                .newspaperId(content.getNewspaper().getId())
-                .projectId(content.getProject().getId())
-                .editorId(content.getEditor().getId())
-                .build();
+    public void update(Integer contentId, SaveContentDTO saveContentDTO) {
+        User user = this.userService.userInfo();
+        if (user.getRole() == RoleName.ADMIN) {
+            this.updateForAdmin(contentId, saveContentDTO);
+        } else if (user.getRole() == RoleName.EDITOR) {
+            this.updateForEditor(user, contentId, saveContentDTO);
+        } else {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Role not found");
+        }
     }
 
-    public void update(Integer contentId, SaveContentDTO saveContentDTO) {
+    private void updateForAdmin(Integer contentId, SaveContentDTO saveContentDTO) {
         Content contentToUpdate = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
-        Content contentUpdated = saveContentDTO.getContent();
-        boolean statusUpdated = !contentUpdated.getContentStatus().equals(contentToUpdate.getContentStatus());
+        ContentStatus previousContentStatus = contentToUpdate.getContentStatus();
 
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
-        Project project = this.projectRepository.findById(saveContentDTO.getProjectId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
+        Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
 
-        contentToUpdate.setContentRules(contentUpdated.getContentRules());
-        contentToUpdate.setContentStatus(contentUpdated.getContentStatus());
-        contentToUpdate.setBody(contentUpdated.getBody());
-        contentToUpdate.setTitle(contentUpdated.getTitle());
-        contentToUpdate.setLinkText(contentUpdated.getLinkText());
-        contentToUpdate.setLinkUrl(contentUpdated.getLinkUrl());
-        contentToUpdate.setDeliveryDate(contentUpdated.getDeliveryDate());
-        contentToUpdate.setScore(contentUpdated.getScore());
-        contentToUpdate.setAdminNotes(contentUpdated.getAdminNotes());
+        contentToUpdate.getContentRules().setBody(saveContentDTO.getContentRules().getBody());
+        contentToUpdate.getContentRules().setTitle(saveContentDTO.getContentRules().getTitle());
+        contentToUpdate.getContentRules().setLinkText(saveContentDTO.getContentRules().getLinkText());
+        contentToUpdate.getContentRules().setLinkUrl(saveContentDTO.getContentRules().getLinkUrl());
+        contentToUpdate.getContentRules().setMaxCharacterBodyLength(saveContentDTO.getContentRules().getMaxCharacterBodyLength());
+
+
+        contentToUpdate.setContentStatus(saveContentDTO.getContentStatus());
+        contentToUpdate.setBody(saveContentDTO.getBody());
+        contentToUpdate.setTitle(saveContentDTO.getTitle());
+        contentToUpdate.setLinkText(saveContentDTO.getLinkText());
+        contentToUpdate.setLinkUrl(saveContentDTO.getLinkUrl());
+        contentToUpdate.setDeliveryDate(saveContentDTO.getDeliveryDate());
+        contentToUpdate.setScore(saveContentDTO.getScore());
+        contentToUpdate.setAdminNotes(saveContentDTO.getAdminNotes());
 
         contentToUpdate.setEditor(editor);
-        contentToUpdate.setProject(project);
         contentToUpdate.setNewspaper(newspaper);
+        contentToUpdate.setCustomer(customer);
 
         this.contentRulesRepository.save(contentToUpdate.getContentRules());
         this.contentRepository.save(contentToUpdate);
 
-        if (statusUpdated) {
+        if (!previousContentStatus.equals(saveContentDTO.getContentStatus())) {
             this.contentMailService.sendUpdateMail(contentToUpdate);
         }
     }
+
+    private void updateForEditor(User editor, Integer contentId, SaveContentDTO saveContentDTO) {
+        Content contentToUpdate = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
+        if (!contentToUpdate.getEditor().getId().equals(editor.getId())) {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Editor not associated to content");
+        }
+
+        if (contentToUpdate.getContentStatus() != ContentStatus.WORKING) {
+            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "The content is not in WORKING status");
+        }
+
+        contentToUpdate.setBody(saveContentDTO.getBody());
+        contentToUpdate.setTitle(saveContentDTO.getTitle());
+        contentToUpdate.setLinkText(saveContentDTO.getLinkText());
+        contentToUpdate.setLinkUrl(saveContentDTO.getLinkUrl());
+
+        this.contentRepository.save(contentToUpdate);
+    }
+
 
     public void delete(Integer contentId) {
         this.contentRepository.deleteById(contentId);
     }
 
-    public Page<Content> loadCurrentEditorContents(PageRequest pageRequest) {
-        User user = this.userService.currentUserAuthentication();
-        return this.contentRepository.findByEditorOrderByDeliveryDateDesc(user, pageRequest);
-    }
+    public Content findById(Integer id) {
+        User user = this.userService.userInfo();
+        Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
 
-    public Content loadContentByIdAndUser(Integer contentId, JwtUserPrincipal userPrincipal) {
-        return this.contentRepository.findByIdAndEditor(contentId, userPrincipal.getUser()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Cannot access to content"));
-    }
-
-    public void update(Integer contentId, JwtUserPrincipal principal, Content content) {
-        Content contentToUpdate = this.loadContentByIdAndUser(contentId, principal);
-        boolean statusUpdated = !contentToUpdate.getContentStatus().equals(content.getContentStatus());
-
-        contentToUpdate.setTitle(content.getTitle());
-        contentToUpdate.setLinkText(content.getLinkText());
-        contentToUpdate.setLinkUrl(content.getLinkUrl());
-        contentToUpdate.setBody(content.getBody());
-
-        if (content.getContentStatus() != ContentStatus.WORKING && content.getContentStatus() != ContentStatus.DELIVERED) {
-            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Status not valid");
-        } else {
-            contentToUpdate.setContentStatus(content.getContentStatus());
+        if (user.getRole() == RoleName.EDITOR && !user.getId().equals(content.getEditor().getId())) {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Editor not associated to content");
         }
 
-        this.contentMailService.sendCreationMail(content);
-        this.contentRepository.save(contentToUpdate);
-
-        if (statusUpdated) {
-            this.contentMailService.sendUpdateMail(contentToUpdate);
-        }
+        return content;
     }
 
     public Content loadByIdAndToken(Integer id, String token) {
         this.jwtTokenUtil.verifyCustomerJwt(token, id);
         return this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+    }
+
+    public void deliverContent(Integer id) {
+        User user = this.userService.userInfo();
+        Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+
+        if (user.getRole() == RoleName.EDITOR && !user.getId().equals(content.getEditor().getId())) {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Editor not associated to content");
+        }
+
+        content.setContentStatus(ContentStatus.DELIVERED);
+
+        this.contentRepository.save(content);
+        this.contentMailService.sendUpdateMail(content);
     }
 
     public void approveContent(Integer id, String token) {
@@ -215,9 +281,10 @@ public class ContentService {
                                     "</div>", null));
 
             wordMLPackage.save(baos);
-            this.ftpService.storeFile(String.format("%s.docx", content.getTitle()), content.getProject().getCustomer().getName(), baos);
+            this.ftpService.storeFile(String.format("%s.docx", content.getTitle()), content.getCustomer().getName(), baos);
             return baos.toByteArray();
         } catch (Exception e) {
+            log.error("Error exporting file", e);
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Error exporting file");
         }
     }
@@ -228,9 +295,10 @@ public class ContentService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             HtmlConverter.convertToPdf(content.getBody(), baos);
 
-            this.ftpService.storeFile(String.format("%s.pdf", content.getTitle()), content.getProject().getCustomer().getName(), baos);
+            this.ftpService.storeFile(String.format("%s.pdf", content.getTitle()), content.getCustomer().getName(), baos);
             return baos.toByteArray();
         } catch (Exception e) {
+            log.error("Error exporting file", e);
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Error exporting file");
         }
     }
