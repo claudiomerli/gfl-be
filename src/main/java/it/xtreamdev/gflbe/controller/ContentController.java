@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.CustomerNotes;
 import it.xtreamdev.gflbe.dto.ResponseContentDTO;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
@@ -89,7 +90,7 @@ public class ContentController {
     }
 
 
-    @GetMapping("customer/content/{contentId}")
+    @GetMapping("customer/{contentId}")
     public ResponseEntity<Content> viewContentCustomer(
             @PathVariable Integer contentId,
             @RequestParam("token") String token
@@ -99,7 +100,7 @@ public class ContentController {
         );
     }
 
-    @PostMapping("customer/approve/{contentId}")
+    @PutMapping("customer/{contentId}/approve")
     public ResponseEntity<Void> approveContent(
             @PathVariable Integer contentId,
             @RequestParam("token") String token
@@ -108,13 +109,13 @@ public class ContentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("customer/notes/{contentId}")
+    @PutMapping("customer/{contentId}/notes")
     public ResponseEntity<Void> saveNotes(
             @PathVariable Integer contentId,
             @RequestParam("token") String token,
-            @RequestParam("notes") String notes
+            @RequestBody CustomerNotes customerNotes
     ) {
-        this.contentService.saveNotesToContent(contentId, notes, token);
+        this.contentService.saveNotesToContent(contentId, customerNotes.getNotes(), token);
         return ResponseEntity.ok().build();
     }
 

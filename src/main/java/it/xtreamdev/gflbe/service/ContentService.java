@@ -228,8 +228,9 @@ public class ContentService {
     }
 
     public Content loadByIdAndToken(Integer id, String token) {
-        this.jwtTokenUtil.verifyCustomerJwt(token, id);
-        return this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+        Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+        this.jwtTokenUtil.verifyCustomerJwt(token, content);
+        return content;
     }
 
     public void deliverContent(Integer id) {
@@ -247,9 +248,11 @@ public class ContentService {
     }
 
     public void approveContent(Integer id, String token) {
-        this.jwtTokenUtil.verifyCustomerJwt(token, id);
         Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+        this.jwtTokenUtil.verifyCustomerJwt(token, content);
+
         content.setContentStatus(ContentStatus.APPROVED);
+
         this.contentRepository.save(content);
         this.contentMailService.sendUpdateMail(content);
     }
@@ -304,10 +307,11 @@ public class ContentService {
     }
 
     public void saveNotesToContent(Integer id, String notes, String token) {
-        this.jwtTokenUtil.verifyCustomerJwt(token, id);
-
         Content content = this.contentRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+        this.jwtTokenUtil.verifyCustomerJwt(token, content);
+
         content.setCustomerNotes(notes);
+
         this.contentRepository.save(content);
     }
 }

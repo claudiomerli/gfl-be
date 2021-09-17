@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.security;
 
 import io.jsonwebtoken.*;
+import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.model.User;
 import org.springframework.stereotype.Component;
 
@@ -44,14 +45,13 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public void verifyCustomerJwt(String jwt, Integer contentId) {
+    public void verifyCustomerJwt(String jwt, Content content) {
         try {
             Jws<Claims> claimsJws = Jwts.parser()
                     .setSigningKey(customerKey)
                     .parseClaimsJws(jwt);
-            Integer contentIdFromToken = Integer.parseInt(claimsJws.getBody().getSubject());
 
-            if (!contentIdFromToken.equals(contentId)) {
+            if (!content.getCustomerToken().equals(jwt)) {
                 throw new RuntimeException("Token not valid");
             }
 
