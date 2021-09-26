@@ -85,6 +85,8 @@ public class ContentService {
             Join<Content, User> editorJoin = root.join("editor");
             Join<Content, Newspaper> newspaperJoin = root.join("newspaper");
 
+            Optional.ofNullable(searchContentDTO.getMonthUse()).ifPresent(monthUse -> predicates.add(criteriaBuilder.equal(root.get("monthUse"), monthUse)));
+
             Optional.ofNullable(searchContentDTO.getCustomerId()).ifPresent(customerIdValue -> predicates.add(criteriaBuilder.equal(customerJoin.get("id"), customerIdValue)));
             Optional.ofNullable(searchContentDTO.getEditorId()).ifPresent(editorIdValue -> predicates.add(criteriaBuilder.equal(editorJoin.get("id"), editorIdValue)));
             Optional.ofNullable(searchContentDTO.getNewspaperId()).ifPresent(newspaperIdValue -> predicates.add(criteriaBuilder.equal(newspaperJoin.get("id"), newspaperIdValue)));
@@ -134,6 +136,7 @@ public class ContentService {
         content.setNewspaper(newspaper);
         content.setCustomer(customer);
         content.setCustomerToken(this.jwtTokenUtil.createJwtCustomerCodeFromContentId());
+        content.setMonthUse(saveContentDTO.getMonthUse());
         content.setContentRules(ContentRules.builder()
                 .maxCharacterBodyLength(saveContentDTO.getContentRules().getMaxCharacterBodyLength())
                 .title(saveContentDTO.getContentRules().getTitle())
@@ -180,6 +183,7 @@ public class ContentService {
         contentToUpdate.setDeliveryDate(saveContentDTO.getDeliveryDate());
         contentToUpdate.setScore(saveContentDTO.getScore());
         contentToUpdate.setAdminNotes(saveContentDTO.getAdminNotes());
+        contentToUpdate.setMonthUse(saveContentDTO.getMonthUse());
 
         contentToUpdate.setEditor(editor);
         contentToUpdate.setNewspaper(newspaper);

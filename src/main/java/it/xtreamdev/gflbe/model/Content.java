@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.Month;
 
 @Getter
 @Setter
@@ -43,6 +44,9 @@ public class Content {
     private String customerNotes;
 
     private String adminNotes;
+
+    @Enumerated(EnumType.STRING)
+    private Month monthUse;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")

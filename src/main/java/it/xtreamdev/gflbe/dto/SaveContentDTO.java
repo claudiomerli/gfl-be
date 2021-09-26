@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,5 +29,6 @@ public class SaveContentDTO {
     private Integer score;
     private ContentStatus contentStatus;
     private String adminNotes;
+    private Month monthUse;
 
 }

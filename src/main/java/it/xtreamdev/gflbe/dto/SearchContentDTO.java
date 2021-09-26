@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +21,7 @@ public class SearchContentDTO {
     private Integer editorId;
     private Integer newspaperId;
     private ContentStatus status;
+    private Month monthUse;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate createdDateFrom;
