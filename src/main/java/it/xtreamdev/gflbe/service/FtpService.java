@@ -14,13 +14,13 @@ import java.time.LocalDate;
 @Slf4j
 public class FtpService {
 
-    @Value("${gestionalecontenuti.ftp.host}")
+    @Value("${gfl.ftp.host}")
     private String host;
 
-    @Value("${gestionalecontenuti.ftp.user}")
+    @Value("${gfl.ftp.user}")
     private String user;
 
-    @Value("${gestionalecontenuti.ftp.password}")
+    @Value("${gfl.ftp.password}")
     private String password;
 
     public void storeFile(String fileName, String clientName, ByteArrayOutputStream outputStream) throws IOException {

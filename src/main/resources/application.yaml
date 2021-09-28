@@ -13,7 +13,7 @@ spring:
     port: 25
     password: Osuu19_2
 
-gestionalecontenuti:
+gfl:
   ftp:
     host: 80.241.142.27
     user: admintlt

@@ -24,7 +24,7 @@ import java.util.List;
 public class SuggestScheduler {
 
 
-    @Value("${gestionalecontenuti.suggestUrl}")
+    @Value("${gfl.suggestUrl}")
     private String URL_SUGGEST;
 
     private final static String DELIMITER = ",";
