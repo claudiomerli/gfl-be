@@ -12,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,8 +30,8 @@ public class Content {
     private Integer id;
 
     private String title;
-    private String linkUrl;
-    private String linkText;
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL)
+    private List<ContentLink> links;
 
     @Lob
     private String body;

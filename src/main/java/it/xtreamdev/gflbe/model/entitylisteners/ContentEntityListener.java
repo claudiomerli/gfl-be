@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.model.entitylisteners;
 
 import it.xtreamdev.gflbe.model.Content;
+import it.xtreamdev.gflbe.model.ContentLink;
 import it.xtreamdev.gflbe.model.RuleSatisfation;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import org.apache.commons.lang3.StringUtils;
@@ -65,17 +66,18 @@ public class ContentEntityListener {
         }
 
         String linkTextRule = StringUtils.isNotBlank(content.getContentRules().getLinkText()) ? content.getContentRules().getLinkText() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getLinkText()) ? content.getCustomer().getContentRules().getLinkText() : null;
-
-        if (Objects.nonNull(linkTextRule) && !linkTextRule.equals(content.getLinkText())) {
-            ruleSatisfation.setLinkTextSatisfied(false);
-            ruleSatisfation.setLinkTextError("Il testo del link non rispetta la regola impostata");
-        }
-
         String linkUrlRule = StringUtils.isNotBlank(content.getContentRules().getLinkUrl()) ? content.getContentRules().getLinkUrl() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getLinkUrl()) ? content.getCustomer().getContentRules().getLinkUrl() : null;
 
-        if (Objects.nonNull(linkUrlRule) && !linkUrlRule.equals(content.getLinkUrl())) {
-            ruleSatisfation.setLinkUrlSatisfied(false);
-            ruleSatisfation.setLinkUrlError("L'url del link non rispetta la regola impostata");
+        for (ContentLink contentLink : content.getLinks()) {
+            if (Objects.nonNull(linkTextRule) && !linkTextRule.equals(contentLink.getLinkText())) {
+                ruleSatisfation.setLinkTextSatisfied(false);
+                ruleSatisfation.setLinkTextError("Il testo del link non rispetta la regola impostata");
+            }
+
+            if (Objects.nonNull(linkUrlRule) && !linkUrlRule.equals(contentLink.getLinkUrl())) {
+                ruleSatisfation.setLinkUrlSatisfied(false);
+                ruleSatisfation.setLinkUrlError("L'url del link non rispetta la regola impostata");
+            }
         }
 
         content.setRuleSatisfation(ruleSatisfation);
