@@ -68,13 +68,23 @@ public class ContentEntityListener {
         String linkTextRule = StringUtils.isNotBlank(content.getContentRules().getLinkText()) ? content.getContentRules().getLinkText() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getLinkText()) ? content.getCustomer().getContentRules().getLinkText() : null;
         String linkUrlRule = StringUtils.isNotBlank(content.getContentRules().getLinkUrl()) ? content.getContentRules().getLinkUrl() : StringUtils.isNotBlank(content.getCustomer().getContentRules().getLinkUrl()) ? content.getCustomer().getContentRules().getLinkUrl() : null;
 
-        for (ContentLink contentLink : content.getLinks()) {
-            if (Objects.nonNull(linkTextRule) && !linkTextRule.equals(contentLink.getLinkText())) {
+        if(Objects.nonNull(linkTextRule)) {
+            if (Objects.isNull(content.getLinks()) || content.getLinks().isEmpty()){
                 ruleSatisfation.setLinkTextSatisfied(false);
                 ruleSatisfation.setLinkTextError("Il testo del link non rispetta la regola impostata");
             }
+            if (!linkTextRule.equals(content.getLinks().get(0).getLinkText())) {
+                ruleSatisfation.setLinkTextSatisfied(false);
+                ruleSatisfation.setLinkTextError("Il testo del link non rispetta la regola impostata");
+            }
+        }
 
-            if (Objects.nonNull(linkUrlRule) && !linkUrlRule.equals(contentLink.getLinkUrl())) {
+        if(Objects.nonNull(linkUrlRule)) {
+            if (Objects.isNull(content.getLinks()) || content.getLinks().isEmpty()){
+                ruleSatisfation.setLinkUrlSatisfied(false);
+                ruleSatisfation.setLinkUrlError("L'url del link non rispetta la regola impostata");
+            }
+            if (!linkUrlRule.equals(content.getLinks().get(0).getLinkUrl())) {
                 ruleSatisfation.setLinkUrlSatisfied(false);
                 ruleSatisfation.setLinkUrlError("L'url del link non rispetta la regola impostata");
             }
