@@ -1,6 +1,5 @@
 package it.xtreamdev.gflbe.dto;
 
-import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,12 +23,21 @@ public class SaveContentDTO {
     private Integer newspaperId;
     private String title;
     private String body;
-    private String linkUrl;
-    private String linkText;
+    private List<Link> links;
     private LocalDate deliveryDate;
     private Integer score;
     private ContentStatus contentStatus;
     private String adminNotes;
     private Month monthUse;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    @Data
+    public static class Link {
+        private String linkUrl;
+        private String linkText;
+
+    }
 
 }

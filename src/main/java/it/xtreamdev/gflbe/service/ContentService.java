@@ -8,7 +8,6 @@ import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import it.xtreamdev.gflbe.security.JwtTokenUtil;
-import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -24,8 +23,11 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -33,6 +35,8 @@ public class ContentService {
 
     @Autowired
     private ContentRepository contentRepository;
+    @Autowired
+    private ContentLinkRepository contentLinkRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -115,7 +119,7 @@ public class ContentService {
         }, pageRequest);
     }
 
-    @Transient
+    @Transactional
     public void save(SaveContentDTO saveContentDTO) {
         Content content = Content.builder().build();
         content.setContentStatus(ContentStatus.WORKING);
@@ -125,8 +129,16 @@ public class ContentService {
         Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
 
         content.setTitle(saveContentDTO.getTitle());
-        content.setLinkText(saveContentDTO.getLinkText());
-        content.setLinkUrl(saveContentDTO.getLinkUrl());
+        content.setLinks(
+                saveContentDTO.getLinks().stream()
+                        .map(link -> ContentLink.builder()
+                                .linkText(link.getLinkText())
+                                .linkUrl(link.getLinkUrl())
+                                .content(content)
+                                .build()
+                        )
+                        .collect(Collectors.toList())
+        );
         content.setBody(saveContentDTO.getBody());
         content.setDeliveryDate(saveContentDTO.getDeliveryDate());
 
@@ -156,6 +168,7 @@ public class ContentService {
         this.contentMailService.sendCreationMail(content);
     }
 
+    @Transactional
     public void update(Integer contentId, SaveContentDTO saveContentDTO) {
         User user = this.userService.userInfo();
         if (user.getRole() == RoleName.ADMIN) {
@@ -167,7 +180,8 @@ public class ContentService {
         }
     }
 
-    private void updateForAdmin(Integer contentId, SaveContentDTO saveContentDTO) {
+    @Transactional
+    public void updateForAdmin(Integer contentId, SaveContentDTO saveContentDTO) {
         Content contentToUpdate = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
         ContentStatus previousContentStatus = contentToUpdate.getContentStatus();
 
@@ -187,15 +201,25 @@ public class ContentService {
                     .filename(saveContentDTO.getContentRules().getAttachmentFileName())
                     .attachmentData(AttachmentData.builder().bytes(Base64.getDecoder().decode(saveContentDTO.getContentRules().getAttachmentBase64())).build())
                     .build());
-        } else if(Objects.isNull(saveContentDTO.getContentRules().getAttachmentFileName())) {
+        } else if (Objects.isNull(saveContentDTO.getContentRules().getAttachmentFileName())) {
             contentToUpdate.getContentRules().setAttachment(null);
         }
 
         contentToUpdate.setContentStatus(saveContentDTO.getContentStatus());
         contentToUpdate.setBody(saveContentDTO.getBody());
         contentToUpdate.setTitle(saveContentDTO.getTitle());
-        contentToUpdate.setLinkText(saveContentDTO.getLinkText());
-        contentToUpdate.setLinkUrl(saveContentDTO.getLinkUrl());
+        this.contentLinkRepository.deleteByContent(contentToUpdate);
+        contentToUpdate.setLinks(
+                saveContentDTO.getLinks().stream()
+                        .map(link -> this.contentLinkRepository.save(
+                                ContentLink.builder()
+                                        .linkText(link.getLinkText())
+                                        .linkUrl(link.getLinkUrl())
+                                        .content(contentToUpdate)
+                                        .build()
+                        ))
+                        .collect(Collectors.toList())
+        );
         contentToUpdate.setDeliveryDate(saveContentDTO.getDeliveryDate());
         contentToUpdate.setScore(saveContentDTO.getScore());
         contentToUpdate.setAdminNotes(saveContentDTO.getAdminNotes());
@@ -213,7 +237,8 @@ public class ContentService {
         }
     }
 
-    private void updateForEditor(User editor, Integer contentId, SaveContentDTO saveContentDTO) {
+    @Transactional
+    public void updateForEditor(User editor, Integer contentId, SaveContentDTO saveContentDTO) {
         Content contentToUpdate = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
         if (!contentToUpdate.getEditor().getId().equals(editor.getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Editor not associated to content");
@@ -225,13 +250,24 @@ public class ContentService {
 
         contentToUpdate.setBody(saveContentDTO.getBody());
         contentToUpdate.setTitle(saveContentDTO.getTitle());
-        contentToUpdate.setLinkText(saveContentDTO.getLinkText());
-        contentToUpdate.setLinkUrl(saveContentDTO.getLinkUrl());
+
+        this.contentLinkRepository.deleteByContent(contentToUpdate);
+        contentToUpdate.setLinks(
+                saveContentDTO.getLinks().stream()
+                        .map(link -> this.contentLinkRepository.save(
+                                ContentLink.builder()
+                                        .linkText(link.getLinkText())
+                                        .linkUrl(link.getLinkUrl())
+                                        .content(contentToUpdate)
+                                        .build()
+                        ))
+                        .collect(Collectors.toList())
+        );
 
         this.contentRepository.save(contentToUpdate);
     }
 
-
+    @Transactional
     public void delete(Integer contentId) {
         this.contentRepository.deleteById(contentId);
     }
