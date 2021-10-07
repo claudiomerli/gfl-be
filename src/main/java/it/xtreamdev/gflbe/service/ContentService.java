@@ -25,9 +25,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -145,6 +143,15 @@ public class ContentService {
                 .linkUrl(saveContentDTO.getContentRules().getLinkUrl())
                 .build()
         );
+
+        if (Objects.nonNull(saveContentDTO.getContentRules().getAttachmentBase64())) {
+            content.getContentRules().setAttachment(Attachment.builder()
+                    .contentType(saveContentDTO.getContentRules().getAttachmentContentType())
+                    .filename(saveContentDTO.getContentRules().getAttachmentFileName())
+                    .attachmentData(AttachmentData.builder().bytes(Base64.getDecoder().decode(saveContentDTO.getContentRules().getAttachmentBase64())).build())
+                    .build());
+        }
+
         this.contentRepository.save(content);
         this.contentMailService.sendCreationMail(content);
     }
@@ -174,6 +181,15 @@ public class ContentService {
         contentToUpdate.getContentRules().setLinkUrl(saveContentDTO.getContentRules().getLinkUrl());
         contentToUpdate.getContentRules().setMaxCharacterBodyLength(saveContentDTO.getContentRules().getMaxCharacterBodyLength());
 
+        if (Objects.nonNull(saveContentDTO.getContentRules().getAttachmentBase64())) {
+            contentToUpdate.getContentRules().setAttachment(Attachment.builder()
+                    .contentType(saveContentDTO.getContentRules().getAttachmentContentType())
+                    .filename(saveContentDTO.getContentRules().getAttachmentFileName())
+                    .attachmentData(AttachmentData.builder().bytes(Base64.getDecoder().decode(saveContentDTO.getContentRules().getAttachmentBase64())).build())
+                    .build());
+        } else if(Objects.isNull(saveContentDTO.getContentRules().getAttachmentFileName())) {
+            contentToUpdate.getContentRules().setAttachment(null);
+        }
 
         contentToUpdate.setContentStatus(saveContentDTO.getContentStatus());
         contentToUpdate.setBody(saveContentDTO.getBody());

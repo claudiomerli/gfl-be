@@ -1,9 +1,22 @@
 package it.xtreamdev.gflbe.dto.enumerations;
 
 public enum NewspaperTopic {
-    NEWS,
-    LOCAL_NEWSPAPER,
-    HEALTH,
-    ECONOMY,
-    NO_TOPIC
+    CASA_ARREDAMENTO_DESIGN,
+    DONNA,
+    ECONOMIA,
+    FOOD,
+    IMPRESA_E_BUSINESS,
+    LIFESTYLE_GOSSIP_MODA,
+    NOTIZIE,
+    SALUTE_E_BENESSERE,
+    SHOPPING,
+    TECNOLOGIA_SCIENZA_INTERNET,
+    TURISMO,
+    SPORT,
+    POLITICA,
+    ATTUALITA,
+    SPETTACOLI_TEATRO_CULTURA_INTRATTENIMENTO,
+    MOTORI,
+    GIOCHI,
+    AMBIENTE_GREEN,
 }

@@ -1,6 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.AccessTokenDto;
+import it.xtreamdev.gflbe.dto.AccessTokenDTO;
 import it.xtreamdev.gflbe.dto.SigninDTO;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.service.UserService;
@@ -16,7 +16,7 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("signin")
-    public ResponseEntity<AccessTokenDto> login(@RequestBody SigninDTO signinDTO) {
+    public ResponseEntity<AccessTokenDTO> login(@RequestBody SigninDTO signinDTO) {
         return ResponseEntity.ok(this.userService.signin(signinDTO));
     }
 

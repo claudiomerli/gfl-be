@@ -1,11 +1,9 @@
 package it.xtreamdev.gflbe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -26,4 +24,8 @@ public class ContentRules {
     private String linkText;
     private String body;
     private Integer maxCharacterBodyLength;
+
+    @OneToOne(cascade = CascadeType.PERSIST)
+    private Attachment attachment;
+
 }

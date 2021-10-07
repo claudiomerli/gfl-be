@@ -1,6 +1,6 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.AccessTokenDto;
+import it.xtreamdev.gflbe.dto.AccessTokenDTO;
 import it.xtreamdev.gflbe.dto.editor.EditEditorDTO;
 import it.xtreamdev.gflbe.dto.editor.SaveEditorDTO;
 import it.xtreamdev.gflbe.dto.SigninDTO;
@@ -41,7 +41,7 @@ public class UserService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    public AccessTokenDto signin(SigninDTO signinDTO) {
+    public AccessTokenDTO signin(SigninDTO signinDTO) {
         User user = this.userRepository.findByUsername(signinDTO.getUsername()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Wrong credentials"));
 
         if (!this.passwordEncoder.matches(signinDTO.getPassword(), user.getPassword())) {
@@ -49,7 +49,7 @@ public class UserService {
         }
 
         String token = this.jwtTokenUtil.generateToken(user);
-        return AccessTokenDto.builder().accessToken(token).build();
+        return AccessTokenDTO.builder().accessToken(token).build();
     }
 
     public User findByUsername(String username) throws UsernameNotFoundException {

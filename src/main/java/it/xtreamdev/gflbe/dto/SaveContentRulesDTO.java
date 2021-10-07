@@ -13,4 +13,8 @@ public class SaveContentRulesDTO {
     private String linkText;
     private String body;
     private Integer maxCharacterBodyLength;
+
+    private String attachmentBase64;
+    private String attachmentContentType;
+    private String attachmentFileName;
 }
