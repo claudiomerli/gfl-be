@@ -23,21 +23,11 @@ public class SaveContentDTO {
     private Integer newspaperId;
     private String title;
     private String body;
-    private List<Link> links;
+    private List<LinkDto> links;
     private LocalDate deliveryDate;
     private Integer score;
     private ContentStatus contentStatus;
     private String adminNotes;
     private Month monthUse;
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    @Data
-    public static class Link {
-        private String linkUrl;
-        private String linkText;
-
-    }
 
 }

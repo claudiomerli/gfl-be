@@ -156,6 +156,15 @@ public class ContentService {
                 .build()
         );
 
+        content.getContentRules()
+                .setLinks(saveContentDTO.getContentRules().getLinks().stream()
+                        .map(link -> ContentLink.builder()
+                                .linkUrl(link.getLinkUrl())
+                                .contentRules(content.getContentRules())
+                                .build()
+                        )
+                        .collect(Collectors.toList()));
+
         if (Objects.nonNull(saveContentDTO.getContentRules().getAttachmentBase64())) {
             content.getContentRules().setAttachment(Attachment.builder()
                     .contentType(saveContentDTO.getContentRules().getAttachmentContentType())
@@ -189,11 +198,20 @@ public class ContentService {
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
         Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
 
+        this.contentLinkRepository.deleteByContentRules(contentToUpdate.getContentRules());
         contentToUpdate.getContentRules().setBody(saveContentDTO.getContentRules().getBody());
         contentToUpdate.getContentRules().setTitle(saveContentDTO.getContentRules().getTitle());
         contentToUpdate.getContentRules().setLinkText(saveContentDTO.getContentRules().getLinkText());
         contentToUpdate.getContentRules().setLinkUrl(saveContentDTO.getContentRules().getLinkUrl());
         contentToUpdate.getContentRules().setMaxCharacterBodyLength(saveContentDTO.getContentRules().getMaxCharacterBodyLength());
+        contentToUpdate.getContentRules().setLinks(saveContentDTO.getContentRules().getLinks().stream()
+                .map(link -> this.contentLinkRepository.save(
+                        ContentLink.builder()
+                                .linkUrl(link.getLinkUrl())
+                                .contentRules(contentToUpdate.getContentRules())
+                                .build()
+                ))
+                .collect(Collectors.toList()));
 
         if (Objects.nonNull(saveContentDTO.getContentRules().getAttachmentBase64())) {
             contentToUpdate.getContentRules().setAttachment(Attachment.builder()

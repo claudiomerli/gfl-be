@@ -14,25 +14,32 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name = "project")
 public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
+    @Column(name = "name")
     private String name;
 
     @Enumerated
+    @Column(name = "status")
     private ProjectStatus status;
 
-    @ManyToOne
-    private Customer customer;
-
     @CreatedDate
+    @Column(name = "created_date")
     private LocalDateTime createdDate;
 
     @LastModifiedDate
+    @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @PrePersist
     private void prePersist() {
