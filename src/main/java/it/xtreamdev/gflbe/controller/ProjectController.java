@@ -4,6 +4,7 @@ import it.xtreamdev.gflbe.dto.ChangeStatusProjectDTO;
 import it.xtreamdev.gflbe.dto.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.SearchProjectDTO;
 import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
+import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.service.ProjectService;
@@ -42,6 +43,13 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 projectService.save(saveProjectDTO)
         );
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Project> detail(@PathVariable Integer id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(project);
     }
 
     @PutMapping("{id}")
