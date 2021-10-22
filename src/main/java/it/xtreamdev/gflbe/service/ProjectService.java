@@ -5,9 +5,11 @@ import it.xtreamdev.gflbe.dto.SearchProjectDTO;
 import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Customer;
+import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.repository.CustomerRepository;
+import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ import java.util.Optional;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final CustomerRepository customerRepository;
+    private final NewspaperRepository newspaperRepository;
 
     public Page<Project> search(SearchProjectDTO searchProjectDTO, PageRequest pageRequest) {
         return this.projectRepository.findAll((root, query, criteriaBuilder) -> {
@@ -53,6 +56,10 @@ public class ProjectService {
                                 customerRepository.findById(saveProjectDTO.getCustomerId())
                                         .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
                         )
+                        .newspaper(
+                                newspaperRepository.findById(saveProjectDTO.getNewspaperId())
+                                        .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY))
+                        )
                         .build()
         );
     }
@@ -64,6 +71,11 @@ public class ProjectService {
         project.setCustomer(
                 customerRepository.findById(updateProjectDTO.getCustomerId())
                         .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
+        );
+
+        project.setNewspaper(
+                newspaperRepository.findById(updateProjectDTO.getNewspaperId())
+                        .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY))
         );
         return projectRepository.save(project);
     }

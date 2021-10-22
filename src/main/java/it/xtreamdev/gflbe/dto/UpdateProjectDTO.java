@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class UpdateProjectDTO {
     private String name;
     private Integer customerId;
+    private Integer newspaperId;
 }

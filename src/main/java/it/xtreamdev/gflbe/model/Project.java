@@ -41,6 +41,10 @@ public class Project {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @ManyToOne
+    @JoinColumn(name = "newspaper_id")
+    private Newspaper newspaper;
+
     @PrePersist
     private void prePersist() {
         this.status = ProjectStatus.CREATED;
