@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.Transient;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 
@@ -86,7 +83,7 @@ public class ContentService {
             Join<Content, Customer> customerJoin = root.join("customer");
             Join<Content, User> editorJoin = root.join("editor");
             Join<Content, Newspaper> newspaperJoin = root.join("newspaper");
-            Join<Content, Project> projectJoin = root.join("project");
+            Join<Content, Project> projectJoin = root.join("project", JoinType.LEFT);
 
             Optional.ofNullable(searchContentDTO.getMonthUse()).ifPresent(monthUse -> predicates.add(criteriaBuilder.equal(root.get("monthUse"), monthUse)));
 
