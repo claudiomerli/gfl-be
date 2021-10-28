@@ -86,12 +86,14 @@ public class ContentService {
             Join<Content, Customer> customerJoin = root.join("customer");
             Join<Content, User> editorJoin = root.join("editor");
             Join<Content, Newspaper> newspaperJoin = root.join("newspaper");
+            Join<Content, Project> projectJoin = root.join("project");
 
             Optional.ofNullable(searchContentDTO.getMonthUse()).ifPresent(monthUse -> predicates.add(criteriaBuilder.equal(root.get("monthUse"), monthUse)));
 
             Optional.ofNullable(searchContentDTO.getCustomerId()).ifPresent(customerIdValue -> predicates.add(criteriaBuilder.equal(customerJoin.get("id"), customerIdValue)));
             Optional.ofNullable(searchContentDTO.getEditorId()).ifPresent(editorIdValue -> predicates.add(criteriaBuilder.equal(editorJoin.get("id"), editorIdValue)));
             Optional.ofNullable(searchContentDTO.getNewspaperId()).ifPresent(newspaperIdValue -> predicates.add(criteriaBuilder.equal(newspaperJoin.get("id"), newspaperIdValue)));
+            Optional.ofNullable(searchContentDTO.getProjectId()).ifPresent(projectIdValue -> predicates.add(criteriaBuilder.equal(projectJoin.get("id"), projectIdValue)));
 
             return getPredicateForCommonParameter(searchContentDTO, root, criteriaBuilder, predicates);
         }, pageRequest);

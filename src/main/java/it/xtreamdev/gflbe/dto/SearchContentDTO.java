@@ -20,6 +20,7 @@ public class SearchContentDTO {
     private Integer customerId;
     private Integer editorId;
     private Integer newspaperId;
+    private Integer projectId;
     private ContentStatus status;
     private Month monthUse;
 
