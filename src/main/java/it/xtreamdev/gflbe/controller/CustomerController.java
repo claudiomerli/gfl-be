@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.SaveCustomerRestDTO;
 import it.xtreamdev.gflbe.model.Customer;
+import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,13 @@ public class CustomerController {
     public ResponseEntity<Customer> findById(@PathVariable Integer id) {
         return ResponseEntity.ok(
                 customerService.findById(id)
+        );
+    }
+
+    @GetMapping("{id}/projects")
+    public ResponseEntity<List<Project>> findProjectsByIdCustomer(@PathVariable("id") Integer idCustomer) {
+        return ResponseEntity.ok(
+                customerService.findProjectByIdCustomer(idCustomer)
         );
     }
 

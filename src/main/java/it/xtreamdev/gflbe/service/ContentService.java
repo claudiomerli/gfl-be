@@ -126,6 +126,7 @@ public class ContentService {
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
         Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
+        Project project = this.projectRepository.findById(saveContentDTO.getProjectId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Project id not found"));
 
         content.setTitle(saveContentDTO.getTitle());
         content.setLinks(
@@ -144,6 +145,7 @@ public class ContentService {
         content.setEditor(editor);
         content.setNewspaper(newspaper);
         content.setCustomer(customer);
+        content.setProject(project);
         content.setCustomerToken(this.jwtTokenUtil.createJwtCustomerCodeFromContentId());
         content.setMonthUse(saveContentDTO.getMonthUse());
         content.setContentRules(ContentRules.builder()
@@ -196,6 +198,7 @@ public class ContentService {
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
         Customer customer = this.customerRepository.findById(saveContentDTO.getCustomerId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer id not found"));
+        Project project = this.projectRepository.findById(saveContentDTO.getProjectId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Project id not found"));
 
         this.contentLinkRepository.deleteByContentRules(contentToUpdate.getContentRules());
         contentToUpdate.getContentRules().setBody(saveContentDTO.getContentRules().getBody());
@@ -245,6 +248,7 @@ public class ContentService {
         contentToUpdate.setEditor(editor);
         contentToUpdate.setNewspaper(newspaper);
         contentToUpdate.setCustomer(customer);
+        contentToUpdate.setProject(project);
 
         this.contentRulesRepository.save(contentToUpdate.getContentRules());
         this.contentRepository.save(contentToUpdate);

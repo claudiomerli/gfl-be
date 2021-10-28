@@ -4,9 +4,10 @@ import it.xtreamdev.gflbe.dto.SaveCustomerDTO;
 import it.xtreamdev.gflbe.dto.SaveCustomerRestDTO;
 import it.xtreamdev.gflbe.model.ContentRules;
 import it.xtreamdev.gflbe.model.Customer;
+import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.repository.ContentRulesRepository;
 import it.xtreamdev.gflbe.repository.CustomerRepository;
-import org.apache.logging.log4j.util.Strings;
+import it.xtreamdev.gflbe.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -27,6 +27,9 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Autowired
     private ContentRulesRepository contentRulesRepository;
@@ -84,6 +87,10 @@ public class CustomerService {
     public Customer findById(Integer id) {
         return this.customerRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer not found"));
+    }
+
+    public List<Project> findProjectByIdCustomer(Integer idCustomer) {
+        return projectRepository.findAllByCustomer_Id(idCustomer);
     }
 
     public SaveCustomerDTO updateCustomer(Integer id, SaveCustomerDTO saveCustomerDTO) {
