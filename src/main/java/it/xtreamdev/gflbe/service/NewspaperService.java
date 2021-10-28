@@ -46,6 +46,7 @@ public class NewspaperService {
                         .builder()
                         .name(newspaper.getName())
                         .costEach(newspaper.getCostEach())
+                        .costSell(newspaper.getCostSell())
                         .email(newspaper.getEmail())
                         .purchasedContent(newspaper.getPurchasedContent())
                         .regionalGeolocalization(newspaper.getRegionalGeolocalization())
@@ -64,6 +65,7 @@ public class NewspaperService {
         persistedNewspaper.setName(saveNewspaperDTO.getName());
         persistedNewspaper.setEmail(saveNewspaperDTO.getEmail());
         persistedNewspaper.setCostEach(saveNewspaperDTO.getCostEach());
+        persistedNewspaper.setCostSell(saveNewspaperDTO.getCostSell());
         persistedNewspaper.setPurchasedContent(saveNewspaperDTO.getPurchasedContent());
         persistedNewspaper.setRegionalGeolocalization(saveNewspaperDTO.getRegionalGeolocalization());
         persistedNewspaper.setTopic(saveNewspaperDTO.getTopic());

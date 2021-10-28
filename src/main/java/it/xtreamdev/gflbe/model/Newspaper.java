@@ -30,6 +30,9 @@ public class Newspaper {
     @Column(name = "cost_each")
     private Double costEach;
 
+    @Column(name = "cost_sell")
+    private Double costSell;
+
     @Column(name = "email")
     private String email;
 

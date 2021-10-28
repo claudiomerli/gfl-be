@@ -18,6 +18,8 @@ public class SaveNewspaperDTO {
 
     private Double costEach;
 
+    private Double costSell;
+
     private String email;
 
     private String regionalGeolocalization;
