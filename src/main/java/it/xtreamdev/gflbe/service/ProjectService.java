@@ -5,7 +5,6 @@ import it.xtreamdev.gflbe.dto.SearchProjectDTO;
 import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Customer;
-import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.repository.CustomerRepository;
@@ -60,6 +59,7 @@ public class ProjectService {
                                 newspaperRepository.findById(saveProjectDTO.getNewspaperId())
                                         .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY))
                         )
+                        .status(ProjectStatus.CREATED)
                         .build()
         );
     }
@@ -83,7 +83,12 @@ public class ProjectService {
     public Project changeStatus(Integer id, ProjectStatus status) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
+        return changeStatus(project, status);
+    }
+
+    public Project changeStatus(Project project, ProjectStatus status) {
         project.setStatus(status);
         return projectRepository.save(project);
     }
+
 }

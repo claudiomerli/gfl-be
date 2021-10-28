@@ -1,14 +1,11 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.ChangeStatusContentDTO;
 import it.xtreamdev.gflbe.dto.CustomerNotes;
-import it.xtreamdev.gflbe.dto.ResponseContentDTO;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
 import it.xtreamdev.gflbe.model.Content;
-import it.xtreamdev.gflbe.security.model.JwtUserPrincipal;
 import it.xtreamdev.gflbe.service.ContentService;
-import it.xtreamdev.gflbe.service.CustomerService;
-import it.xtreamdev.gflbe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -116,6 +112,15 @@ public class ContentController {
             @RequestBody CustomerNotes customerNotes
     ) {
         this.contentService.saveNotesToContent(contentId, customerNotes.getNotes(), token);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("customer/{contentId}/change-status")
+    public ResponseEntity<Void> changeStatus(
+            @PathVariable Integer contentId,
+            @RequestBody ChangeStatusContentDTO changeStatusContentDTO
+    ) {
+        this.contentService.changeStatus(contentId, changeStatusContentDTO.getStatus());
         return ResponseEntity.ok().build();
     }
 
