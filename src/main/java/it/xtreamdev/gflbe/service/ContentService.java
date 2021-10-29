@@ -4,6 +4,7 @@ import com.itextpdf.html2pdf.HtmlConverter;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
 import it.xtreamdev.gflbe.model.*;
+import it.xtreamdev.gflbe.model.enumerations.ContentProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
@@ -122,7 +123,8 @@ public class ContentService {
     @Transactional
     public void save(SaveContentDTO saveContentDTO) {
         Content content = Content.builder().build();
-        content.setContentStatus(ContentStatus.CREATED);
+        content.setContentStatus(ContentStatus.WORKING);
+        content.setProjectStatus(ContentProjectStatus.CREATED);
 
         User editor = this.userRepository.findById(saveContentDTO.getEditorId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Editor id not found"));
         Newspaper newspaper = this.newspaperRepository.findById(saveContentDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper id not found"));
@@ -393,20 +395,20 @@ public class ContentService {
         this.contentRepository.save(content);
     }
 
-    public void changeStatus(Integer id, ContentStatus status) {
+    public void changeStatus(Integer id, ContentProjectStatus status) {
         Content content = this.contentRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
-        content.setContentStatus(status);
+        content.setProjectStatus(status);
         this.contentRepository.save(content);
         if (
-                ContentStatus.TO_BE_PUBLISHED.equals(status)
-                        && !contentRepository.existsByProjectAndContentStatusIn(content.getProject(), Arrays.asList(ContentStatus.CREATED, ContentStatus.WORKING))
+                ContentProjectStatus.TO_BE_PUBLISHED.equals(status)
+                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(), Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING))
         ) {
             this.projectService.changeStatus(content.getProject(), ProjectStatus.TO_BE_PUBLISHED);
         }
         if (
-                ContentStatus.PUBLISHED.equals(status)
-                        && !contentRepository.existsByProjectAndContentStatusIn(content.getProject(), Arrays.asList(ContentStatus.CREATED, ContentStatus.WORKING, ContentStatus.TO_BE_PUBLISHED))
+                ContentProjectStatus.PUBLISHED.equals(status)
+                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(), Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING, ContentProjectStatus.TO_BE_PUBLISHED))
         ) {
             this.projectService.changeStatus(content.getProject(), ProjectStatus.TERMINATED);
         }

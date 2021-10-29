@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import it.xtreamdev.gflbe.model.entitylisteners.ContentEntityListener;
+import it.xtreamdev.gflbe.model.enumerations.ContentProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -75,6 +76,10 @@ public class Content {
     @Enumerated(EnumType.STRING)
     @Column(name = "content_status")
     private ContentStatus contentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "content_project_status")
+    private ContentProjectStatus projectStatus;
 
     @ManyToOne
     @JoinColumn(name = "editor_id")

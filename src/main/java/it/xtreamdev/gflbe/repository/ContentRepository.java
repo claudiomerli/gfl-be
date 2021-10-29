@@ -3,7 +3,7 @@ package it.xtreamdev.gflbe.repository;
 import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.User;
-import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
+import it.xtreamdev.gflbe.model.enumerations.ContentProjectStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +18,5 @@ public interface ContentRepository extends JpaRepository<Content, Integer>, JpaS
 
     Optional<Content> findByIdAndEditor(Integer contentId, User user);
 
-    boolean existsByProjectAndContentStatusIn(Project project, List<ContentStatus> asList);
+    boolean existsByProjectAndProjectStatusIn(Project project, List<ContentProjectStatus> asList);
 }
