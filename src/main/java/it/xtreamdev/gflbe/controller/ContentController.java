@@ -115,7 +115,7 @@ public class ContentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("customer/{contentId}/change-project-status")
+    @PutMapping("{contentId}/change-project-status")
     public ResponseEntity<Void> changeStatus(
             @PathVariable Integer contentId,
             @RequestBody ChangeProjectStatusContentDTO changeProjectStatusContentDTO
