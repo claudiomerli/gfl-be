@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.mail.internet.MimeMessage;
@@ -16,6 +17,7 @@ public class ContentMailService {
     @Autowired
     private JavaMailSender emailSender;
 
+    @Async
     public void sendCreationMail(Content content) {
         try {
             MimeMessage mimeMessage = emailSender.createMimeMessage();
@@ -33,6 +35,7 @@ public class ContentMailService {
         }
     }
 
+    @Async
     public void sendUpdateMail(Content content) {
         try {
             MimeMessage mimeMessage = emailSender.createMimeMessage();
