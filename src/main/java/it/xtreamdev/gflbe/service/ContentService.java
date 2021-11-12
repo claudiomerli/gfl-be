@@ -121,7 +121,7 @@ public class ContentService {
     }
 
     @Transactional
-    public void save(SaveContentDTO saveContentDTO) {
+    public Content save(SaveContentDTO saveContentDTO, boolean sendEmail) {
         Content content = Content.builder().build();
         content.setContentStatus(ContentStatus.WORKING);
         content.setProjectStatus(ContentProjectStatus.CREATED);
@@ -177,8 +177,11 @@ public class ContentService {
                     .build());
         }
 
-        this.contentRepository.save(content);
-        this.contentMailService.sendCreationMail(content);
+        Content contentSaved = this.contentRepository.save(content);
+        if (sendEmail) {
+            this.contentMailService.sendCreationMail(content);
+        }
+        return contentSaved;
     }
 
     @Transactional
@@ -256,7 +259,7 @@ public class ContentService {
         this.contentRulesRepository.save(contentToUpdate.getContentRules());
         this.contentRepository.save(contentToUpdate);
 
-        if (!previousContentStatus.equals(saveContentDTO.getContentStatus())) {
+        if (previousContentStatus != null && !previousContentStatus.equals(saveContentDTO.getContentStatus())) {
             this.contentMailService.sendUpdateMail(contentToUpdate);
         }
     }

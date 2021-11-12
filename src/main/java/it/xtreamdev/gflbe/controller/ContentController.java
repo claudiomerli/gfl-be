@@ -40,9 +40,9 @@ public class ContentController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody SaveContentDTO saveContentDTO) {
-        this.contentService.save(saveContentDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Content> create(@RequestBody SaveContentDTO saveContentDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(this.contentService.save(saveContentDTO, false));
     }
 
     @PutMapping("{contentId}")
