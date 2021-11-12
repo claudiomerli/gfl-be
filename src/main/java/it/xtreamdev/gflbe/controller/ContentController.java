@@ -42,15 +42,14 @@ public class ContentController {
     @PostMapping
     public ResponseEntity<Content> create(@RequestBody SaveContentDTO saveContentDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.contentService.save(saveContentDTO, false));
+                .body(this.contentService.save(saveContentDTO));
     }
 
     @PutMapping("{contentId}")
-    public ResponseEntity<Void> update(@PathVariable Integer contentId,
-                                       @RequestBody SaveContentDTO saveContentDTO) {
-
-        this.contentService.update(contentId, saveContentDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Content> update(@PathVariable Integer contentId,
+                                          @RequestBody SaveContentDTO saveContentDTO,
+                                          @RequestParam boolean noSendEmail) {
+        return ResponseEntity.ok().body(this.contentService.update(contentId, saveContentDTO, noSendEmail));
     }
 
     @DeleteMapping("{contentId}")

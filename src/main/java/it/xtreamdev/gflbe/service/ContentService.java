@@ -121,7 +121,7 @@ public class ContentService {
     }
 
     @Transactional
-    public Content save(SaveContentDTO saveContentDTO, boolean sendEmail) {
+    public Content save(SaveContentDTO saveContentDTO) {
         Content content = Content.builder().build();
         content.setContentStatus(ContentStatus.WORKING);
         content.setProjectStatus(ContentProjectStatus.CREATED);
@@ -178,26 +178,24 @@ public class ContentService {
         }
 
         Content contentSaved = this.contentRepository.save(content);
-        if (sendEmail) {
-            this.contentMailService.sendCreationMail(content);
-        }
+        // this.contentMailService.sendCreationMail(content);
         return contentSaved;
     }
 
     @Transactional
-    public void update(Integer contentId, SaveContentDTO saveContentDTO) {
+    public Content update(Integer contentId, SaveContentDTO saveContentDTO, boolean noSendEmail) {
         User user = this.userService.userInfo();
         if (user.getRole() == RoleName.ADMIN) {
-            this.updateForAdmin(contentId, saveContentDTO);
+            return this.updateForAdmin(contentId, saveContentDTO, noSendEmail);
         } else if (user.getRole() == RoleName.EDITOR) {
-            this.updateForEditor(user, contentId, saveContentDTO);
+            return this.updateForEditor(user, contentId, saveContentDTO);
         } else {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Role not found");
         }
     }
 
     @Transactional
-    public void updateForAdmin(Integer contentId, SaveContentDTO saveContentDTO) {
+    public Content updateForAdmin(Integer contentId, SaveContentDTO saveContentDTO, boolean noSendEmail) {
         Content contentToUpdate = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
         ContentStatus previousContentStatus = contentToUpdate.getContentStatus();
 
@@ -257,15 +255,16 @@ public class ContentService {
         contentToUpdate.setProject(project);
 
         this.contentRulesRepository.save(contentToUpdate.getContentRules());
-        this.contentRepository.save(contentToUpdate);
+        Content content = this.contentRepository.save(contentToUpdate);
 
-        if (previousContentStatus != null && !previousContentStatus.equals(saveContentDTO.getContentStatus())) {
+        if (!noSendEmail && previousContentStatus != null && !previousContentStatus.equals(saveContentDTO.getContentStatus())) {
             this.contentMailService.sendUpdateMail(contentToUpdate);
         }
+        return content;
     }
 
     @Transactional
-    public void updateForEditor(User editor, Integer contentId, SaveContentDTO saveContentDTO) {
+    public Content updateForEditor(User editor, Integer contentId, SaveContentDTO saveContentDTO) {
         Content contentToUpdate = this.contentRepository.findById(contentId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Content id not found"));
         if (!contentToUpdate.getEditor().getId().equals(editor.getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Editor not associated to content");
@@ -291,7 +290,7 @@ public class ContentService {
                         .collect(Collectors.toList())
         );
 
-        this.contentRepository.save(contentToUpdate);
+        return this.contentRepository.save(contentToUpdate);
     }
 
     @Transactional
