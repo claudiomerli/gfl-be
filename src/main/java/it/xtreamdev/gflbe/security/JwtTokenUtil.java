@@ -12,7 +12,7 @@ import java.util.UUID;
 public class JwtTokenUtil {
 
     private static final String authTokenSecret = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    private static final Long expiration = 3600L;
+    private static final Long expiration = 2592000L;
 
 
     public String generateToken(User user) {
