@@ -4,6 +4,7 @@ import it.xtreamdev.gflbe.dto.enumerations.NewspaperTopic;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -39,8 +40,14 @@ public class Newspaper {
     @Column(name = "regional_geolocalization")
     private String regionalGeolocalization;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "topic")
-    private NewspaperTopic topic;
+    @Column(name = "note")
+    private String note;
+
+    @ManyToMany
+    @JoinTable(
+            name = "newspaper_topics",
+            joinColumns = @JoinColumn(name = "newspaper_id"),
+            inverseJoinColumns = @JoinColumn(name = "topic_id"))
+    Set<Topic> topics;
 
 }

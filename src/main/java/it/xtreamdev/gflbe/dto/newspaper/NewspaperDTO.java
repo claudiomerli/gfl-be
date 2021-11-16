@@ -1,6 +1,8 @@
 package it.xtreamdev.gflbe.dto.newspaper;
 
+import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import lombok.*;
+
 import java.util.Set;
 
 @Getter
@@ -8,21 +10,17 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SaveNewspaperDTO {
+public class NewspaperDTO {
 
+    private Integer id;
     private String name;
-
     private Integer purchasedContent;
-
+    private Integer leftContent;
     private Double costEach;
-
     private Double costSell;
-
     private String email;
-
     private String regionalGeolocalization;
-
-    private Set<Integer> topics;
-
     private String note;
+    Set<TopicDTO> topics;
+
 }

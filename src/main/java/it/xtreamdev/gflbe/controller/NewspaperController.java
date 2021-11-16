@@ -1,5 +1,8 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.FinanceDTO;
+import it.xtreamdev.gflbe.dto.PageDTO;
+import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.service.NewspaperService;
@@ -19,7 +22,7 @@ public class NewspaperController {
     private NewspaperService newspaperService;
 
     @GetMapping
-    public ResponseEntity<Page<Newspaper>> find(
+    public ResponseEntity<PageDTO<?>> find(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -48,8 +51,13 @@ public class NewspaperController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Newspaper> findById(@PathVariable Integer id) {
-        return ResponseEntity.ok(this.newspaperService.findById(id));
+    public ResponseEntity<NewspaperDTO> findById(@PathVariable Integer id) {
+        return ResponseEntity.ok(this.newspaperService.detail(id));
+    }
+
+    @GetMapping("/finance")
+    public ResponseEntity<FinanceDTO> finance() {
+        return ResponseEntity.ok(this.newspaperService.finance());
     }
 
 }
