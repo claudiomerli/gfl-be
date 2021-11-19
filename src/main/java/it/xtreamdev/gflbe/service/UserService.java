@@ -56,6 +56,10 @@ public class UserService {
         return this.userRepository.findByUsername(username).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Username not found"));
     }
 
+    public String test() {
+       return this.passwordEncoder.encode("admin");
+    }
+
     public Long countEditors() {
         return this.userRepository.countByRole(RoleName.EDITOR);
     }

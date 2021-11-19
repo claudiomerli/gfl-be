@@ -3,8 +3,10 @@ package it.xtreamdev.gflbe.service;
 import it.xtreamdev.gflbe.dto.FinanceDTO;
 import it.xtreamdev.gflbe.dto.PageDTO;
 import it.xtreamdev.gflbe.dto.PageableDTO;
+import it.xtreamdev.gflbe.dto.SelectDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
+import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Topic;
@@ -31,8 +33,6 @@ public class NewspaperService {
     @Autowired
     private NewspaperRepository newspaperRepository;
     @Autowired
-    private ContentRepository contentRepository;
-    @Autowired
     private NewspaperMapper newspaperMapper;
 
     public PageDTO<?> findAll(String globalSearch, PageRequest pageRequest) {
@@ -55,23 +55,31 @@ public class NewspaperService {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }, pageRequest);
 
+        return newspaperMapper.mapEntityToPageDTO(newspapers);
+    }
 
-        return PageDTO
-                .builder()
-                .pageable(PageableDTO
-                        .builder()
-                        .pageSize(newspapers.getPageable().getPageSize())
-                        .pageNumber(newspapers.getPageable().getPageNumber())
-                        .build())
-                .totalElements(newspapers.getTotalElements())
-                .content(newspapers.get()
-                        .map(newspaper -> {
-                            NewspaperDTO dto = newspaperMapper.mapEntityToDTO(newspaper);
-                            dto.setLeftContent(dto.getPurchasedContent() - contentRepository.countByNewspaper_Id(dto.getId()));
-                            return dto;
-                        })
-                        .collect(Collectors.toSet()))
-                .build();
+    public PageDTO<?> findAll(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
+        Page<Newspaper> newspapers = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
+            List<Order> orderList = new ArrayList<>();
+            orderList.add(criteriaBuilder.desc(root.get("id")));
+            criteriaQuery.orderBy(orderList);
+            List<Predicate> predicates = new ArrayList<>();
+
+            if(searchNewspaperDTO.getNewspaperId() !=null && searchNewspaperDTO.getNewspaperId() != 0) {
+                predicates.add(criteriaBuilder.equal(root.get("id"), searchNewspaperDTO.getNewspaperId()));
+            }
+
+            if(searchNewspaperDTO.getTopicId() !=null && searchNewspaperDTO.getTopicId() != 0) {
+                predicates.add(criteriaBuilder.equal(root.join("topics").get("id"), searchNewspaperDTO.getTopicId()));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        }, pageRequest);
+
+        return newspaperMapper.mapEntityToPageDTO(newspapers);
+    }
+
+    public List<SelectDTO> findForSelect() {
+        return newspaperMapper.mapEntityToSelectDTO(this.newspaperRepository.findAll());
     }
 
     public void save(SaveNewspaperDTO newspaper) {
