@@ -5,7 +5,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate.enable_lazy_load_no_trans: true
@@ -14,6 +14,9 @@ spring:
     username: info@tilinkotool.it
     port: 25
     password: Osuu19_2
+  liquibase:
+    enabled: true
+    change-log: db/liquibase/db.changelog-master.xml
 
 gfl:
   ftp:

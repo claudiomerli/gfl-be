@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet author="claudiomerli (generated)" id="1637875150910-1">
+        <createTable tableName="attachment">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="content_type" type="VARCHAR(255)"/>
+            <column name="filename" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="attachment_data_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-2">
+        <createTable tableName="attachment_data">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column defaultValueComputed="NULL" name="bytes" type="LONGBLOB"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-3">
+        <createTable tableName="content">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="admin_notes" type="VARCHAR(255)"/>
+            <column name="body" type="LONGTEXT"/>
+            <column name="content_status" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="created_date" type="date"/>
+            <column name="customer_notes" type="VARCHAR(255)"/>
+            <column name="customer_token" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="delivery_date" type="date"/>
+            <column name="export_file_name" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="last_modified_date" type="date"/>
+            <column name="month_use" type="VARCHAR(255)"/>
+            <column name="content_project_status" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="score" type="INT"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="content_rules_id" type="INT"/>
+            <column defaultValueComputed="NULL" name="customer_id" type="INT"/>
+            <column defaultValueComputed="NULL" name="editor_id" type="INT"/>
+            <column defaultValueComputed="NULL" name="newspaper_id" type="INT"/>
+            <column defaultValueComputed="NULL" name="project_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-4">
+        <createTable tableName="content_link">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="link_text" type="VARCHAR(255)"/>
+            <column name="link_url" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="content_id" type="INT"/>
+            <column defaultValueComputed="NULL" name="content_rule_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-5">
+        <createTable tableName="content_rules">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="body" type="VARCHAR(255)"/>
+            <column name="link_text" type="VARCHAR(255)"/>
+            <column name="link_url" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="max_character_body_length" type="INT"/>
+            <column name="tile" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="attachment_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-6">
+        <createTable tableName="customer">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="content_rules_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-7">
+        <createTable tableName="newspaper">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column defaultValueComputed="NULL" name="cost_each" type="DOUBLE"/>
+            <column defaultValueComputed="NULL" name="cost_sell" type="DOUBLE"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="note" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="purchased_content" type="INT"/>
+            <column name="regional_geolocalization" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-8">
+        <createTable tableName="newspaper_topics">
+            <column name="newspaper_id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="topic_id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-9">
+        <createTable tableName="project">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column defaultValueComputed="NULL" name="created_date" type="datetime"/>
+            <column defaultValueComputed="NULL" name="last_modified_date" type="datetime"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="status" type="INT"/>
+            <column defaultValueComputed="NULL" name="customer_id" type="INT"/>
+            <column defaultValueComputed="NULL" name="newspaper_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-10">
+        <createTable tableName="suggest">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column defaultValueComputed="NULL" name="created_date" type="datetime"/>
+            <column name="keyword" type="VARCHAR(255)"/>
+            <column defaultValueComputed="NULL" name="modified_date" type="datetime"/>
+            <column name="suggests" type="LONGTEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-11">
+        <createTable tableName="topic">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="topic_name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-12">
+        <createTable tableName="user">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="fullname" type="VARCHAR(255)"/>
+            <column name="level" type="VARCHAR(255)"/>
+            <column name="mobile_phone" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="remuneration" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(255)"/>
+            <column name="username" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-13">
+        <createIndex indexName="FK2th7h2oyse64yir453lr3dvc4" tableName="content">
+            <column defaultValueComputed="NULL" name="content_rules_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-14">
+        <createIndex indexName="FKb61f36y11lhai2hcl3qtl5npy" tableName="content">
+            <column defaultValueComputed="NULL" name="project_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-15">
+        <createIndex indexName="FKb9xrdfpavcojgf0brhwm7njfq" tableName="newspaper_topics">
+            <column name="topic_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-16">
+        <createIndex indexName="FKbw67wncs18mm5tbnyb213idxo" tableName="customer">
+            <column defaultValueComputed="NULL" name="content_rules_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-17">
+        <createIndex indexName="FKffpoc9syuf0g3j8h075m3o4o" tableName="content_link">
+            <column defaultValueComputed="NULL" name="content_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-18">
+        <createIndex indexName="FKhsfaynkbrrfjfyupgnbfxcxrw" tableName="project">
+            <column defaultValueComputed="NULL" name="newspaper_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-19">
+        <createIndex indexName="FKj6bw2tqkdfdtxbyeibfbwqpu3" tableName="attachment">
+            <column defaultValueComputed="NULL" name="attachment_data_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-20">
+        <createIndex indexName="FKj948tru2ilgqxfxsppp9mom5j" tableName="project">
+            <column defaultValueComputed="NULL" name="customer_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-21">
+        <createIndex indexName="FKmpyd4kn23c3k1l1wmlnicwdqk" tableName="content_rules">
+            <column defaultValueComputed="NULL" name="attachment_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-22">
+        <createIndex indexName="FKoavapuh6pm9ed6lly98ad2ji4" tableName="content">
+            <column defaultValueComputed="NULL" name="newspaper_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-23">
+        <createIndex indexName="FKrkia4s7gt8etfu1haivs8fac0" tableName="content_link">
+            <column defaultValueComputed="NULL" name="content_rule_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-24">
+        <createIndex indexName="FKrthy7ykyrlfkh53o8kcp4evie" tableName="content">
+            <column defaultValueComputed="NULL" name="editor_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-25">
+        <createIndex indexName="FKxwgex486mb50xrm3rghqfc51" tableName="content">
+            <column defaultValueComputed="NULL" name="customer_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-26">
+        <addForeignKeyConstraint baseColumnNames="content_rules_id" baseTableName="content"
+                                 constraintName="FK2th7h2oyse64yir453lr3dvc4" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="content_rules" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-27">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="newspaper_topics"
+                                 constraintName="FK4qfu1prdwromg6pls3m7oi7im" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="newspaper" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-28">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="content"
+                                 constraintName="FKb61f36y11lhai2hcl3qtl5npy" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="project" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-29">
+        <addForeignKeyConstraint baseColumnNames="topic_id" baseTableName="newspaper_topics"
+                                 constraintName="FKb9xrdfpavcojgf0brhwm7njfq" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="topic" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-30">
+        <addForeignKeyConstraint baseColumnNames="content_rules_id" baseTableName="customer"
+                                 constraintName="FKbw67wncs18mm5tbnyb213idxo" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="content_rules" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-31">
+        <addForeignKeyConstraint baseColumnNames="content_id" baseTableName="content_link"
+                                 constraintName="FKffpoc9syuf0g3j8h075m3o4o" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="content" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-32">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="project"
+                                 constraintName="FKhsfaynkbrrfjfyupgnbfxcxrw" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="newspaper" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-33">
+        <addForeignKeyConstraint baseColumnNames="attachment_data_id" baseTableName="attachment"
+                                 constraintName="FKj6bw2tqkdfdtxbyeibfbwqpu3" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="attachment_data" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-34">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="project"
+                                 constraintName="FKj948tru2ilgqxfxsppp9mom5j" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="customer" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-35">
+        <addForeignKeyConstraint baseColumnNames="attachment_id" baseTableName="content_rules"
+                                 constraintName="FKmpyd4kn23c3k1l1wmlnicwdqk" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="attachment" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-36">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="content"
+                                 constraintName="FKoavapuh6pm9ed6lly98ad2ji4" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="newspaper" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-37">
+        <addForeignKeyConstraint baseColumnNames="content_rule_id" baseTableName="content_link"
+                                 constraintName="FKrkia4s7gt8etfu1haivs8fac0" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="content_rules" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-38">
+        <addForeignKeyConstraint baseColumnNames="editor_id" baseTableName="content"
+                                 constraintName="FKrthy7ykyrlfkh53o8kcp4evie" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="user" validate="true"/>
+    </changeSet>
+    <changeSet author="claudiomerli (generated)" id="1637875150910-39">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="content"
+                                 constraintName="FKxwgex486mb50xrm3rghqfc51" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="id" referencedTableName="customer" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

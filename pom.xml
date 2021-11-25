@@ -46,7 +46,6 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -145,6 +144,10 @@
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>1.5.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -161,7 +164,16 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/gfl</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <outputChangeLogFile>src/main/resources/db/liquibase/db.changelog-master.xml</outputChangeLogFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
