@@ -29,5 +29,6 @@ public class SaveContentDTO {
     private ContentStatus contentStatus;
     private String adminNotes;
     private Month monthUse;
+    private Integer projectContentPreviewId;
 
 }

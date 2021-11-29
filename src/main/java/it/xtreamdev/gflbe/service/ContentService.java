@@ -3,6 +3,7 @@ package it.xtreamdev.gflbe.service;
 import com.itextpdf.html2pdf.HtmlConverter;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
+import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
@@ -44,6 +45,8 @@ public class ContentService {
     private NewspaperRepository newspaperRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private ProjectContentPreviewRepository projectContentPreviewRepository;
 
     @Autowired
     private UserService userService;
@@ -178,7 +181,14 @@ public class ContentService {
         }
 
         Content contentSaved = this.contentRepository.save(content);
-        // this.contentMailService.sendCreationMail(content);
+
+        if(Objects.nonNull(saveContentDTO.getProjectContentPreviewId())){
+            ProjectContentPreview projectContentPreview = this.projectContentPreviewRepository.findById(saveContentDTO.getProjectContentPreviewId()).orElseThrow(() -> new GLFException("id ProjectContentPreview not found", HttpStatus.BAD_REQUEST));
+            projectContentPreview.setContent(contentSaved);
+            this.projectContentPreviewRepository.save(projectContentPreview);
+        }
+
+        //this.contentMailService.sendCreationMail(content);
         return contentSaved;
     }
 

@@ -299,4 +299,41 @@
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="id" referencedTableName="customer" validate="true"/>
     </changeSet>
+    <changeSet id="20211129-0" author="claudiomerli">
+        <createTable tableName="project_content_preview">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="link_text" type="varchar(255)"/>
+            <column name="link_url" type="varchar(255)"/>
+            <column name="month_use" type="varchar(255)"/>
+            <column name="customer_notes" type="varchar(255)"/>
+            <column name="newspaper_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="20211129-1" author="claudiomerli">
+        <addForeignKeyConstraint baseTableName="project_content_preview" baseColumnNames="newspaper_id"
+                                 constraintName="projectContetPreview_newspaper"
+                                 referencedTableName="newspaper"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="20211129-2" author="claudiomerli">
+        <dropForeignKeyConstraint baseTableName="project" constraintName="FKhsfaynkbrrfjfyupgnbfxcxrw"/>
+        <dropColumn tableName="project" columnName="newspaper_id" />
+    </changeSet>
+    <changeSet id="20211129-3" author="claudiomerli">
+        <addColumn tableName="project_content_preview">
+            <column name="project_id" type="int">
+                <constraints foreignKeyName="projectContentPreview_project" referencedTableName="project" referencedColumnNames="id" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20211129-4" author="claudiomerli">
+        <addColumn tableName="project_content_preview">
+            <column name="content_id" type="int">
+                <constraints foreignKeyName="projectContentPreview_content" referencedTableName="content" referencedColumnNames="id" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

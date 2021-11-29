@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,9 +42,8 @@ public class Project {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
-    @JoinColumn(name = "newspaper_id")
-    private Newspaper newspaper;
+    @OneToMany(mappedBy = "project")
+    private List<ProjectContentPreview> projectContentPreviews;
 
     @PrePersist
     private void prePersist() {

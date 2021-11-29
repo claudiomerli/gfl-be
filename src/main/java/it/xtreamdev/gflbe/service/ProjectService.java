@@ -5,10 +5,13 @@ import it.xtreamdev.gflbe.dto.SearchProjectDTO;
 import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Customer;
+import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.ProjectContentPreview;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.repository.CustomerRepository;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
+import it.xtreamdev.gflbe.repository.ProjectContentPreviewRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,11 +19,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.Transient;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -28,6 +35,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final CustomerRepository customerRepository;
     private final NewspaperRepository newspaperRepository;
+    private final ProjectContentPreviewRepository projectContentPreviewRepository;
 
     public Page<Project> search(SearchProjectDTO searchProjectDTO, PageRequest pageRequest) {
         return this.projectRepository.findAll((root, query, criteriaBuilder) -> {
@@ -47,23 +55,42 @@ public class ProjectService {
         }, pageRequest);
     }
 
+    @Transactional
     public Project save(SaveProjectDTO saveProjectDTO) {
-        return projectRepository.save(
+        Project project = projectRepository.save(
                 Project.builder()
                         .name(saveProjectDTO.getName())
                         .customer(
                                 customerRepository.findById(saveProjectDTO.getCustomerId())
                                         .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
                         )
-                        .newspaper(
-                                newspaperRepository.findById(saveProjectDTO.getNewspaperId())
-                                        .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY))
-                        )
                         .status(ProjectStatus.CREATED)
                         .build()
         );
+
+
+        List<ProjectContentPreview> projectContentPreviewList = saveProjectDTO
+                .getProjectContentPreviews()
+                .stream()
+                .map(saveProjectContentPreviewDTO -> {
+                    Newspaper newspaper = this.newspaperRepository.findById(saveProjectContentPreviewDTO.getNewspaperId()).orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY));
+                    return ProjectContentPreview
+                            .builder()
+                            .newspaper(newspaper)
+                            .customerNotes(saveProjectContentPreviewDTO.getCustomerNotes())
+                            .linkText(saveProjectContentPreviewDTO.getLinkText())
+                            .linkUrl(saveProjectContentPreviewDTO.getLinkUrl())
+                            .monthUse(saveProjectContentPreviewDTO.getMonthUse())
+                            .title(saveProjectContentPreviewDTO.getTitle())
+                            .project(project)
+                            .build();
+                }).collect(Collectors.toList());
+
+        this.projectContentPreviewRepository.saveAll(projectContentPreviewList);
+        return project;
     }
 
+    @Transactional
     public Project update(Integer id, UpdateProjectDTO updateProjectDTO) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
@@ -73,11 +100,38 @@ public class ProjectService {
                         .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
         );
 
-        project.setNewspaper(
-                newspaperRepository.findById(updateProjectDTO.getNewspaperId())
-                        .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY))
-        );
+        updateProjectDTO
+                .getProjectContentPreviews()
+                .forEach(saveProjectContentPreviewDTO -> {
+                    Newspaper newspaper = this.newspaperRepository.findById(saveProjectContentPreviewDTO.getNewspaperId())
+                            .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY));
+
+                    ProjectContentPreview projectContentPreview = new ProjectContentPreview();
+
+                    if (Objects.nonNull(saveProjectContentPreviewDTO.getId())) {
+                        projectContentPreview = project.getProjectContentPreviews()
+                                .stream()
+                                .filter(projectContentPreviewModel -> projectContentPreviewModel.getId().equals(saveProjectContentPreviewDTO.getId()))
+                                .findFirst()
+                                .orElseThrow(() -> new GLFException("id ProjectContentPreview not found", HttpStatus.BAD_REQUEST));
+                    }
+
+                    projectContentPreview.setNewspaper(newspaper);
+                    projectContentPreview.setProject(project);
+                    projectContentPreview.setCustomerNotes(saveProjectContentPreviewDTO.getCustomerNotes());
+                    projectContentPreview.setLinkText(saveProjectContentPreviewDTO.getLinkText());
+                    projectContentPreview.setLinkUrl(saveProjectContentPreviewDTO.getLinkUrl());
+                    projectContentPreview.setTitle(saveProjectContentPreviewDTO.getTitle());
+                    projectContentPreview.setMonthUse(saveProjectContentPreviewDTO.getMonthUse());
+
+                    this.projectContentPreviewRepository.save(projectContentPreview);
+                });
         return projectRepository.save(project);
+    }
+
+    @Transactional
+    public void deletePojectContentPreview(Integer id) {
+        this.projectContentPreviewRepository.deleteById(id);
     }
 
     public Project changeStatus(Integer id, ProjectStatus status) {

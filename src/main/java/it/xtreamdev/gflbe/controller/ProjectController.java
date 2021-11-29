@@ -65,6 +65,12 @@ public class ProjectController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("projectContentPreview/{id}")
+    public ResponseEntity<Void> deleteProjectContentPreview(@PathVariable Integer id) {
+        projectService.deletePojectContentPreview(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("{id}/change-status")
     public ResponseEntity<Project> changeStatus(@PathVariable Integer id, @Valid @RequestBody ChangeStatusProjectDTO changeStatusProjectDTO) {
         return ResponseEntity.ok(

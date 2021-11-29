@@ -18,9 +18,11 @@ spring:
     enabled: true
     change-log: db/liquibase/db.changelog-master.xml
 
+
 gfl:
   ftp:
     host: 80.241.142.27
     user: admintlt
     password: Qw9o&26g
   suggestUrl: https://suggestqueries.google.com/complete/search?output=toolbar&hl=it&q={keyWord}
+
