@@ -164,4 +164,8 @@ public class ProjectService {
 
         return this.projectRepository.save(project);
     }
+
+    public ProjectContentPreview getProjectContentPreview(Integer id) {
+        return this.projectContentPreviewRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY,"pcp id not found"));
+    }
 }

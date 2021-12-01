@@ -3,6 +3,7 @@ package it.xtreamdev.gflbe.controller;
 import it.xtreamdev.gflbe.dto.*;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.ProjectContentPreview;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,11 @@ public class ProjectController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         projectRepository.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("projectContentPreview/{id}")
+    public ResponseEntity<ProjectContentPreview> getProjectContentPreview(@PathVariable Integer id) {
+        return ResponseEntity.ok(projectService.getProjectContentPreview(id));
     }
 
     @DeleteMapping("projectContentPreview/{id}")
