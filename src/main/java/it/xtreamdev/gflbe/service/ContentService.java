@@ -182,7 +182,7 @@ public class ContentService {
 
         Content contentSaved = this.contentRepository.save(content);
 
-        if(Objects.nonNull(saveContentDTO.getProjectContentPreviewId())){
+        if (Objects.nonNull(saveContentDTO.getProjectContentPreviewId())) {
             ProjectContentPreview projectContentPreview = this.projectContentPreviewRepository.findById(saveContentDTO.getProjectContentPreviewId()).orElseThrow(() -> new GLFException("id ProjectContentPreview not found", HttpStatus.BAD_REQUEST));
             projectContentPreview.setContent(contentSaved);
             this.projectContentPreviewRepository.save(projectContentPreview);
@@ -414,13 +414,15 @@ public class ContentService {
         this.contentRepository.save(content);
         if (
                 ContentProjectStatus.TO_BE_PUBLISHED.equals(status)
-                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(), Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING))
+                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(),
+                        Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING))
         ) {
             this.projectService.changeStatus(content.getProject(), ProjectStatus.TO_BE_PUBLISHED);
         }
         if (
                 ContentProjectStatus.PUBLISHED.equals(status)
-                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(), Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING, ContentProjectStatus.TO_BE_PUBLISHED))
+                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(),
+                        Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING, ContentProjectStatus.TO_BE_PUBLISHED))
         ) {
             this.projectService.changeStatus(content.getProject(), ProjectStatus.TERMINATED);
         }

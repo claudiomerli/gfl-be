@@ -42,6 +42,10 @@ public class Project {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @ManyToOne
+    @JoinColumn(name = "chief_editor_id")
+    private User chiefEditor;
+
     @OneToMany(mappedBy = "project")
     private List<ProjectContentPreview> projectContentPreviews;
 

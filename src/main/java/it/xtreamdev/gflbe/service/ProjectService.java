@@ -1,23 +1,20 @@
 package it.xtreamdev.gflbe.service;
 
+import it.xtreamdev.gflbe.dto.IdDto;
 import it.xtreamdev.gflbe.dto.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.SearchProjectDTO;
 import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
-import it.xtreamdev.gflbe.model.Customer;
-import it.xtreamdev.gflbe.model.Newspaper;
-import it.xtreamdev.gflbe.model.Project;
-import it.xtreamdev.gflbe.model.ProjectContentPreview;
+import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
-import it.xtreamdev.gflbe.repository.CustomerRepository;
-import it.xtreamdev.gflbe.repository.NewspaperRepository;
-import it.xtreamdev.gflbe.repository.ProjectContentPreviewRepository;
-import it.xtreamdev.gflbe.repository.ProjectRepository;
+import it.xtreamdev.gflbe.model.enumerations.RoleName;
+import it.xtreamdev.gflbe.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.Transient;
 import javax.persistence.criteria.Join;
@@ -36,6 +33,7 @@ public class ProjectService {
     private final CustomerRepository customerRepository;
     private final NewspaperRepository newspaperRepository;
     private final ProjectContentPreviewRepository projectContentPreviewRepository;
+    private final UserRepository userRepository;
 
     public Page<Project> search(SearchProjectDTO searchProjectDTO, PageRequest pageRequest) {
         return this.projectRepository.findAll((root, query, criteriaBuilder) -> {
@@ -145,4 +143,17 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
+    public Project assignChiefEditor(Integer idProject, IdDto idDto) {
+        Project project = this.projectRepository.findById(idProject).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "project id not found"));
+        User user = this.userRepository.findById(idDto.getId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "user id not found"));
+
+        if (user.getRole() != RoleName.CHIEF_EDITOR) {
+            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "user is not a CHIEF_EDITOR");
+        }
+
+        project.setChiefEditor(user);
+        project.setStatus(ProjectStatus.ASSIGNED);
+
+        return this.projectRepository.save(project);
+    }
 }

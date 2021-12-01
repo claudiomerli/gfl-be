@@ -1,9 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.ChangeStatusProjectDTO;
-import it.xtreamdev.gflbe.dto.SaveProjectDTO;
-import it.xtreamdev.gflbe.dto.SearchProjectDTO;
-import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
+import it.xtreamdev.gflbe.dto.*;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
@@ -75,6 +72,13 @@ public class ProjectController {
     public ResponseEntity<Project> changeStatus(@PathVariable Integer id, @Valid @RequestBody ChangeStatusProjectDTO changeStatusProjectDTO) {
         return ResponseEntity.ok(
                 projectService.changeStatus(id, changeStatusProjectDTO.getStatus())
+        );
+    }
+
+    @PutMapping("{idProject}/assign-chief-editor")
+    public ResponseEntity<Project> assignChiefEditor(@PathVariable Integer idProject, @Valid @RequestBody IdDto idDto) {
+        return ResponseEntity.ok(
+                projectService.assignChiefEditor(idProject, idDto)
         );
     }
 }

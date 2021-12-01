@@ -336,4 +336,11 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="20211201-1" author="claudiomerli">
+        <addColumn tableName="project">
+            <column name="chief_editor_id" type="int">
+                <constraints foreignKeyName="projectChiefEditor_User" referencedTableName="user" referencedColumnNames="id" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
