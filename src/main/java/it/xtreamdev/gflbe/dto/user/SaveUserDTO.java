@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto.editor;
+package it.xtreamdev.gflbe.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SaveEditorDTO extends EditEditorDTO {
+public class SaveUserDTO extends EditUserDTO {
 
     private String username;
 
