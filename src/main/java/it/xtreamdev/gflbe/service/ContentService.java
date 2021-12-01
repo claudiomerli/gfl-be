@@ -77,7 +77,32 @@ public class ContentService {
             return this.findAllEditor(user, searchContentDTO, pageRequest);
         }
 
+        if (user.getRole() == RoleName.CHIEF_EDITOR) {
+            return this.findAllChiefEditor(user, searchContentDTO, pageRequest);
+        }
+
         throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Role not found");
+    }
+
+    private Page<Content> findAllChiefEditor(User user, SearchContentDTO searchContentDTO, PageRequest pageRequest) {
+        return this.contentRepository.findAll((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            Join<Content, Customer> customerJoin = root.join("customer");
+            Join<Content, User> editorJoin = root.join("editor");
+            Join<Content, Newspaper> newspaperJoin = root.join("newspaper");
+            Join<Content, Project> projectJoin = root.join("project");
+
+            predicates.add(criteriaBuilder.equal(projectJoin.get("chiefEditor"), user));
+
+            Optional.ofNullable(searchContentDTO.getMonthUse()).ifPresent(monthUse -> predicates.add(criteriaBuilder.equal(root.get("monthUse"), monthUse)));
+            Optional.ofNullable(searchContentDTO.getCustomerId()).ifPresent(customerIdValue -> predicates.add(criteriaBuilder.equal(customerJoin.get("id"), customerIdValue)));
+            Optional.ofNullable(searchContentDTO.getEditorId()).ifPresent(editorIdValue -> predicates.add(criteriaBuilder.equal(editorJoin.get("id"), editorIdValue)));
+            Optional.ofNullable(searchContentDTO.getNewspaperId()).ifPresent(newspaperIdValue -> predicates.add(criteriaBuilder.equal(newspaperJoin.get("id"), newspaperIdValue)));
+            Optional.ofNullable(searchContentDTO.getProjectId()).ifPresent(projectIdValue -> predicates.add(criteriaBuilder.equal(projectJoin.get("id"), projectIdValue)));
+
+            return getPredicateForCommonParameter(searchContentDTO, root, criteriaBuilder, predicates);
+        }, pageRequest);
     }
 
     private Page<Content> findAllAdmin(SearchContentDTO searchContentDTO,
