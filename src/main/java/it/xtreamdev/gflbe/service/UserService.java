@@ -58,7 +58,7 @@ public class UserService {
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.isNotBlank(role)) {
-                criteriaBuilder.equal(root.get("role"), RoleName.valueOf(role));
+                predicates.add(criteriaBuilder.equal(root.get("role"), RoleName.valueOf(role)));
             }
 
             if (StringUtils.isNotBlank(gloabalSearch)) {
@@ -125,11 +125,6 @@ public class UserService {
         user.setPassword(null);
 
         return user;
-    }
-
-    public User currentUserAuthentication() {
-        JwtUserPrincipal userPrincipal = (JwtUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userPrincipal.getUser();
     }
 
     public User userInfo() {

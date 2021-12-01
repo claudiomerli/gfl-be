@@ -35,9 +35,17 @@ public class ProjectService {
     private final ProjectContentPreviewRepository projectContentPreviewRepository;
     private final UserRepository userRepository;
 
+    private final UserService userService;
+
     public Page<Project> search(SearchProjectDTO searchProjectDTO, PageRequest pageRequest) {
+        User user = this.userService.userInfo();
+
         return this.projectRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if (user.getRole() == RoleName.CHIEF_EDITOR) {
+                predicates.add(criteriaBuilder.equal(root.get("chiefEditor"), user));
+            }
 
             Optional.ofNullable(searchProjectDTO.getGlobalSearch())
                     .ifPresent(globalSearchValue ->

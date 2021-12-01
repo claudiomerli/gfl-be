@@ -29,7 +29,7 @@ public class ProjectController {
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @ModelAttribute("searchProjectDTO") SearchProjectDTO searchProjectDTO) {
+            @ModelAttribute SearchProjectDTO searchProjectDTO) {
         return ResponseEntity.ok(
                 projectService.search(searchProjectDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy))
         );
