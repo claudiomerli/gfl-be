@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -76,7 +77,8 @@ public class UserService {
         }, pageable);
     }
 
-    public void createUser(SaveUserDTO editsaveUserDTO) {
+    @Transactional
+    public User createUser(SaveUserDTO editsaveUserDTO) {
         this.userRepository.findByUsername(editsaveUserDTO.getUsername()).ifPresent((user) -> {
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Username already exists");
         });
@@ -93,7 +95,7 @@ public class UserService {
                 .password(this.passwordEncoder.encode(editsaveUserDTO.getPassword()))
                 .build();
 
-        this.userRepository.save(user);
+        return this.userRepository.save(user);
     }
 
     public User updateUser(Integer id, EditUserDTO userUpdated) {
@@ -115,7 +117,7 @@ public class UserService {
     }
 
     public void deleteUser(Integer id) {
-        this.userRepository.deleteByIdAndRole(id, RoleName.EDITOR);
+        this.userRepository.deleteById(id);
     }
 
     public User findById(Integer id) {

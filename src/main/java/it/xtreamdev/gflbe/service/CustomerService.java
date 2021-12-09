@@ -1,23 +1,26 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.SaveCustomerDTO;
 import it.xtreamdev.gflbe.dto.SaveCustomerRestDTO;
+import it.xtreamdev.gflbe.dto.user.SaveUserDTO;
 import it.xtreamdev.gflbe.model.ContentRules;
 import it.xtreamdev.gflbe.model.Customer;
 import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.ContentRulesRepository;
 import it.xtreamdev.gflbe.repository.CustomerRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
+import it.xtreamdev.gflbe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.criteria.Predicate;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +30,12 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -62,7 +71,7 @@ public class CustomerService {
 
     @Transactional
     public Customer save(SaveCustomerRestDTO saveCustomerRestDTO) {
-        return this.customerRepository.save(
+        Customer customer = this.customerRepository.save(
                 Customer.builder()
                         .name(saveCustomerRestDTO.getName())
                         .contentRules(
@@ -77,11 +86,22 @@ public class CustomerService {
                         )
                         .build()
         );
-    }
 
-    public SaveCustomerDTO loadSaveCustomerDtoFromCustomer(Integer id) {
-        Customer customer = this.customerRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
-        return SaveCustomerDTO.builder().customer(customer).contentRules(customer.getContentRules()).build();
+
+        SaveUserDTO saveUserDTO = new SaveUserDTO();
+        saveUserDTO.setRole(RoleName.CUSTOMER);
+        saveUserDTO.setUsername(saveCustomerRestDTO.getUsername());
+        saveUserDTO.setFullname(saveCustomerRestDTO.getName());
+        saveUserDTO.setEmail(saveCustomerRestDTO.getEmail());
+        saveUserDTO.setMobilePhone(saveCustomerRestDTO.getMobile());
+        saveUserDTO.setPassword(saveCustomerRestDTO.getPassword());
+
+        User user = this.userService.createUser(saveUserDTO);
+        user.setCustomer(customer);
+
+        this.userRepository.save(user);
+        
+        return customer;
     }
 
     public Customer findById(Integer id) {
@@ -91,26 +111,6 @@ public class CustomerService {
 
     public List<Project> findProjectByIdCustomer(Integer idCustomer) {
         return projectRepository.findAllByCustomer_Id(idCustomer);
-    }
-
-    public SaveCustomerDTO updateCustomer(Integer id, SaveCustomerDTO saveCustomerDTO) {
-        Customer customer = this.customerRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
-        customer.setName(saveCustomerDTO.getCustomer().getName());
-
-        ContentRules contentRules = customer.getContentRules();
-        contentRules.setBody(saveCustomerDTO.getContentRules().getBody());
-        contentRules.setLinkText(saveCustomerDTO.getContentRules().getLinkText());
-        contentRules.setLinkUrl(saveCustomerDTO.getContentRules().getLinkUrl());
-        contentRules.setTitle(saveCustomerDTO.getContentRules().getTitle());
-        contentRules.setMaxCharacterBodyLength(saveCustomerDTO.getContentRules().getMaxCharacterBodyLength());
-
-        this.contentRulesRepository.save(contentRules);
-        this.customerRepository.save(customer);
-
-        saveCustomerDTO.getContentRules().setId(contentRules.getId());
-        saveCustomerDTO.getCustomer().setId(id);
-
-        return saveCustomerDTO;
     }
 
     public Customer update(Integer id, SaveCustomerRestDTO saveCustomerRestDTO) {

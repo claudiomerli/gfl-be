@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.dto.user;
 
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

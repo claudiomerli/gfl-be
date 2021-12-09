@@ -343,4 +343,20 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="20211207-1" author="claudiomerli">
+        <addColumn tableName="user">
+            <column name="customer_id" type="int">
+                <constraints foreignKeyName="userCustomer_User" referencedTableName="user" referencedColumnNames="id" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20211207-2" author="claudiomerli">
+        <dropForeignKeyConstraint baseTableName="user" constraintName="userCustomer_User" />
+        <dropColumn tableName="user" columnName="customer_id" />
+        <addColumn tableName="user">
+            <column name="customer_id" type="int">
+                <constraints foreignKeyName="userCustomer_User" referencedTableName="customer" referencedColumnNames="id" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

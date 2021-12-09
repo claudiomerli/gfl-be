@@ -9,5 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SaveCustomerRestDTO {
     private String name;
+
+    private String username;
+    private String password;
+    private String email;
+    private String mobile;
+
     private SaveContentRulesDTO contentRules;
 }

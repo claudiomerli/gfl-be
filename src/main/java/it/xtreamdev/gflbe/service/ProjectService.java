@@ -47,6 +47,10 @@ public class ProjectService {
                 predicates.add(criteriaBuilder.equal(root.get("chiefEditor"), user));
             }
 
+            if (user.getRole() == RoleName.CUSTOMER) {
+                predicates.add(criteriaBuilder.equal(root.get("customer"), user));
+            }
+
             Optional.ofNullable(searchProjectDTO.getGlobalSearch())
                     .ifPresent(globalSearchValue ->
                             predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + globalSearchValue.toUpperCase() + "%"))
