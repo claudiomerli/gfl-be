@@ -48,7 +48,7 @@ public class ProjectService {
             }
 
             if (user.getRole() == RoleName.CUSTOMER) {
-                predicates.add(criteriaBuilder.equal(root.get("customer"), user));
+                predicates.add(criteriaBuilder.equal(root.get("customer"), user.getCustomer()));
             }
 
             Optional.ofNullable(searchProjectDTO.getGlobalSearch())

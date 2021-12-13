@@ -97,20 +97,18 @@ public class ContentController {
 
     @PutMapping("customer/{contentId}/approve")
     public ResponseEntity<Void> approveContent(
-            @PathVariable Integer contentId,
-            @RequestParam("token") String token
+            @PathVariable Integer contentId
     ) {
-        this.contentService.approveContent(contentId, token);
+        this.contentService.approveContent(contentId);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("customer/{contentId}/notes")
     public ResponseEntity<Void> saveNotes(
             @PathVariable Integer contentId,
-            @RequestParam("token") String token,
             @RequestBody CustomerNotes customerNotes
     ) {
-        this.contentService.saveNotesToContent(contentId, customerNotes.getNotes(), token);
+        this.contentService.saveNotesToContent(contentId, customerNotes.getNotes());
         return ResponseEntity.ok().build();
     }
 

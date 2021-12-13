@@ -107,7 +107,7 @@ public class UserService {
         userFromDB.setMobilePhone(userUpdated.getMobilePhone());
         userFromDB.setLevel(userUpdated.getLevel());
         userFromDB.setRemuneration(userUpdated.getRemuneration());
-        userFromDB.setRole(RoleName.CHIEF_EDITOR);
+        userFromDB.setRole(userUpdated.getRole());
 
         if (StringUtils.isNotBlank(userUpdated.getPassword())) {
             userFromDB.setPassword(this.passwordEncoder.encode(userUpdated.getPassword()));

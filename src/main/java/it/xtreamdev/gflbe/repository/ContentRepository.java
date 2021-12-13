@@ -18,6 +18,8 @@ public interface ContentRepository extends JpaRepository<Content, Integer>, JpaS
 
     Optional<Content> findByIdAndEditor(Integer contentId, User user);
 
+    Optional<Content> findByIdAndCustomer_Id(Integer contentId, Integer customerId);
+
     boolean existsByProjectAndProjectStatusIn(Project project, List<ContentProjectStatus> asList);
 
     Integer countByNewspaper_Id(int id);
