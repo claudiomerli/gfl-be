@@ -32,9 +32,9 @@ public class NewspaperController {
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @RequestParam(value = "globalSearch", required = false) String globalSearch
+            SearchNewspaperDTO searchNewspaperDTO
     ) {
-        return ResponseEntity.ok(this.newspaperService.findAll(globalSearch, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
+        return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
     }
 
     @GetMapping("/price-quotation")

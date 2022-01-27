@@ -43,6 +43,12 @@ public class Newspaper {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "ip")
+    private String ip;
+
+    @Column(name = "za")
+    private String za;
+
     @ManyToMany
     @JoinTable(
             name = "newspaper_topics",
