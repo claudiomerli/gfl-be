@@ -22,7 +22,7 @@ public class ContentRules {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "tile")
+    @Column(name = "title")
     private String title;
 
     @Column(name = "link_url")
