@@ -16,14 +16,14 @@ public class SearchNewspaperDTO {
     private Double maxBudget;
 
     private String name;
-    private String zaFrom;
-    private String zaTo;
-    private String purchasedContentFrom;
-    private String purchasedContentTo;
-    private String costEachFrom;
-    private String costEachTo;
-    private String costSellFrom;
-    private String costSellTo;
+    private Long zaFrom;
+    private Long zaTo;
+    private Long purchasedContentFrom;
+    private Long purchasedContentTo;
+    private Double costEachFrom;
+    private Double costEachTo;
+    private Double costSellFrom;
+    private Double costSellTo;
     private String regionalGeolocalization;
     private List<String> topics;
 

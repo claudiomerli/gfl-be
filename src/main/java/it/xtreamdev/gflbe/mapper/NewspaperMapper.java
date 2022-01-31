@@ -59,6 +59,7 @@ public class NewspaperMapper {
                 .purchasedContent(newspaper.getPurchasedContent())
                 .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                 .note(newspaper.getNote())
+                .za(newspaper.getZa())
                 .topics(newspaper.getTopics().stream().map(topic -> TopicDTO
                                 .builder()
                                 .id(topic.getId())

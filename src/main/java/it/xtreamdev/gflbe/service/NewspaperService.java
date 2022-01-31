@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -65,23 +66,27 @@ public class NewspaperService {
             orderList.add(criteriaBuilder.desc(root.get("id")));
             criteriaQuery.orderBy(orderList);
             List<Predicate> predicates = new ArrayList<>();
-            if(searchNewspaperDTO.getNewspaperId() !=null && searchNewspaperDTO.getNewspaperId() != 0) {
+            if(isValidId(searchNewspaperDTO.getNewspaperId())) {
                 predicates.add(criteriaBuilder.equal(root.get("id"), searchNewspaperDTO.getNewspaperId()));
             }
-            if(searchNewspaperDTO.getTopicId() !=null && searchNewspaperDTO.getTopicId() != 0) {
+            if(isValidId(searchNewspaperDTO.getTopicId())) {
                 predicates.add(criteriaBuilder.equal(root.join("topics").get("id"), searchNewspaperDTO.getTopicId()));
             }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getZaFrom())) { predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), searchNewspaperDTO.getZaFrom())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getZaTo())) { predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), searchNewspaperDTO.getZaTo())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getPurchasedContentFrom())) { predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), searchNewspaperDTO.getPurchasedContentFrom())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getPurchasedContentTo())) { predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), searchNewspaperDTO.getPurchasedContentTo())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getCostEachFrom())) { predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costEach"), searchNewspaperDTO.getCostEachFrom())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getCostEachTo())) { predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costEach"), searchNewspaperDTO.getCostEachTo())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getCostSellFrom())) { predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costSell"), searchNewspaperDTO.getCostSellFrom())); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getCostSellTo())) { predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costSell"), searchNewspaperDTO.getCostSellTo())); }
-            Optional.ofNullable(searchNewspaperDTO.getName()).ifPresent(name -> predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + name.toUpperCase() + "%")));
-            Optional.ofNullable(searchNewspaperDTO.getRegionalGeolocalization()).ifPresent(regional -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("regionalGeolocalization"), regional)));
-            //TODO non ricordo come cercare in una lista CIAO
+            Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
+            Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
+            Optional.ofNullable(searchNewspaperDTO.getPurchasedContentFrom()).ifPresent(purchasedContentFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), purchasedContentFrom)));
+            Optional.ofNullable(searchNewspaperDTO.getPurchasedContentTo()).ifPresent(purchasedContentTo -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), purchasedContentTo)));
+            Optional.ofNullable(searchNewspaperDTO.getCostEachFrom()).ifPresent(costEachFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costEach"), costEachFrom)));
+            Optional.ofNullable(searchNewspaperDTO.getCostEachTo()).ifPresent(costEachTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costEach"), costEachTo)));
+            Optional.ofNullable(searchNewspaperDTO.getCostSellFrom()).ifPresent(costSellFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costSell"), costSellFrom)));
+            Optional.ofNullable(searchNewspaperDTO.getCostSellTo()).ifPresent(costSellTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costSell"), costSellTo)));
+            if(!StringUtils.isEmpty(searchNewspaperDTO.getName())) { predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchNewspaperDTO.getName().toUpperCase() + "%")); }
+            if(!StringUtils.isEmpty(searchNewspaperDTO.getRegionalGeolocalization())) { predicates.add(criteriaBuilder.equal(criteriaBuilder.upper(root.get("regionalGeolocalization")), searchNewspaperDTO.getRegionalGeolocalization().toUpperCase())); }
+            Optional.ofNullable(searchNewspaperDTO.getTopics()).ifPresent(topics -> {
+                CriteriaBuilder.In<Integer> inClause = criteriaBuilder.in(root.join("topics").get("id"));
+                topics.forEach(topic -> inClause.value(Integer.valueOf(topic)));
+                predicates.add(inClause);
+            });
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }, pageRequest);
 
@@ -142,5 +147,15 @@ public class NewspaperService {
 
     public FinanceDTO finance() {
         return this.newspaperRepository.finance();
+    }
+
+    private boolean isValidId(Integer id) {
+        return id !=null && id != 0;
+    }
+    private boolean isValidId(Double id) {
+        return id !=null && id != 0;
+    }
+    private boolean isValidId(Long id) {
+        return id !=null && id != 0;
     }
 }
