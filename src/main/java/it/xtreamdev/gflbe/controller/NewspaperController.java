@@ -10,10 +10,13 @@ import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.service.NewspaperService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +38,30 @@ public class NewspaperController {
             SearchNewspaperDTO searchNewspaperDTO
     ) {
         return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
+    }
+
+    @GetMapping("export/excel")
+    public ResponseEntity<ByteArrayResource> exportExcel(SearchNewspaperDTO searchNewspaperDTO) {
+        try {
+            return ResponseEntity.ok()
+                    .contentType(new MediaType("application", "vnd.ms.excel"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.xlsx")
+                    .body(new ByteArrayResource(this.newspaperService.exportExcel(searchNewspaperDTO)));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("export/pdf")
+    public ResponseEntity<ByteArrayResource> exportPDF(SearchNewspaperDTO searchNewspaperDTO) {
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.pdf")
+                    .body(new ByteArrayResource(this.newspaperService.exportPDF(searchNewspaperDTO)));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/price-quotation")
