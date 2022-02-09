@@ -320,43 +320,63 @@
     </changeSet>
     <changeSet id="20211129-2" author="claudiomerli">
         <dropForeignKeyConstraint baseTableName="project" constraintName="FKhsfaynkbrrfjfyupgnbfxcxrw"/>
-        <dropColumn tableName="project" columnName="newspaper_id" />
+        <dropColumn tableName="project" columnName="newspaper_id"/>
     </changeSet>
     <changeSet id="20211129-3" author="claudiomerli">
         <addColumn tableName="project_content_preview">
             <column name="project_id" type="int">
-                <constraints foreignKeyName="projectContentPreview_project" referencedTableName="project" referencedColumnNames="id" />
+                <constraints foreignKeyName="projectContentPreview_project" referencedTableName="project"
+                             referencedColumnNames="id"/>
             </column>
         </addColumn>
     </changeSet>
     <changeSet id="20211129-4" author="claudiomerli">
         <addColumn tableName="project_content_preview">
             <column name="content_id" type="int">
-                <constraints foreignKeyName="projectContentPreview_content" referencedTableName="content" referencedColumnNames="id" />
+                <constraints foreignKeyName="projectContentPreview_content" referencedTableName="content"
+                             referencedColumnNames="id"/>
             </column>
         </addColumn>
     </changeSet>
     <changeSet id="20211201-1" author="claudiomerli">
         <addColumn tableName="project">
             <column name="chief_editor_id" type="int">
-                <constraints foreignKeyName="projectChiefEditor_User" referencedTableName="user" referencedColumnNames="id" />
+                <constraints foreignKeyName="projectChiefEditor_User" referencedTableName="user"
+                             referencedColumnNames="id"/>
             </column>
         </addColumn>
     </changeSet>
     <changeSet id="20211207-1" author="claudiomerli">
         <addColumn tableName="user">
             <column name="customer_id" type="int">
-                <constraints foreignKeyName="userCustomer_User" referencedTableName="user" referencedColumnNames="id" />
+                <constraints foreignKeyName="userCustomer_User" referencedTableName="user" referencedColumnNames="id"/>
             </column>
         </addColumn>
     </changeSet>
     <changeSet id="20211207-2" author="claudiomerli">
-        <dropForeignKeyConstraint baseTableName="user" constraintName="userCustomer_User" />
-        <dropColumn tableName="user" columnName="customer_id" />
+        <dropForeignKeyConstraint baseTableName="user" constraintName="userCustomer_User"/>
+        <dropColumn tableName="user" columnName="customer_id"/>
         <addColumn tableName="user">
             <column name="customer_id" type="int">
-                <constraints foreignKeyName="userCustomer_User" referencedTableName="customer" referencedColumnNames="id" />
+                <constraints foreignKeyName="userCustomer_User" referencedTableName="customer"
+                             referencedColumnNames="id"/>
             </column>
         </addColumn>
+    </changeSet>
+    <changeSet id="1643659867035-2" author="claudiomerli (generated)">
+        <addColumn tableName="newspaper">
+            <column name="ip" type="VARCHAR(255)"/>
+            <column name="za" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1643659867035-4" author="claudiomerli (generated)">
+        <dropColumn columnName="link_text" tableName="content"/>
+        <dropColumn columnName="link_url" tableName="content"/>
+    </changeSet>
+    <changeSet id="1643659867035-7" author="claudiomerli (generated)">
+        <dropColumn columnName="topic" tableName="newspaper"/>
+    </changeSet>
+    <changeSet id="20220131" author="claudiomerli">
+        <renameColumn tableName="content_rules" oldColumnName="tile" newColumnName="title" />
     </changeSet>
 </databaseChangeLog>
