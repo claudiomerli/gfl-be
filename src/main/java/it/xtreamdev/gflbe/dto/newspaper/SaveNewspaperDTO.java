@@ -25,4 +25,8 @@ public class SaveNewspaperDTO {
     private Set<Integer> topics;
 
     private String note;
+
+    private String za;
+
+    private String ip;
 }

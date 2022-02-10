@@ -118,6 +118,8 @@ public class NewspaperService {
                         .purchasedContent(newspaper.getPurchasedContent())
                         .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                         .note(newspaper.getNote())
+                        .za(newspaper.getZa())
+                        .ip(newspaper.getIp())
                         .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()))
                         .build()
         );
@@ -137,6 +139,9 @@ public class NewspaperService {
         persistedNewspaper.setPurchasedContent(saveNewspaperDTO.getPurchasedContent());
         persistedNewspaper.setRegionalGeolocalization(saveNewspaperDTO.getRegionalGeolocalization());
         persistedNewspaper.setNote(saveNewspaperDTO.getNote());
+        persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
+        persistedNewspaper.setZa(saveNewspaperDTO.getZa());
+        persistedNewspaper.setIp(saveNewspaperDTO.getIp());
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
 
         this.newspaperRepository.save(persistedNewspaper);
