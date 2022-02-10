@@ -377,6 +377,6 @@
         <dropColumn columnName="topic" tableName="newspaper"/>
     </changeSet>
     <changeSet id="20220131" author="claudiomerli">
-        <renameColumn tableName="content_rules" oldColumnName="tile" newColumnName="title" />
+        <dropColumn tableName="content_rules" columnName="tile" />
     </changeSet>
 </databaseChangeLog>
