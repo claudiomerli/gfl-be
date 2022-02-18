@@ -60,6 +60,7 @@ public class NewspaperMapper {
                 .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                 .note(newspaper.getNote())
                 .za(newspaper.getZa())
+                .ip(newspaper.getIp())
                 .topics(newspaper.getTopics().stream().map(topic -> TopicDTO
                                 .builder()
                                 .id(topic.getId())

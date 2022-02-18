@@ -2,7 +2,6 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.FinanceDTO;
 import it.xtreamdev.gflbe.dto.PageDTO;
-import it.xtreamdev.gflbe.dto.PageableDTO;
 import it.xtreamdev.gflbe.dto.SelectDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
@@ -11,7 +10,6 @@ import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Topic;
-import it.xtreamdev.gflbe.repository.ContentRepository;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.util.ExcelUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
@@ -19,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -72,9 +69,6 @@ public class NewspaperService {
 
     public PageDTO<?> findAll(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
         Page<Newspaper> newspapers = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
-            List<Order> orderList = new ArrayList<>();
-            orderList.add(criteriaBuilder.desc(root.get("id")));
-            criteriaQuery.orderBy(orderList);
             List<Predicate> predicates = new ArrayList<>();
             if(isValidId(searchNewspaperDTO.getNewspaperId())) {
                 predicates.add(criteriaBuilder.equal(root.get("id"), searchNewspaperDTO.getNewspaperId()));
