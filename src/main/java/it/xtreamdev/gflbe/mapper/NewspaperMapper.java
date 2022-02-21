@@ -44,7 +44,7 @@ public class NewspaperMapper {
                             dto.setLeftContent(dto.getPurchasedContent() - contentRepository.countByNewspaper_Id(dto.getId()));
                             return dto;
                         })
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
                 .build();
     }
 

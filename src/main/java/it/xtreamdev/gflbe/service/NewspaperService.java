@@ -70,12 +70,14 @@ public class NewspaperService {
     public PageDTO<?> findAll(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
         Page<Newspaper> newspapers = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            if(isValidId(searchNewspaperDTO.getNewspaperId())) {
+            if (isValidId(searchNewspaperDTO.getNewspaperId())) {
                 predicates.add(criteriaBuilder.equal(root.get("id"), searchNewspaperDTO.getNewspaperId()));
             }
-            if(isValidId(searchNewspaperDTO.getTopicId())) {
+
+            if (isValidId(searchNewspaperDTO.getTopicId())) {
                 predicates.add(criteriaBuilder.equal(root.join("topics").get("id"), searchNewspaperDTO.getTopicId()));
             }
+
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
             Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
             Optional.ofNullable(searchNewspaperDTO.getPurchasedContentFrom()).ifPresent(purchasedContentFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), purchasedContentFrom)));
@@ -84,8 +86,15 @@ public class NewspaperService {
             Optional.ofNullable(searchNewspaperDTO.getCostEachTo()).ifPresent(costEachTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costEach"), costEachTo)));
             Optional.ofNullable(searchNewspaperDTO.getCostSellFrom()).ifPresent(costSellFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costSell"), costSellFrom)));
             Optional.ofNullable(searchNewspaperDTO.getCostSellTo()).ifPresent(costSellTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costSell"), costSellTo)));
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getName())) { predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchNewspaperDTO.getName().toUpperCase() + "%")); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getRegionalGeolocalization())) { predicates.add(criteriaBuilder.equal(criteriaBuilder.upper(root.get("regionalGeolocalization")), searchNewspaperDTO.getRegionalGeolocalization().toUpperCase())); }
+
+            if (!StringUtils.isEmpty(searchNewspaperDTO.getName())) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchNewspaperDTO.getName().toUpperCase() + "%"));
+            }
+
+            if (!StringUtils.isEmpty(searchNewspaperDTO.getRegionalGeolocalization())) {
+                predicates.add(criteriaBuilder.equal(criteriaBuilder.upper(root.get("regionalGeolocalization")), searchNewspaperDTO.getRegionalGeolocalization().toUpperCase()));
+            }
+
             Optional.ofNullable(searchNewspaperDTO.getTopics()).ifPresent(topics -> {
                 CriteriaBuilder.In<Integer> inClause = criteriaBuilder.in(root.join("topics").get("id"));
                 topics.forEach(topic -> inClause.value(Integer.valueOf(topic)));
@@ -163,7 +172,7 @@ public class NewspaperService {
         excelUtils.creaFoglioConHeader("Testate", "Elenco testate censite", Arrays.asList("ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento"));
         AtomicInteger colonna = new AtomicInteger(0);
         excelUtils.nuovaRiga(colonna);
-        try{
+        try {
             listaDTO.forEach(dto -> {
                 excelUtils.popolaRiga(colonna, dto.getId());
                 excelUtils.popolaRiga(colonna, dto.getName());
@@ -177,7 +186,7 @@ public class NewspaperService {
                 excelUtils.popolaRiga(colonna, dto.getTopics().stream().map(TopicDTO::getName).collect(Collectors.joining(", ")));
                 excelUtils.nuovaRiga(colonna);
             });
-        } catch( Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -208,10 +217,10 @@ public class NewspaperService {
             orderList.add(criteriaBuilder.desc(root.get("id")));
             criteriaQuery.orderBy(orderList);
             List<Predicate> predicates = new ArrayList<>();
-            if(isValidId(searchNewspaperDTO.getNewspaperId())) {
+            if (isValidId(searchNewspaperDTO.getNewspaperId())) {
                 predicates.add(criteriaBuilder.equal(root.get("id"), searchNewspaperDTO.getNewspaperId()));
             }
-            if(isValidId(searchNewspaperDTO.getTopicId())) {
+            if (isValidId(searchNewspaperDTO.getTopicId())) {
                 predicates.add(criteriaBuilder.equal(root.join("topics").get("id"), searchNewspaperDTO.getTopicId()));
             }
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
@@ -222,8 +231,12 @@ public class NewspaperService {
             Optional.ofNullable(searchNewspaperDTO.getCostEachTo()).ifPresent(costEachTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costEach"), costEachTo)));
             Optional.ofNullable(searchNewspaperDTO.getCostSellFrom()).ifPresent(costSellFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costSell"), costSellFrom)));
             Optional.ofNullable(searchNewspaperDTO.getCostSellTo()).ifPresent(costSellTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costSell"), costSellTo)));
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getName())) { predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchNewspaperDTO.getName().toUpperCase() + "%")); }
-            if(!StringUtils.isEmpty(searchNewspaperDTO.getRegionalGeolocalization())) { predicates.add(criteriaBuilder.equal(criteriaBuilder.upper(root.get("regionalGeolocalization")), searchNewspaperDTO.getRegionalGeolocalization().toUpperCase())); }
+            if (!StringUtils.isEmpty(searchNewspaperDTO.getName())) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchNewspaperDTO.getName().toUpperCase() + "%"));
+            }
+            if (!StringUtils.isEmpty(searchNewspaperDTO.getRegionalGeolocalization())) {
+                predicates.add(criteriaBuilder.equal(criteriaBuilder.upper(root.get("regionalGeolocalization")), searchNewspaperDTO.getRegionalGeolocalization().toUpperCase()));
+            }
             Optional.ofNullable(searchNewspaperDTO.getTopics()).ifPresent(topics -> {
                 CriteriaBuilder.In<Integer> inClause = criteriaBuilder.in(root.join("topics").get("id"));
                 topics.forEach(topic -> inClause.value(Integer.valueOf(topic)));
@@ -231,17 +244,19 @@ public class NewspaperService {
             });
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
-        return newspaperList.stream().map(newspaperMapper :: mapEntityToDTO).collect(Collectors.toList());
+        return newspaperList.stream().map(newspaperMapper::mapEntityToDTO).collect(Collectors.toList());
     }
 
     private boolean isValidId(Integer id) {
-        return id !=null && id != 0;
+        return id != null && id != 0;
     }
+
     private boolean isValidId(Double id) {
-        return id !=null && id != 0;
+        return id != null && id != 0;
     }
+
     private boolean isValidId(Long id) {
-        return id !=null && id != 0;
+        return id != null && id != 0;
     }
 
 }

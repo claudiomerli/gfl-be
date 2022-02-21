@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -12,7 +13,7 @@ import java.util.Set;
 @Data
 @Builder
 public class PageDTO<T> {
-    private Set<T> content;
+    private List<T> content;
     private PageableDTO pageable;
     private long totalElements;
 
