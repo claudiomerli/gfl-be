@@ -379,4 +379,7 @@
     <changeSet id="20220131" author="claudiomerli">
         <dropColumn tableName="content_rules" columnName="tile" />
     </changeSet>
+    <changeSet id="20220222-1" author="claudiomerli">
+        <modifyDataType tableName="newspaper" columnName="za" newDataType="int" />
+    </changeSet>
 </databaseChangeLog>

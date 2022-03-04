@@ -21,7 +21,7 @@ public class NewspaperDTO {
     private String email;
     private String regionalGeolocalization;
     private String note;
-    private String za;
+    private Integer za;
     private String ip;
     Set<TopicDTO> topics;
 

@@ -47,7 +47,7 @@ public class Newspaper {
     private String ip;
 
     @Column(name = "za")
-    private String za;
+    private Integer za;
 
     @ManyToMany
     @JoinTable(

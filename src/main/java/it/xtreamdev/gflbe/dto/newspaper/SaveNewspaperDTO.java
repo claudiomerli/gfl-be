@@ -26,7 +26,7 @@ public class SaveNewspaperDTO {
 
     private String note;
 
-    private String za;
+    private Integer za;
 
     private String ip;
 }
