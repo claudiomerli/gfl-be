@@ -16,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
@@ -28,8 +29,8 @@ public class PriceQuotationService {
 
     public byte[] generatePDF(GeneratePriceQuotationPDFDto generatePriceQuotationPDFDto) throws IOException {
         Resource resource = new ClassPathResource("pdf-generation/price-quotation.html");
-        FileInputStream fis = new FileInputStream(resource.getFile());
-        String fileContent = IOUtils.toString(fis, StandardCharsets.UTF_8);
+        InputStream inputStream = resource.getInputStream();
+        String fileContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         double taxPercentage = 22.0;
 
         Double totalExpense = generatePriceQuotationPDFDto.getRows().stream().map(GeneratePriceQuotationPDFDto.PriceQuotationRow::getRevenue).reduce(0.0, Double::sum);
