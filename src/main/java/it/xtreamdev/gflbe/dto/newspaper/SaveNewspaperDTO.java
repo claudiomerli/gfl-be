@@ -1,6 +1,8 @@
 package it.xtreamdev.gflbe.dto.newspaper;
 
 import lombok.*;
+
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -22,7 +24,7 @@ public class SaveNewspaperDTO {
 
     private String regionalGeolocalization;
 
-    private Set<Integer> topics;
+    private List<Integer> topics;
 
     private String note;
 

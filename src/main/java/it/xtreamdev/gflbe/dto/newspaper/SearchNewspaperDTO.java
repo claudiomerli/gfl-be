@@ -27,6 +27,7 @@ public class SearchNewspaperDTO {
     private String regionalGeolocalization;
     private List<String> topics;
 
-
+    private String orderBy;
+    private String orderDirection;
 
 }

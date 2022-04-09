@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -25,10 +26,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -123,7 +121,7 @@ public class NewspaperService {
                         .note(newspaper.getNote())
                         .za(newspaper.getZa())
                         .ip(newspaper.getIp())
-                        .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()))
+                        .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toList()))
                         .build()
         );
     }
@@ -142,10 +140,10 @@ public class NewspaperService {
         persistedNewspaper.setPurchasedContent(saveNewspaperDTO.getPurchasedContent());
         persistedNewspaper.setRegionalGeolocalization(saveNewspaperDTO.getRegionalGeolocalization());
         persistedNewspaper.setNote(saveNewspaperDTO.getNote());
-        persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
+        persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toList()));
         persistedNewspaper.setZa(saveNewspaperDTO.getZa());
         persistedNewspaper.setIp(saveNewspaperDTO.getIp());
-        persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
+        persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toList()));
 
         this.newspaperRepository.save(persistedNewspaper);
     }
@@ -212,6 +210,10 @@ public class NewspaperService {
     }
 
     private List<NewspaperDTO> listaPerExport(SearchNewspaperDTO searchNewspaperDTO) {
+
+        Sort sort = Sort.by(Objects.nonNull(searchNewspaperDTO.getOrderDirection()) ? Sort.Direction.valueOf(searchNewspaperDTO.getOrderDirection()) : Sort.Direction.ASC,
+                Objects.nonNull(searchNewspaperDTO.getOrderBy()) ? searchNewspaperDTO.getOrderBy() : "id");
+
         List<Newspaper> newspaperList = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Order> orderList = new ArrayList<>();
             orderList.add(criteriaBuilder.desc(root.get("id")));
@@ -243,7 +245,7 @@ public class NewspaperService {
                 predicates.add(inClause);
             });
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        });
+        }, sort);
         return newspaperList.stream().map(newspaperMapper::mapEntityToDTO).collect(Collectors.toList());
     }
 

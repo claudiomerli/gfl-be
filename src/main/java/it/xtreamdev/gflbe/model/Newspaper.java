@@ -4,6 +4,7 @@ import it.xtreamdev.gflbe.dto.enumerations.NewspaperTopic;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -54,6 +55,6 @@ public class Newspaper {
             name = "newspaper_topics",
             joinColumns = @JoinColumn(name = "newspaper_id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
-    Set<Topic> topics;
+    List<Topic> topics;
 
 }
