@@ -214,7 +214,11 @@ public class NewspaperService {
     private List<NewspaperDTO> listaPerExport(SearchNewspaperDTO searchNewspaperDTO) {
         List<Newspaper> newspaperList = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Order> orderList = new ArrayList<>();
-            orderList.add(criteriaBuilder.desc(root.get("id")));
+            if("ASC".equals(searchNewspaperDTO.getSortDirection())) {
+                orderList.add(criteriaBuilder.asc(root.get(searchNewspaperDTO.getSortBy())));
+            } else {
+                orderList.add(criteriaBuilder.desc(root.get(searchNewspaperDTO.getSortBy())));
+            }
             criteriaQuery.orderBy(orderList);
             List<Predicate> predicates = new ArrayList<>();
             if (isValidId(searchNewspaperDTO.getNewspaperId())) {

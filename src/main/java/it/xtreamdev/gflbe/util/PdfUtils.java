@@ -39,7 +39,9 @@ public class PdfUtils {
         init();
         float[] array = new float[colonne.size()];
         Arrays.fill(array, 5f);
-        table = new Table(UnitValue.createPercentArray(array));
+//        table = new Table(UnitValue.createPercentArray(array));
+        table = new Table(colonne.size());
+//        table.setWidth(523);
 
         PdfFont f = PdfFontFactory.createFont(StandardFonts.HELVETICA);
         Cell cell = new Cell(1, colonne.size())
@@ -50,11 +52,11 @@ public class PdfUtils {
                 .setBackgroundColor(DeviceGray.BLACK)
                 .setTextAlignment(TextAlignment.CENTER);
         table.addHeaderCell(cell);
-        colonne.forEach(colonna -> table.addHeaderCell(new Cell().setBackgroundColor(new DeviceGray(0.75f)).add(new Paragraph(colonna))));
+        colonne.forEach(colonna -> table.addHeaderCell(new Cell().setBackgroundColor(new DeviceGray(0.75f)).add(new Paragraph(colonna)).setFont(f).setFontSize(9).setTextAlignment(TextAlignment.CENTER)));
     }
 
     public void setValore(Object valore) {
-        table.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).add(new Paragraph(valore != null ? String.valueOf(valore) : "")));
+        table.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).add(new Paragraph(valore != null ? String.valueOf(valore) : "")).setFontSize(8));
     }
 
     public byte[] completaPDF() throws IOException {

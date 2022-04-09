@@ -1,7 +1,9 @@
 package it.xtreamdev.gflbe.util;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,6 +65,15 @@ public class ExcelUtils {
     }
 
     public byte[] exportExcel() throws IOException {
+        if (sheet.getPhysicalNumberOfRows() > 0) {
+            Row row = sheet.getRow(sheet.getFirstRowNum()+1);
+            Iterator<Cell> cellIterator = row.cellIterator();
+            while (cellIterator.hasNext()) {
+                Cell cell = cellIterator.next();
+                int columnIndex = cell.getColumnIndex();
+                sheet.autoSizeColumn(columnIndex);
+            }
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         autoSize(sheet, 4);
         workbook.write(baos);

@@ -26,6 +26,8 @@ public class SearchNewspaperDTO {
     private Double costSellTo;
     private String regionalGeolocalization;
     private List<String> topics;
+    private String sortDirection;
+    private String sortBy;
 
 
 

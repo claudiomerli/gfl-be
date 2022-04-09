@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./target/db/glfbe
-    username: sa
-    password: password
+    url: jdbc:mysql://localhost:3306/gfl?serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate.enable_lazy_load_no_trans: true
@@ -15,7 +15,7 @@ spring:
     port: 25
     password: Osuu19_2
   liquibase:
-    enabled: true
+    enabled: false
     change-log: db/liquibase/db.changelog-master.xml
 
 
