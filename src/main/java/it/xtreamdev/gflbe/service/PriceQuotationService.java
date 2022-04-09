@@ -39,7 +39,7 @@ public class PriceQuotationService {
 
         String tableBody = generatePriceQuotationPDFDto.getRows().stream().map(priceQuotationRow -> {
             Newspaper newspaper = this.newspaperRepository.findById(priceQuotationRow.getId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper not found"));
-            return "<tr><td>" + newspaper.getName() + "</td><td>" + newspaper.getZa() + "</td><td>" + newspaper.getIp() + "</td></tr>";
+            return "<tbody><tr style=\"outline: thin solid;\"><td style=\"border-right: thin solid; padding: 1em;\">" + newspaper.getName() + "</td><td style=\"border-right: thin solid; padding: 1em;\">" + newspaper.getZa() + "</td><td style=\"padding: 1em;\">" + newspaper.getIp() + "</td></tr></tbody>";
         }).collect(Collectors.joining());
 
         fileContent = fileContent
