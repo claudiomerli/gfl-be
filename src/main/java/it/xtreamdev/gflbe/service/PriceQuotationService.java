@@ -39,8 +39,9 @@ public class PriceQuotationService {
 
         String tableBody = generatePriceQuotationPDFDto.getRows().stream().map(priceQuotationRow -> {
             Newspaper newspaper = this.newspaperRepository.findById(priceQuotationRow.getId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper not found"));
-            return "<tbody><tr style=\"outline: thin solid;\"><td style=\"border-right: thin solid; padding: 1em;\">" + newspaper.getName() + "</td><td style=\"border-right: thin solid; padding: 1em;\">" + newspaper.getZa() + "</td><td style=\"padding: 1em;\">" + newspaper.getIp() + "</td></tr></tbody>";
+            return "<tr><td style=\"border: thin solid; padding: 1em;\">" + newspaper.getName() + "</td><td style=\"border: thin solid; padding: 1em;\">" + (newspaper.getZa() != null ? newspaper.getZa() : "") + "</td><td style=\"border: thin solid;padding: 1em;\">" + (newspaper.getIp() != null ? newspaper.getIp() : "") + "</td></tr>";
         }).collect(Collectors.joining());
+
 
         fileContent = fileContent
                 .replace("{{header_image}}", generatePriceQuotationPDFDto.getOtherInformation().getHeader())
