@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.dto.newspaper;
 
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -31,5 +32,10 @@ public class SearchNewspaperDTO {
 
     private String orderBy;
     private String orderDirection;
+
+    public void cleanSortParam(String sortBy, String sortDirection) {
+        this.sortBy = !StringUtils.isEmpty(this.sortBy) ? this.sortBy : sortBy;
+        this.sortDirection = !StringUtils.isEmpty(this.sortDirection) ? this.sortDirection : sortDirection;
+    }
 
 }

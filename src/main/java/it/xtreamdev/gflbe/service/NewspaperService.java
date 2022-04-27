@@ -210,10 +210,6 @@ public class NewspaperService {
     }
 
     private List<NewspaperDTO> listaPerExport(SearchNewspaperDTO searchNewspaperDTO) {
-
-        Sort sort = Sort.by(Objects.nonNull(searchNewspaperDTO.getOrderDirection()) ? Sort.Direction.valueOf(searchNewspaperDTO.getOrderDirection()) : Sort.Direction.ASC,
-                Objects.nonNull(searchNewspaperDTO.getOrderBy()) ? searchNewspaperDTO.getOrderBy() : "id");
-
         List<Newspaper> newspaperList = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Order> orderList = new ArrayList<>();
             if("ASC".equals(searchNewspaperDTO.getSortDirection())) {
@@ -249,7 +245,7 @@ public class NewspaperService {
                 predicates.add(inClause);
             });
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        }, sort);
+        });
         return newspaperList.stream().map(newspaperMapper::mapEntityToDTO).collect(Collectors.toList());
     }
 

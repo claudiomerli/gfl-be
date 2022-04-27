@@ -41,8 +41,12 @@ public class NewspaperController {
     }
 
     @GetMapping("export/excel")
-    public ResponseEntity<ByteArrayResource> exportExcel(SearchNewspaperDTO searchNewspaperDTO) {
+    public ResponseEntity<ByteArrayResource> exportExcel(
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+            SearchNewspaperDTO searchNewspaperDTO) {
         try {
+            searchNewspaperDTO.cleanSortParam(sortBy, sortDirection);
             return ResponseEntity.ok()
                     .contentType(new MediaType("application", "vnd.ms.excel"))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.xlsx")
@@ -53,8 +57,12 @@ public class NewspaperController {
     }
 
     @GetMapping("export/pdf")
-    public ResponseEntity<ByteArrayResource> exportPDF(SearchNewspaperDTO searchNewspaperDTO) {
+    public ResponseEntity<ByteArrayResource> exportPDF(
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+            SearchNewspaperDTO searchNewspaperDTO) {
         try {
+            searchNewspaperDTO.cleanSortParam(sortBy, sortDirection);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.pdf")
