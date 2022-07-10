@@ -12,6 +12,5 @@ public class TopicDTO {
 
     private Integer id;
     private String name;
-    private boolean selected; // Server al FE
 
 }

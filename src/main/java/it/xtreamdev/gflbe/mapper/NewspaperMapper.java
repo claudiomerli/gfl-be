@@ -1,7 +1,5 @@
 package it.xtreamdev.gflbe.mapper;
 
-import it.xtreamdev.gflbe.dto.PageDTO;
-import it.xtreamdev.gflbe.dto.PageableDTO;
 import it.xtreamdev.gflbe.dto.SelectDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.topic.TopicDTO;
@@ -25,27 +23,13 @@ public class NewspaperMapper {
     public List<SelectDTO> mapEntityToSelectDTO(List<Newspaper> newspapers) {
 
         return newspapers.stream().map(newspaper -> SelectDTO.builder()
-                        .id(newspaper.getId())
-                        .descrizione(newspaper.getName())
-                        .build()).collect(Collectors.toList());
+                .id(newspaper.getId())
+                .descrizione(newspaper.getName())
+                .build()).collect(Collectors.toList());
     }
 
-    public PageDTO<Object> mapEntityToPageDTO(Page<Newspaper> newspapers) {
-        return PageDTO.builder()
-                .pageable(PageableDTO
-                        .builder()
-                        .pageSize(newspapers.getPageable().getPageSize())
-                        .pageNumber(newspapers.getPageable().getPageNumber())
-                        .build())
-                .totalElements(newspapers.getTotalElements())
-                .content(newspapers.get()
-                        .map(newspaper -> {
-                            NewspaperDTO dto = newspaperMapper.mapEntityToDTO(newspaper);
-                            dto.setLeftContent(dto.getPurchasedContent() - contentRepository.countByNewspaper_Id(dto.getId()));
-                            return dto;
-                        })
-                        .collect(Collectors.toList()))
-                .build();
+    public Page<NewspaperDTO> mapEntityToDTO(Page<Newspaper> newspapers) {
+        return newspapers.map(newspaper -> newspaperMapper.mapEntityToDTO(newspaper));
     }
 
     public NewspaperDTO mapEntityToDTO(Newspaper newspaper) {
@@ -54,6 +38,7 @@ public class NewspaperMapper {
                 .id(newspaper.getId())
                 .costEach(newspaper.getCostEach())
                 .costSell(newspaper.getCostSell())
+                .leftContent(newspaper.getLeftContent())
                 .name(newspaper.getName())
                 .email(newspaper.getEmail())
                 .purchasedContent(newspaper.getPurchasedContent())

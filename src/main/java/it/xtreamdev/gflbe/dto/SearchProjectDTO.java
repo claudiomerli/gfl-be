@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.dto;
 
+import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class SearchProjectDTO {
 
     private String globalSearch;
-    private Integer customerId;
+    private ProjectStatus statusSearch;
 
 }

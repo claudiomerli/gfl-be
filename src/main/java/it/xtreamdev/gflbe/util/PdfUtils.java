@@ -39,9 +39,7 @@ public class PdfUtils {
         init();
         float[] array = new float[colonne.size()];
         Arrays.fill(array, 5f);
-//        table = new Table(UnitValue.createPercentArray(array));
         table = new Table(colonne.size());
-//        table.setWidth(523);
 
         PdfFont f = PdfFontFactory.createFont(StandardFonts.HELVETICA);
         Cell cell = new Cell(1, colonne.size())

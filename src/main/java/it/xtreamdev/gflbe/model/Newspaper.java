@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.model;
 
-import it.xtreamdev.gflbe.dto.enumerations.NewspaperTopic;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,7 +9,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,6 +34,12 @@ public class Newspaper {
     @Column(name = "cost_sell")
     private Double costSell;
 
+    @Formula("(select IFNULL((select sum(oe.content_number) from order_element oe inner join booking o on oe.order_id = o.id where oe.newspaper_id = id and o.status = 'CONFIRMED'), 0))")
+    private Integer soldContent;
+
+    @Formula("purchased_content - (select IFNULL((select sum(oe.content_number) from order_element oe inner join booking o on oe.order_id = o.id where oe.newspaper_id = id and o.status = 'CONFIRMED'), 0))")
+    private Integer leftContent;
+
     @Column(name = "email")
     private String email;
 
@@ -50,11 +55,12 @@ public class Newspaper {
     @Column(name = "za")
     private Integer za;
 
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "newspaper_topics",
             joinColumns = @JoinColumn(name = "newspaper_id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
-    List<Topic> topics;
+    Set<Topic> topics;
 
 }

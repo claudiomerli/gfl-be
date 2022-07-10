@@ -8,4 +8,10 @@
       </database-info>
     </database-infos>
   </component>
+  <component name="JpaLiquibaseChangesConfig">
+    <exclude-change idName="user#average_score" tagName="addColumn" />
+    <exclude-change idName="newspaper#left_content" tagName="addColumn" />
+    <exclude-change idName="newspaper#sold_content" tagName="addColumn" />
+    <exclude-change idName="booking#total" tagName="addColumn" />
+  </component>
 </project>

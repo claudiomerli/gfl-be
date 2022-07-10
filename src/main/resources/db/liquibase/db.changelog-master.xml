@@ -377,9 +377,95 @@
         <dropColumn columnName="topic" tableName="newspaper"/>
     </changeSet>
     <changeSet id="20220131" author="claudiomerli">
-        <dropColumn tableName="content_rules" columnName="tile" />
+        <dropColumn tableName="content_rules" columnName="tile"/>
     </changeSet>
     <changeSet id="20220222-1" author="claudiomerli">
-        <modifyDataType tableName="newspaper" columnName="za" newDataType="int" />
+        <modifyDataType tableName="newspaper" columnName="za" newDataType="int"/>
+    </changeSet>
+    <changeSet id="20220629-2" author="claudiomerli">
+        <addDefaultValue tableName="newspaper" columnName="purchased_content" defaultValue="0"/>
+        <addDefaultValue tableName="newspaper" columnName="cost_each" defaultValue="0"/>
+        <addDefaultValue tableName="newspaper" columnName="cost_sell" defaultValue="0"/>
+        <addDefaultValue tableName="newspaper" columnName="za" defaultValue="0"/>
+    </changeSet>
+    <changeSet id="20220629-1" author="claudiomerli">
+        <sql>
+            UPDATE newspaper
+            set purchased_content = 0
+            where purchased_content is null;
+            UPDATE newspaper
+            set cost_each = 0
+            where cost_each is null;
+            UPDATE newspaper
+            set cost_sell = 0
+            where cost_sell is null;
+            UPDATE newspaper
+            set za = 0
+            where za is null;
+        </sql>
+    </changeSet>
+    <changeSet id="1657109931588-1" author="claudiomerli (generated)">
+        <createTable tableName="order">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order"/>
+            </column>
+            <column name="customer_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1657109931588-2" author="claudiomerli (generated)">
+        <createTable tableName="order_element">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_element"/>
+            </column>
+            <column name="content_number" type="INT"/>
+            <column name="order_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1657109931588-6" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="order_element"
+                                 constraintName="FK_ORDER_ELEMENT_ON_ORDER" referencedColumnNames="id"
+                                 referencedTableName="order"/>
+    </changeSet>
+    <changeSet id="1657109931588-7" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="order"
+                                 constraintName="FK_ORDER_ON_CUSTOMER" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1657110413728-3" author="claudiomerli (generated)">
+        <addColumn tableName="order_element">
+            <column name="newspaper_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1657110413728-5" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="order_element"
+                                 constraintName="FK_ORDER_ELEMENT_ON_NEWSPAPER" referencedColumnNames="id"
+                                 referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1657306097018-1" author="claudiomerli (generated)">
+        <createTable tableName="notification">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_notification"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="route" type="VARCHAR(255)"/>
+            <column name="dismissed" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1657306097018-4" author="claudiomerli (generated)">
+        <addColumn tableName="order">
+            <column name="note" type="VARCHAR(255)"/>
+            <column name="status" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20220708-1" author="claudiomerli">
+        <renameTable oldTableName="order" newTableName="booking"/>
+    </changeSet>
+    <changeSet id="1657465745209-1" author="claudiomerli (generated)">
+        <dropColumn columnName="status" tableName="booking"/>
+    </changeSet>
+    <changeSet id="1657465745209-2" author="claudiomerli (generated)">
+        <addColumn tableName="booking">
+            <column name="status" type="VARCHAR(255)"/>
+        </addColumn>
     </changeSet>
 </databaseChangeLog>

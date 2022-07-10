@@ -16,14 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.Transient;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -42,6 +38,7 @@ public class ProjectService {
 
         return this.projectRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            Join<Project, Customer> customerJoin = root.join("customer");
 
             if (user.getRole() == RoleName.CHIEF_EDITOR) {
                 predicates.add(criteriaBuilder.equal(root.get("chiefEditor"), user));
@@ -51,15 +48,19 @@ public class ProjectService {
                 predicates.add(criteriaBuilder.equal(root.get("customer"), user.getCustomer()));
             }
 
+            Optional.ofNullable(searchProjectDTO.getStatusSearch()).ifPresent(projectStatus -> predicates.add(
+                    criteriaBuilder.equal(root.get("status"), projectStatus)
+            ));
+
             Optional.ofNullable(searchProjectDTO.getGlobalSearch())
                     .ifPresent(globalSearchValue ->
-                            predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + globalSearchValue.toUpperCase() + "%"))
+                            Arrays.asList(globalSearchValue.split(" ")).forEach((portion) -> predicates.add(
+                                    criteriaBuilder.or(
+                                            criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + globalSearchValue.toUpperCase() + "%"),
+                                            criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("name")), "%" + globalSearchValue.toUpperCase() + "%")
+                                    )
+                            ))
                     );
-            Optional.ofNullable(searchProjectDTO.getCustomerId())
-                    .ifPresent(customerIdValue -> {
-                        Join<Project, Customer> customerJoin = root.join("customer");
-                        predicates.add(criteriaBuilder.equal(customerJoin.get("id"), customerIdValue));
-                    });
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         }, pageRequest);
@@ -170,6 +171,6 @@ public class ProjectService {
     }
 
     public ProjectContentPreview getProjectContentPreview(Integer id) {
-        return this.projectContentPreviewRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY,"pcp id not found"));
+        return this.projectContentPreviewRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "pcp id not found"));
     }
 }

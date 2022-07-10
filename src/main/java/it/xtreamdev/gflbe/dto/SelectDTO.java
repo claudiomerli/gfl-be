@@ -14,6 +14,4 @@ import java.util.Set;
 public class SelectDTO {
     private long id;
     private String descrizione;
-
-
 }

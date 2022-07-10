@@ -14,5 +14,7 @@ public class PageableDTO {
 
     private int pageNumber;
     private int pageSize;
+    private String sortBy;
+    private String sortDirection;
 
 }

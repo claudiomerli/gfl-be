@@ -13,22 +13,13 @@ import java.util.Set;
 public class SaveNewspaperDTO {
 
     private String name;
-
     private Integer purchasedContent;
-
     private Double costEach;
-
     private Double costSell;
-
     private String email;
-
     private String regionalGeolocalization;
-
     private List<Integer> topics;
-
     private String note;
-
     private Integer za;
-
     private String ip;
 }

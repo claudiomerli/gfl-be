@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -42,7 +43,7 @@ public class TopicService {
     }
 
     public Set<TopicDTO> findAll() {
-        return this.topicRepository.findAll().stream()
+        return this.topicRepository.findAll(Sort.by("name").ascending()).stream()
                 .map(topic -> TopicDTO
                         .builder()
                         .id(topic.getId())
@@ -54,9 +55,9 @@ public class TopicService {
     public void save(SaveTopicDTO saveTopicDTO) {
         this.topicRepository.save(
                 Topic
-                    .builder()
-                    .name(saveTopicDTO.getName())
-                    .build()
+                        .builder()
+                        .name(saveTopicDTO.getName())
+                        .build()
         );
     }
 

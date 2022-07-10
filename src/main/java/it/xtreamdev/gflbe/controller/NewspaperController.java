@@ -1,9 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.FinanceDTO;
-import it.xtreamdev.gflbe.dto.PageDTO;
-import it.xtreamdev.gflbe.dto.SearchContentDTO;
-import it.xtreamdev.gflbe.dto.SelectDTO;
+import it.xtreamdev.gflbe.dto.*;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
@@ -30,7 +27,7 @@ public class NewspaperController {
     private NewspaperService newspaperService;
 
     @GetMapping
-    public ResponseEntity<PageDTO<?>> find(
+    public ResponseEntity<Page<NewspaperDTO>> find(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -40,17 +37,21 @@ public class NewspaperController {
         return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
     }
 
+    @GetMapping("maxMinRangeAttributes")
+    public ResponseEntity<MaxMinRangeNewspaperAttributesDTO> getMaxMinRangeNewspaperAttributes() {
+        return ResponseEntity.ok(this.newspaperService.maxMinRangeNewspaperAttributes());
+    }
+
     @GetMapping("export/excel")
     public ResponseEntity<ByteArrayResource> exportExcel(
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
             SearchNewspaperDTO searchNewspaperDTO) {
         try {
-            searchNewspaperDTO.cleanSortParam(sortBy, sortDirection);
             return ResponseEntity.ok()
                     .contentType(new MediaType("application", "vnd.ms.excel"))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.xlsx")
-                    .body(new ByteArrayResource(this.newspaperService.exportExcel(searchNewspaperDTO)));
+                    .body(new ByteArrayResource(this.newspaperService.exportExcel(searchNewspaperDTO, PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.valueOf(sortDirection), sortBy))));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -62,26 +63,25 @@ public class NewspaperController {
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
             SearchNewspaperDTO searchNewspaperDTO) {
         try {
-            searchNewspaperDTO.cleanSortParam(sortBy, sortDirection);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.pdf")
-                    .body(new ByteArrayResource(this.newspaperService.exportPDF(searchNewspaperDTO)));
+                    .body(new ByteArrayResource(this.newspaperService.exportPDF(searchNewspaperDTO, PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.valueOf(sortDirection), sortBy))));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/price-quotation")
-    public ResponseEntity<PageDTO<?>> findForPriceQuotation(
-            @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
-            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            SearchNewspaperDTO searchNewspaperDTO
-    ) {
-        return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
-    }
+//    @GetMapping("/price-quotation")
+//    public ResponseEntity<PageDTO<?>> findForPriceQuotation(
+//            @RequestParam(value = "page", defaultValue = "0") Integer page,
+//            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+//            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+//            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+//            SearchNewspaperDTO searchNewspaperDTO
+//    ) {
+//        return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
+//    }
 
     @GetMapping("/select")
     public ResponseEntity<List<SelectDTO>> findForSelect() {
@@ -89,15 +89,13 @@ public class NewspaperController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody SaveNewspaperDTO saveNewspaperDTO) {
-        this.newspaperService.save(saveNewspaperDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<NewspaperDTO> save(@RequestBody SaveNewspaperDTO saveNewspaperDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.newspaperService.save(saveNewspaperDTO));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> update(@PathVariable Integer id, @RequestBody SaveNewspaperDTO saveNewspaperDTO) {
-        this.newspaperService.update(id, saveNewspaperDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<NewspaperDTO> update(@PathVariable Integer id, @RequestBody SaveNewspaperDTO saveNewspaperDTO) {
+        return ResponseEntity.ok().body(this.newspaperService.update(id, saveNewspaperDTO));
     }
 
     @DeleteMapping("{id}")
