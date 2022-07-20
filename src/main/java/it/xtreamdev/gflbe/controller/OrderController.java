@@ -23,7 +23,7 @@ public class OrderController {
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
-            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+            @RequestParam(value = "sortDirection", defaultValue = "DESC") String sortDirection,
             FindOrderDTO findOrderDTO
     ) {
         return ResponseEntity.ok(this.orderService.find(findOrderDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
