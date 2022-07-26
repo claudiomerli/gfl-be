@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -61,17 +62,29 @@ public class OrderService {
         return this.orderRepository.save(order);
     }
 
+    public Order addOrderElement(Integer id, SaveOrderDTO.SaveOrderElementDTO orderElementDTO) {
+        Order order = this.findById(id);
+        order.getOrderElements().add(OrderElement.builder()
+                .contentNumber(orderElementDTO.getContentNumber())
+                .order(order)
+                .newspaper(this.newspaperRepository.findById(orderElementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id newspaper not found")))
+                .build()
+        );
+        return this.orderRepository.save(order);
+    }
+
     @Transactional
     public Order update(Integer id, SaveOrderDTO saveOrderDTO) {
         Order order = findById(id);
         order.setNote(saveOrderDTO.getNote());
 
-//        this.orderElementRepository.deleteByOrder(order);
-//        order.setOrderElements(saveOrderDTO.getElements().stream().map(saveOrderElementDTO -> OrderElement.builder()
-//                .contentNumber(saveOrderElementDTO.getContentNumber())
-//                .newspaper(this.newspaperRepository.findById(saveOrderElementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id newspaper not found")))
-//                .order(order)
-//                .build()).collect(Collectors.toList()));
+        this.orderElementRepository.deleteByOrder(order);
+        order.setOrderElements(saveOrderDTO.getElements().stream().map(saveOrderElementDTO -> OrderElement.builder()
+                        .contentNumber(saveOrderElementDTO.getContentNumber())
+                        .newspaper(this.newspaperRepository.findById(saveOrderElementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id newspaper not found")))
+                        .order(order)
+                        .build())
+                .collect(Collectors.toList()));
 
         return this.orderRepository.save(order);
     }
@@ -80,8 +93,8 @@ public class OrderService {
         User user = this.userService.userInfo();
         return this.orderRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            Join<Order, OrderElement> orderElements = root.join("orderElements");
-            Join<OrderElement, Newspaper> newspaper = orderElements.join("newspaper");
+            Join<Order, OrderElement> orderElements = root.join("orderElements", JoinType.LEFT);
+            Join<OrderElement, Newspaper> newspaper = orderElements.join("newspaper", JoinType.LEFT);
             criteriaQuery.distinct(true);
 
             if (user.getRole() == RoleName.CUSTOMER) {
@@ -122,4 +135,15 @@ public class OrderService {
     }
 
 
+    public Order saveDraft() {
+        User user = this.userService.userInfo();
+        return this.orderRepository.save(Order.builder().status(OrderStatus.DRAFT).customer(user).build());
+    }
+
+    public Order send(Integer id) {
+        Order order = this.findById(id);
+        order.setStatus(OrderStatus.REQUESTED);
+
+        return this.orderRepository.save(order);
+    }
 }

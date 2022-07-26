@@ -34,6 +34,18 @@ public class OrderController {
         return ResponseEntity.ok(this.orderService.findById(id));
     }
 
+    @PostMapping("draft")
+    private ResponseEntity<Order> saveDraft() {
+        return ResponseEntity.ok().body(this.orderService.saveDraft());
+    }
+
+    @PutMapping("{id}/send")
+    private ResponseEntity<Order> send(
+            @PathVariable Integer id
+    ) {
+        return ResponseEntity.ok(this.orderService.send(id));
+    }
+
     @PostMapping
     private ResponseEntity<Order> save(@RequestBody SaveOrderDTO saveOrderDTO) {
         return ResponseEntity.ok().body(this.orderService.save(saveOrderDTO));
@@ -45,6 +57,14 @@ public class OrderController {
             @RequestBody SaveOrderDTO saveOrderDTO
     ) {
         return ResponseEntity.ok().body(this.orderService.update(id, saveOrderDTO));
+    }
+
+    @PutMapping("{id}/addOrderElement")
+    private ResponseEntity<Order> addOrderToElement(
+            @PathVariable Integer id,
+            @RequestBody SaveOrderDTO.SaveOrderElementDTO saveOrderElementDTO
+    ) {
+        return ResponseEntity.ok().body(this.orderService.addOrderElement(id, saveOrderElementDTO));
     }
 
     @DeleteMapping("{id}")
