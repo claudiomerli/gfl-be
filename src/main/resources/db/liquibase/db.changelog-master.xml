@@ -468,4 +468,9 @@
             <column name="status" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1658852433127-3" author="claudiomerli (generated)">
+        <addColumn tableName="booking">
+            <column name="name" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

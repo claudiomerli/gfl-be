@@ -15,6 +15,8 @@ import java.util.List;
 @Builder
 public class FindOrderDTO {
 
+    private String name;
+
     private Integer customerId;
 
     private String status;

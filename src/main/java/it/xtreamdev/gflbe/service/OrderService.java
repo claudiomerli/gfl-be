@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.FindOrderDTO;
+import it.xtreamdev.gflbe.dto.SaveDraftOrderDTO;
 import it.xtreamdev.gflbe.dto.SaveOrderDTO;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Order;
@@ -53,6 +54,7 @@ public class OrderService {
         User user = this.userService.userInfo();
 
         Order order = this.orderRepository.save(Order.builder().status(OrderStatus.REQUESTED).customer(user).build());
+        order.setName(saveOrderDTO.getName());
         order.setNote(saveOrderDTO.getNote());
         order.setOrderElements(saveOrderDTO.getElements().stream().map(saveOrderElementDTO -> OrderElement.builder()
                 .contentNumber(saveOrderElementDTO.getContentNumber())
@@ -76,6 +78,7 @@ public class OrderService {
     @Transactional
     public Order update(Integer id, SaveOrderDTO saveOrderDTO) {
         Order order = findById(id);
+        order.setName(saveOrderDTO.getName());
         order.setNote(saveOrderDTO.getNote());
 
         this.orderElementRepository.deleteByOrder(order);
@@ -101,6 +104,10 @@ public class OrderService {
                 predicates.add(criteriaBuilder.equal(root.get("customer"), user));
             } else if (user.getRole() == RoleName.ADMIN && Objects.nonNull(findOrderDTO.getCustomerId())) {
                 predicates.add(criteriaBuilder.equal(root.get("customer"), findOrderDTO.getCustomerId()));
+            }
+
+            if (StringUtils.isNotBlank(findOrderDTO.getName())) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + findOrderDTO.getName().toUpperCase() + "%"));
             }
 
             if (StringUtils.isNotBlank(findOrderDTO.getStatus())) {
@@ -135,9 +142,15 @@ public class OrderService {
     }
 
 
-    public Order saveDraft() {
+    public Order saveDraft(SaveDraftOrderDTO saveDraftOrderDTO) {
         User user = this.userService.userInfo();
-        return this.orderRepository.save(Order.builder().status(OrderStatus.DRAFT).customer(user).build());
+        return this.orderRepository.save(Order
+                .builder()
+                .status(OrderStatus.DRAFT)
+                .name(saveDraftOrderDTO.getName())
+                .customer(user)
+                .build()
+        );
     }
 
     public Order send(Integer id) {

@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.FindOrderDTO;
+import it.xtreamdev.gflbe.dto.SaveDraftOrderDTO;
 import it.xtreamdev.gflbe.dto.SaveOrderDTO;
 import it.xtreamdev.gflbe.model.Order;
 import it.xtreamdev.gflbe.service.OrderService;
@@ -35,8 +36,10 @@ public class OrderController {
     }
 
     @PostMapping("draft")
-    private ResponseEntity<Order> saveDraft() {
-        return ResponseEntity.ok().body(this.orderService.saveDraft());
+    private ResponseEntity<Order> saveDraft(
+            @RequestBody SaveDraftOrderDTO saveDraftOrderDTO
+            ) {
+        return ResponseEntity.ok().body(this.orderService.saveDraft(saveDraftOrderDTO));
     }
 
     @PutMapping("{id}/send")

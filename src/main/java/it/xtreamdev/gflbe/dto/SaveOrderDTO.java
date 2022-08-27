@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class SaveOrderDTO {
 
+    private String name;
     private String note;
     private List<SaveOrderElementDTO> elements;
 
