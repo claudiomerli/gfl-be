@@ -473,4 +473,23 @@
             <column name="name" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1661587941753-1" author="claudiomerli (generated)">
+        <createTable tableName="news">
+            <column name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_news"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="text" type="CLOB"/>
+            <column name="image" type="CLOB"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1661591400648-2" author="claudiomerli (generated)">
+        <addColumn tableName="news">
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1661596180997-1" author="claudiomerli (generated)">
+        <addAutoIncrement columnDataType="int" columnName="id" tableName="news"/>
+    </changeSet>
 </databaseChangeLog>
