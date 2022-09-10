@@ -36,10 +36,17 @@ public class Order {
     @JoinColumn(name = "customer_id")
     private User customer;
 
-    @Formula("(select sum(oe.content_number*n.cost_sell) from booking b inner join order_element oe on b.id = oe.order_id inner join newspaper n on n.id = oe.newspaper_id where b.id = id)")
+    @ManyToOne
+    @JoinColumn(name = "order_pack_id")
+    private OrderPack orderPack;
+
+    @Column(name = "order_pack_price")
+    private Double orderPackPrice;
+
+    @Formula("(select IF(order_pack_price is null, (select sum(oe.content_number*n.cost_sell) from booking b inner join order_element oe on b.id = oe.order_id inner join newspaper n on n.id = oe.newspaper_id where b.id = id), order_pack_price))")
     private Double total;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private List<OrderElement> orderElements;
 
 }

@@ -11,6 +11,7 @@ import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Topic;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
+import it.xtreamdev.gflbe.repository.OrderRepository;
 import it.xtreamdev.gflbe.util.ExcelUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
 @Service
 public class NewspaperService {
 
+    @Autowired
+    private OrderRepository orderRepository;
     @Autowired
     private NewspaperRepository newspaperRepository;
     @Autowired

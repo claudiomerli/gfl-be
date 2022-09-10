@@ -10,7 +10,12 @@ import org.springframework.data.jpa.repository.Query;
 public interface NewspaperRepository extends JpaRepository<Newspaper, Integer>, JpaSpecificationExecutor<Newspaper> {
 
     @SuppressWarnings("ALL")
-    @Query(value = "select new it.xtreamdev.gflbe.dto.FinanceDTO(sum(costEach*purchasedContent),sum(costSell*soldContent)) from Newspaper")
+    //Aggiungo alla somma dei sold content i prezzi dei pacchetti venduti
+    @Query(value = "select " +
+            "new it.xtreamdev.gflbe.dto.FinanceDTO(" +
+            "sum(costEach*purchasedContent)," +
+            "sum(costSell*soldContent) + (select COALESCE(sum(o.orderPackPrice),0) from Order o where o.status = 'CONFIRMED' and o.orderPackPrice is not null)) " +
+            "from Newspaper")
     FinanceDTO finance();
 
     @Query(value = "select new it.xtreamdev.gflbe.dto.MaxMinRangeNewspaperAttributesDTO(" +

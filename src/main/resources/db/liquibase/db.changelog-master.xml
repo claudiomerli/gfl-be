@@ -492,4 +492,43 @@
     <changeSet id="1661596180997-1" author="claudiomerli (generated)">
         <addAutoIncrement columnDataType="int" columnName="id" tableName="news"/>
     </changeSet>
+    <changeSet id="1661681940956-1" author="claudiomerli (generated)">
+        <createTable tableName="order_pack">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_pack"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="price" type="DOUBLE"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1661681940956-4" author="claudiomerli (generated)">
+        <addColumn tableName="booking">
+            <column name="order_pack_id" type="INT"/>
+            <column name="order_pack_price" type="DOUBLE"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1661681940956-5" author="claudiomerli (generated)">
+        <addColumn tableName="order_element">
+            <column name="order_pack_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1661681940956-9" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="order_pack_id" baseTableName="booking"
+                                 constraintName="FK_BOOKING_ON_ORDER_PACK" referencedColumnNames="id"
+                                 referencedTableName="order_pack"/>
+    </changeSet>
+    <changeSet id="1661681940956-10" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="order_pack_id" baseTableName="order_element"
+                                 constraintName="FK_ORDER_ELEMENT_ON_ORDER_PACK" referencedColumnNames="id"
+                                 referencedTableName="order_pack"/>
+    </changeSet>
+    <changeSet id="1662632538030-2" author="claudiomerli (generated)">
+        <addColumn tableName="order_pack">
+            <column name="deleted" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20220908-1" author="claudiomerli">
+        <sql>update order_pack set deleted = false where deleted is null</sql>
+    </changeSet>
 </databaseChangeLog>

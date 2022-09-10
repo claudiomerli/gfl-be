@@ -34,7 +34,8 @@ public class Newspaper {
     @Column(name = "cost_sell")
     private Double costSell;
 
-    @Formula("(select IFNULL((select sum(oe.content_number) from order_element oe inner join booking o on oe.order_id = o.id where oe.newspaper_id = id and o.status = 'CONFIRMED'), 0))")
+    //Escludo quelli dei pacchetti
+    @Formula("(select IFNULL((select sum(oe.content_number) from order_element oe inner join booking o on oe.order_id = o.id where o.order_pack_price is null and oe.newspaper_id = id and o.status = 'CONFIRMED'), 0))")
     private Integer soldContent;
 
     @Formula("purchased_content - (select IFNULL((select sum(oe.content_number) from order_element oe inner join booking o on oe.order_id = o.id where oe.newspaper_id = id and o.status = 'CONFIRMED'), 0))")

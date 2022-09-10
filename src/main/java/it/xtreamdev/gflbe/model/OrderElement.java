@@ -31,4 +31,9 @@ public class OrderElement {
     @JsonIgnore
     private Order order;
 
+    @ManyToOne
+    @JoinColumn(name = "order_pack_id")
+    @JsonIgnore
+    private OrderPack orderPack;
+
 }
