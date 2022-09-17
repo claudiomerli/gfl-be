@@ -13,5 +13,6 @@
     <exclude-change idName="newspaper#left_content" tagName="addColumn" />
     <exclude-change idName="newspaper#sold_content" tagName="addColumn" />
     <exclude-change idName="booking#total" tagName="addColumn" />
+    <exclude-change idName="request_quote#total" tagName="addColumn" />
   </component>
 </project>

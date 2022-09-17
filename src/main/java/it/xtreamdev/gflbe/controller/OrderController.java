@@ -1,10 +1,8 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.FindOrderDTO;
-import it.xtreamdev.gflbe.dto.GenerateOrderFromOrderPackDTO;
-import it.xtreamdev.gflbe.dto.SaveDraftOrderDTO;
-import it.xtreamdev.gflbe.dto.SaveOrderDTO;
+import it.xtreamdev.gflbe.dto.*;
 import it.xtreamdev.gflbe.model.Order;
+import it.xtreamdev.gflbe.model.RequestQuote;
 import it.xtreamdev.gflbe.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/order")
@@ -97,5 +97,23 @@ public class OrderController {
         return ResponseEntity.ok(this.orderService.generate(generateOrderFromOrderPackDTO));
     }
 
+    @PostMapping("request-quote")
+    private ResponseEntity<byte[]> generateRequestCode(
+            @RequestBody GenerateRequestQuoteDTO generateRequestQuoteDTO,
+            @RequestParam(value = "format", defaultValue = "pdf") String format
+    ) {
+        return ResponseEntity.ok(this.orderService.generateRequestQuote(generateRequestQuoteDTO, format));
+    }
+
+    @GetMapping("{id}/request-quote")
+    private ResponseEntity<List<RequestQuote>> getRequestQuoteByOrderId(@PathVariable("id") Integer id) {
+        return ResponseEntity.ok(this.orderService.findRequestQuoteByOrderId(id));
+    }
+
+    @DeleteMapping("request-quote/{id}")
+    private ResponseEntity<Void> deleteRequestQuote(@PathVariable Integer id) {
+        this.orderService.deleteRequestQuote(id);
+        return ResponseEntity.ok().build();
+    }
 
 }

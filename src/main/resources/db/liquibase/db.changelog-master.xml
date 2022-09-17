@@ -529,6 +529,55 @@
         </addColumn>
     </changeSet>
     <changeSet id="20220908-1" author="claudiomerli">
-        <sql>update order_pack set deleted = false where deleted is null</sql>
+        <sql>update order_pack
+             set deleted = false
+             where deleted is null</sql>
+    </changeSet>
+    <changeSet id="1663409679502-1" author="claudiomerli (generated)">
+        <createTable tableName="request_quote">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_request_quote"/>
+            </column>
+            <column name="header" type="CLOB"/>
+            <column name="signature" type="CLOB"/>
+            <column name="order_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1663409679502-2" author="claudiomerli (generated)">
+        <createTable tableName="request_quote_price_replacement">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_request_quote_price_replacement"/>
+            </column>
+            <column name="price_replacement" type="DOUBLE"/>
+            <column name="newspaper_id" type="INT"/>
+            <column name="request_quote_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1663409679502-7" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="request_quote"
+                                 constraintName="FK_REQUEST_QUOTE_ON_ORDER" referencedColumnNames="id"
+                                 referencedTableName="booking"/>
+    </changeSet>
+    <changeSet id="1663409679502-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="request_quote_price_replacement"
+                                 constraintName="FK_REQUEST_QUOTE_PRICE_REPLACEMENT_ON_NEWSPAPER"
+                                 referencedColumnNames="id" referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1663409679502-9" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="request_quote_id" baseTableName="request_quote_price_replacement"
+                                 constraintName="FK_REQUEST_QUOTE_PRICE_REPLACEMENT_ON_REQUEST_QUOTE"
+                                 referencedColumnNames="id" referencedTableName="request_quote"/>
+    </changeSet>
+    <changeSet id="1663410269712-2" author="claudiomerli (generated)">
+        <addColumn tableName="booking">
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1663410269712-3" author="claudiomerli (generated)">
+        <addColumn tableName="request_quote">
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </addColumn>
     </changeSet>
 </databaseChangeLog>
