@@ -29,10 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -196,22 +193,59 @@ public class OrderService {
         return this.orderRepository.save(orderToSave);
     }
 
+    public RequestQuote createRequestQuote(Integer orderId, SaveRequestQuoteDTO saveRequestQuoteDTO) {
+        Order order = this.findById(orderId);
+        RequestQuote requestQuote = RequestQuote
+                .builder()
+                .order(order)
+                .header(saveRequestQuoteDTO.getHeader())
+                .signature(saveRequestQuoteDTO.getSignature())
+                .build();
+
+        requestQuote.setRequestQuotePriceReplacements(
+                saveRequestQuoteDTO.getPriceReplacements().stream().map(priceReplacementDTO -> RequestQuotePriceReplacement.builder()
+                        .requestQuote(requestQuote)
+                        .priceReplacement(priceReplacementDTO.getPriceReplacement())
+                        .newspaper(this.newspaperRepository.findById(priceReplacementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "NewspaperId not found")))
+                        .build()).collect(Collectors.toList())
+        );
+
+        return this.requestQuoteRepository.save(requestQuote);
+    }
+
     @Transactional
-    public byte[] generateRequestQuote(GenerateRequestQuoteDTO generateRequestQuoteDTO, String format) {
+    public RequestQuote updateRequestQuote(Integer requestQuoteId, SaveRequestQuoteDTO saveRequestQuoteDTO) {
+        RequestQuote requestQuote = this.requestQuoteRepository.findById(requestQuoteId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+        requestQuote.setHeader(saveRequestQuoteDTO.getHeader());
+        requestQuote.setSignature(saveRequestQuoteDTO.getSignature());
+
+        this.requestQuotePriceReplacementRepository.deleteByRequestQuote(requestQuote);
+
+        requestQuote.setRequestQuotePriceReplacements(
+                saveRequestQuoteDTO.getPriceReplacements().stream().map(priceReplacementDTO -> RequestQuotePriceReplacement.builder()
+                        .requestQuote(requestQuote)
+                        .priceReplacement(priceReplacementDTO.getPriceReplacement())
+                        .newspaper(this.newspaperRepository.findById(priceReplacementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "NewspaperId not found")))
+                        .build()).collect(Collectors.toList()));
+
+        return this.requestQuoteRepository.save(requestQuote);
+    }
+
+    public byte[] generateRequestQuote(Integer id, String format) {
+        RequestQuote requestQuote = this.requestQuoteRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
         Resource resource = new ClassPathResource("pdf-generation/request-quote.html");
-        Order order = this.findById(generateRequestQuoteDTO.getOrderId());
         try (InputStream inputStream = resource.getInputStream();
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             String fileContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
             fileContent = fileContent
-                    .replace("$$HEADER$$", generateRequestQuoteDTO.getHeader())
-                    .replace("$$ORDER_NAME$$", order.getName())
-                    .replace("$$NOTE$$", order.getNote())
-                    .replace("$$SIGNATURE$$", generateRequestQuoteDTO.getSignature())
-                    .replace("$$TOTAL$$", NumberFormat.getCurrencyInstance(Locale.ITALY).format(generateRequestQuoteDTO.getPriceReplacements().stream().map(GenerateRequestQuoteDTO.PriceReplacementDTO::getPriceReplacement).reduce(Double::sum).orElse(0.0)));
+                    .replace("$$HEADER$$", requestQuote.getHeader())
+                    .replace("$$ORDER_NAME$$", requestQuote.getOrder().getName())
+                    .replace("$$NOTE$$", Optional.ofNullable(requestQuote.getOrder().getNote()).orElse(""))
+                    .replace("$$SIGNATURE$$", requestQuote.getSignature())
+                    .replace("$$TOTAL$$", NumberFormat.getCurrencyInstance(Locale.ITALY).format(requestQuote.getRequestQuotePriceReplacements().stream().map(RequestQuotePriceReplacement::getPriceReplacement).reduce(Double::sum).orElse(0.0)));
 
             fileContent = substituteImageWithTrailingTag(fileContent);
-            fileContent = substituteRows(generateRequestQuoteDTO, order, fileContent);
+            fileContent = substituteRows(requestQuote, fileContent);
 
             if (format.equals("pdf")) {
                 HtmlConverter.convertToPdf(fileContent, baos);
@@ -221,14 +255,6 @@ public class OrderService {
                 wordMLPackage.getMainDocumentPart().getContent().addAll(XHTMLImporter.convert(substituteDocxSpecialCharacters(fileContent), null));
                 wordMLPackage.save(baos);
             }
-
-            if (Objects.nonNull(generateRequestQuoteDTO.getRequestQuoteId())) {
-                updateRequestQuote(generateRequestQuoteDTO, generateRequestQuoteDTO.getRequestQuoteId());
-            } else {
-                persistRequestQuote(generateRequestQuoteDTO, order);
-            }
-
-
             return baos.toByteArray();
         } catch (Exception e) {
             log.error("Errore durante la generazione", e);
@@ -236,41 +262,6 @@ public class OrderService {
         }
     }
 
-    private void updateRequestQuote(GenerateRequestQuoteDTO generateRequestQuoteDTO, Integer requestQuoteId) {
-        RequestQuote requestQuote = this.requestQuoteRepository.findById(requestQuoteId).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
-        requestQuote.setHeader(generateRequestQuoteDTO.getHeader());
-        requestQuote.setSignature(generateRequestQuoteDTO.getSignature());
-
-        this.requestQuotePriceReplacementRepository.deleteByRequestQuote(requestQuote);
-
-        requestQuote.setRequestQuotePriceReplacements(
-                generateRequestQuoteDTO.getPriceReplacements().stream().map(priceReplacementDTO -> RequestQuotePriceReplacement.builder()
-                        .requestQuote(requestQuote)
-                        .priceReplacement(priceReplacementDTO.getPriceReplacement())
-                        .newspaper(this.newspaperRepository.findById(priceReplacementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "NewspaperId not found")))
-                        .build()).collect(Collectors.toList()));
-
-        this.requestQuoteRepository.save(requestQuote);
-    }
-
-    private void persistRequestQuote(GenerateRequestQuoteDTO generateRequestQuoteDTO, Order order) {
-        RequestQuote requestQuote = RequestQuote
-                .builder()
-                .order(order)
-                .header(generateRequestQuoteDTO.getHeader())
-                .signature(generateRequestQuoteDTO.getSignature())
-                .build();
-
-        requestQuote.setRequestQuotePriceReplacements(
-                generateRequestQuoteDTO.getPriceReplacements().stream().map(priceReplacementDTO -> RequestQuotePriceReplacement.builder()
-                        .requestQuote(requestQuote)
-                        .priceReplacement(priceReplacementDTO.getPriceReplacement())
-                        .newspaper(this.newspaperRepository.findById(priceReplacementDTO.getNewspaperId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "NewspaperId not found")))
-                        .build()).collect(Collectors.toList())
-        );
-
-        this.requestQuoteRepository.save(requestQuote);
-    }
 
     public List<RequestQuote> findRequestQuoteByOrderId(Integer id) {
         return this.requestQuoteRepository.findByOrder_Id(id);
@@ -291,16 +282,16 @@ public class OrderService {
                 .replace("&lsquo;", "‘");
     }
 
-    private static String substituteRows(GenerateRequestQuoteDTO generateRequestQuoteDTO, Order order, String fileContent) {
+    private static String substituteRows(RequestQuote requestQuote, String fileContent) {
         StringBuilder sbRows = new StringBuilder();
-        order.getOrderElements().forEach(orderElement -> {
+        requestQuote.getOrder().getOrderElements().forEach(orderElement -> {
             sbRows.append("<tr><td>")
                     .append(orderElement.getNewspaper().getName())
                     .append("</td><td>")
                     .append(orderElement.getContentNumber())
                     .append("</td><td style=\"text-align:right\">")
-                    .append(NumberFormat.getCurrencyInstance(Locale.ITALY).format(generateRequestQuoteDTO.getPriceReplacements().stream()
-                            .filter(priceReplacementDTO -> priceReplacementDTO.getNewspaperId().equals(orderElement.getNewspaper().getId()))
+                    .append(NumberFormat.getCurrencyInstance(Locale.ITALY).format(requestQuote.getRequestQuotePriceReplacements().stream()
+                            .filter(priceReplacementDTO -> priceReplacementDTO.getNewspaper().getId().equals(orderElement.getNewspaper().getId()))
                             .findFirst().orElseThrow(() -> new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error during generation"))
                             .getPriceReplacement()))
                     .append("</td></tr>");

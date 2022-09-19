@@ -11,12 +11,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GenerateRequestQuoteDTO {
+public class SaveRequestQuoteDTO {
     private String header;
     private String signature;
     private List<PriceReplacementDTO> priceReplacements;
-    private Integer orderId;
-    private Integer requestQuoteId;
 
     @Data
     @AllArgsConstructor

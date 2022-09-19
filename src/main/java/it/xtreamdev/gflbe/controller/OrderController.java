@@ -97,12 +97,20 @@ public class OrderController {
         return ResponseEntity.ok(this.orderService.generate(generateOrderFromOrderPackDTO));
     }
 
-    @PostMapping("request-quote")
-    private ResponseEntity<byte[]> generateRequestCode(
-            @RequestBody GenerateRequestQuoteDTO generateRequestQuoteDTO,
-            @RequestParam(value = "format", defaultValue = "pdf") String format
+    @PostMapping("{id}/request-quote")
+    private ResponseEntity<RequestQuote> createRequestQuote(
+            @PathVariable("id") Integer orderId,
+            @RequestBody SaveRequestQuoteDTO saveRequestQuoteDTO
     ) {
-        return ResponseEntity.ok(this.orderService.generateRequestQuote(generateRequestQuoteDTO, format));
+        return ResponseEntity.ok(this.orderService.createRequestQuote(orderId, saveRequestQuoteDTO));
+    }
+
+    @PutMapping("{id}/request-quote/{requestQuoteId}")
+    private ResponseEntity<RequestQuote> updateRequestQuote(
+            @PathVariable Integer requestQuoteId,
+            @RequestBody SaveRequestQuoteDTO saveRequestQuoteDTO
+    ) {
+        return ResponseEntity.ok(this.orderService.updateRequestQuote(requestQuoteId, saveRequestQuoteDTO));
     }
 
     @GetMapping("{id}/request-quote")
@@ -110,9 +118,17 @@ public class OrderController {
         return ResponseEntity.ok(this.orderService.findRequestQuoteByOrderId(id));
     }
 
-    @DeleteMapping("request-quote/{id}")
-    private ResponseEntity<Void> deleteRequestQuote(@PathVariable Integer id) {
-        this.orderService.deleteRequestQuote(id);
+    @GetMapping("{id}/request-quote/{idRequestQuote}/generate")
+    private ResponseEntity<byte[]> generateRequestQuote(
+            @PathVariable Integer idRequestQuote,
+            @RequestParam(value = "format", defaultValue = "pdf") String format
+    ) {
+        return ResponseEntity.ok(this.orderService.generateRequestQuote(idRequestQuote, format));
+    }
+
+    @DeleteMapping("{id}/request-quote/{idRequestQuote}")
+    private ResponseEntity<Void> deleteRequestQuote(@PathVariable Integer idRequestQuote) {
+        this.orderService.deleteRequestQuote(idRequestQuote);
         return ResponseEntity.ok().build();
     }
 
