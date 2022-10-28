@@ -580,4 +580,68 @@
             <column name="last_modified_date" type="DATETIME"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1666080113688-3" author="claudiomerli (generated)">
+        <createTable tableName="project_commission">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_project_commission"/>
+            </column>
+            <column name="newspaper_id" type="INT"/>
+            <column name="project_id" type="INT"/>
+            <column name="period" type="VARCHAR(255)"/>
+            <column name="anchor" type="VARCHAR(255)"/>
+            <column name="url" type="VARCHAR(255)"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="publication_url" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1666080113688-5" author="claudiomerli (generated)">
+        <addColumn tableName="project">
+            <column name="billing_amount" type="VARCHAR(255)"/>
+            <column name="billing_description" type="VARCHAR(255)"/>
+            <column name="expiration" type="DATE"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1666080113688-12" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="project_commission"
+                                 constraintName="FK_PROJECT_COMMISSION_ON_NEWSPAPER" referencedColumnNames="id"
+                                 referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1666080113688-13" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="project_commission"
+                                 constraintName="FK_PROJECT_COMMISSION_ON_PROJECT" referencedColumnNames="id"
+                                 referencedTableName="project"/>
+    </changeSet>
+    <changeSet id="1666080113688-14" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="project" constraintName="projectChiefEditor_User"/>
+    </changeSet>
+    <changeSet id="1666080113688-15" author="claudiomerli (generated)">
+        <dropColumn columnName="chief_editor_id" tableName="project"/>
+
+        <dropColumn columnName="status" tableName="project"/>
+    </changeSet>
+    <changeSet id="1666080113688-2" author="claudiomerli (generated)">
+        <addColumn tableName="project">
+            <column name="status" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1666086911454-9" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="project" constraintName="FKj948tru2ilgqxfxsppp9mom5j"/>
+    </changeSet>
+    <changeSet id="1666086911454-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="project"
+                                 constraintName="FK_PROJECT_ON_CUSTOMER" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1666086911454-1" author="claudiomerli (generated)">
+        <dropColumn columnName="billing_amount" tableName="project"/>
+    </changeSet>
+    <changeSet id="1666086911454-2" author="claudiomerli (generated)">
+        <addColumn tableName="project">
+            <column name="billing_amount" type="DOUBLE"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

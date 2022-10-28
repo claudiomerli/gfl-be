@@ -1,12 +1,15 @@
 package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.*;
+import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
+import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
 import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.ProjectContentPreview;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,75 +19,84 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("api/project")
 public class ProjectController {
 
-    private final ProjectService projectService;
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private ProjectService projectService;
 
     @GetMapping
-    public ResponseEntity<Page<Project>> search(
+    public Page<Project> find(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @ModelAttribute SearchProjectDTO searchProjectDTO) {
-        return ResponseEntity.ok(
-                projectService.search(searchProjectDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy))
-        );
-    }
-
-    @PostMapping
-    public ResponseEntity<Project> save(@RequestBody SaveProjectDTO saveProjectDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                projectService.save(saveProjectDTO)
+            @RequestParam(value = "globalSearch") String globalSearch,
+            @RequestParam(value = "status") String status
+    ) {
+        return this.projectService.find(globalSearch, status,
+                PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)
         );
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Project> detail(@PathVariable Integer id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
-        return ResponseEntity.ok(project);
+    public Project findById(@PathVariable Integer id) {
+        return this.projectService.findById(id);
+    }
+
+    @PostMapping
+    public Project save(@RequestBody SaveProjectDTO saveProjectDTO) {
+        return this.projectService.save(saveProjectDTO);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Project> update(@PathVariable Integer id, @RequestBody UpdateProjectDTO updateProjectDTO) {
-        return ResponseEntity.ok(
-                projectService.update(id, updateProjectDTO)
-        );
+    public Project save(@PathVariable Integer id, @RequestBody SaveProjectDTO saveProjectDTO) {
+        return this.projectService.update(id, saveProjectDTO);
+    }
+
+    @PostMapping("{id}/commission")
+    public Project saveCommission(
+            @PathVariable Integer id,
+            @RequestBody SaveProjectCommissionDTO saveProjectCommissionDTO
+    ) {
+        return this.projectService.addCommission(id, saveProjectCommissionDTO);
+    }
+
+    @DeleteMapping("{id}/commission/{idCommission}")
+    public Project removeCommission(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission
+    ) {
+        return this.projectService.removeCommission(id, idCommission);
+    }
+
+    @PutMapping("{id}/commission/{idCommission}")
+    public Project updateCommission(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission,
+            @RequestBody SaveProjectCommissionDTO saveProjectCommissionDTO
+    ) {
+        return this.projectService.updateCommission(id, idCommission, saveProjectCommissionDTO);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        projectRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+    public void delete(@PathVariable Integer id) {
+        this.projectService.delete(id);
     }
 
-    @GetMapping("projectContentPreview/{id}")
-    public ResponseEntity<ProjectContentPreview> getProjectContentPreview(@PathVariable Integer id) {
-        return ResponseEntity.ok(projectService.getProjectContentPreview(id));
+    @PutMapping("{id}/commission/{idCommission}/{status}")
+    public Project setStatusCommission(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission,
+            @PathVariable String status
+    ) {
+        return this.projectService.setStatusCommission(id, idCommission, status);
     }
 
-    @DeleteMapping("projectContentPreview/{id}")
-    public ResponseEntity<Void> deleteProjectContentPreview(@PathVariable Integer id) {
-        projectService.deletePojectContentPreview(id);
-        return ResponseEntity.ok().build();
+    @PutMapping("{id}/close")
+    public Project close(@PathVariable Integer id) {
+        return this.projectService.closeProject(id);
     }
 
-    @PutMapping("{id}/change-status")
-    public ResponseEntity<Project> changeStatus(@PathVariable Integer id, @Valid @RequestBody ChangeStatusProjectDTO changeStatusProjectDTO) {
-        return ResponseEntity.ok(
-                projectService.changeStatus(id, changeStatusProjectDTO.getStatus())
-        );
-    }
-
-    @PutMapping("{idProject}/assign-chief-editor")
-    public ResponseEntity<Project> assignChiefEditor(@PathVariable Integer idProject, @Valid @RequestBody IdDto idDto) {
-        return ResponseEntity.ok(
-                projectService.assignChiefEditor(idProject, idDto)
-        );
-    }
 }

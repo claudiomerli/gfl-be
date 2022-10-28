@@ -145,7 +145,7 @@ public class NewspaperService {
         return newspaperMapper.mapEntityToDTO(newspaper);
     }
 
-    private Newspaper findById(Integer id) {
+    public Newspaper findById(Integer id) {
         return this.newspaperRepository
                 .findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Newspaper not found"));

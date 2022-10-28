@@ -109,9 +109,9 @@ public class CustomerService {
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Customer not found"));
     }
 
-    public List<Project> findProjectByIdCustomer(Integer idCustomer) {
-        return projectRepository.findAllByCustomer_Id(idCustomer);
-    }
+//    public List<Project> findProjectByIdCustomer(Integer idCustomer) {
+//        return projectRepository.findAllByCustomer_Id(idCustomer);
+//    }
 
     public Customer update(Integer id, SaveCustomerRestDTO saveCustomerRestDTO) {
         Customer customer = this.customerRepository.findById(id)

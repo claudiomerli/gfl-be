@@ -1,176 +1,168 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.IdDto;
-import it.xtreamdev.gflbe.dto.SaveProjectDTO;
-import it.xtreamdev.gflbe.dto.SearchProjectDTO;
-import it.xtreamdev.gflbe.dto.UpdateProjectDTO;
-import it.xtreamdev.gflbe.exception.GLFException;
-import it.xtreamdev.gflbe.model.*;
+import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
+import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
+import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.ProjectCommission;
+import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
-import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
-import javax.transaction.Transactional;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@RequiredArgsConstructor
+
 @Service
 public class ProjectService {
-    private final ProjectRepository projectRepository;
-    private final CustomerRepository customerRepository;
-    private final NewspaperRepository newspaperRepository;
-    private final ProjectContentPreviewRepository projectContentPreviewRepository;
-    private final UserRepository userRepository;
 
-    private final UserService userService;
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private UserService userService;
 
-    public Page<Project> search(SearchProjectDTO searchProjectDTO, PageRequest pageRequest) {
-        User user = this.userService.userInfo();
+    @Autowired
+    private NewspaperService newspaperService;
 
-        return this.projectRepository.findAll((root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            Join<Project, Customer> customerJoin = root.join("customer");
-
-            if (user.getRole() == RoleName.CHIEF_EDITOR) {
-                predicates.add(criteriaBuilder.equal(root.get("chiefEditor"), user));
-            }
-
-            if (user.getRole() == RoleName.CUSTOMER) {
-                predicates.add(criteriaBuilder.equal(root.get("customer"), user.getCustomer()));
-            }
-
-            Optional.ofNullable(searchProjectDTO.getStatusSearch()).ifPresent(projectStatus -> predicates.add(
-                    criteriaBuilder.equal(root.get("status"), projectStatus)
-            ));
-
-            Optional.ofNullable(searchProjectDTO.getGlobalSearch())
-                    .ifPresent(globalSearchValue ->
-                            Arrays.asList(globalSearchValue.split(" ")).forEach((portion) -> predicates.add(
-                                    criteriaBuilder.or(
-                                            criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + globalSearchValue.toUpperCase() + "%"),
-                                            criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("name")), "%" + globalSearchValue.toUpperCase() + "%")
-                                    )
-                            ))
-                    );
-
-            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
-        }, pageRequest);
+    public Project findById(Integer id) {
+        return this.projectRepository
+                .findById(id)
+                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
     }
 
-    @Transactional
     public Project save(SaveProjectDTO saveProjectDTO) {
-        Project project = projectRepository.save(
+        return this.projectRepository.save(
                 Project.builder()
                         .name(saveProjectDTO.getName())
-                        .customer(
-                                customerRepository.findById(saveProjectDTO.getCustomerId())
-                                        .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
-                        )
-                        .status(ProjectStatus.CREATED)
                         .build()
         );
-
-
-        List<ProjectContentPreview> projectContentPreviewList = saveProjectDTO
-                .getProjectContentPreviews()
-                .stream()
-                .map(saveProjectContentPreviewDTO -> {
-                    Newspaper newspaper = this.newspaperRepository.findById(saveProjectContentPreviewDTO.getNewspaperId()).orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY));
-                    return ProjectContentPreview
-                            .builder()
-                            .newspaper(newspaper)
-                            .customerNotes(saveProjectContentPreviewDTO.getCustomerNotes())
-                            .linkText(saveProjectContentPreviewDTO.getLinkText())
-                            .linkUrl(saveProjectContentPreviewDTO.getLinkUrl())
-                            .monthUse(saveProjectContentPreviewDTO.getMonthUse())
-                            .title(saveProjectContentPreviewDTO.getTitle())
-                            .project(project)
-                            .build();
-                }).collect(Collectors.toList());
-
-        this.projectContentPreviewRepository.saveAll(projectContentPreviewList);
-        return project;
     }
 
-    @Transactional
-    public Project update(Integer id, UpdateProjectDTO updateProjectDTO) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
-        project.setName(updateProjectDTO.getName());
-        project.setCustomer(
-                customerRepository.findById(updateProjectDTO.getCustomerId())
-                        .orElseThrow(() -> new GLFException("customer not found", HttpStatus.UNPROCESSABLE_ENTITY))
-        );
-
-        updateProjectDTO
-                .getProjectContentPreviews()
-                .forEach(saveProjectContentPreviewDTO -> {
-                    Newspaper newspaper = this.newspaperRepository.findById(saveProjectContentPreviewDTO.getNewspaperId())
-                            .orElseThrow(() -> new GLFException("newspaper not found", HttpStatus.UNPROCESSABLE_ENTITY));
-
-                    ProjectContentPreview projectContentPreview = new ProjectContentPreview();
-
-                    if (Objects.nonNull(saveProjectContentPreviewDTO.getId())) {
-                        projectContentPreview = project.getProjectContentPreviews()
-                                .stream()
-                                .filter(projectContentPreviewModel -> projectContentPreviewModel.getId().equals(saveProjectContentPreviewDTO.getId()))
-                                .findFirst()
-                                .orElseThrow(() -> new GLFException("id ProjectContentPreview not found", HttpStatus.BAD_REQUEST));
-                    }
-
-                    projectContentPreview.setNewspaper(newspaper);
-                    projectContentPreview.setProject(project);
-                    projectContentPreview.setCustomerNotes(saveProjectContentPreviewDTO.getCustomerNotes());
-                    projectContentPreview.setLinkText(saveProjectContentPreviewDTO.getLinkText());
-                    projectContentPreview.setLinkUrl(saveProjectContentPreviewDTO.getLinkUrl());
-                    projectContentPreview.setTitle(saveProjectContentPreviewDTO.getTitle());
-                    projectContentPreview.setMonthUse(saveProjectContentPreviewDTO.getMonthUse());
-
-                    this.projectContentPreviewRepository.save(projectContentPreview);
-                });
-        return projectRepository.save(project);
-    }
-
-    @Transactional
-    public void deletePojectContentPreview(Integer id) {
-        this.projectContentPreviewRepository.deleteById(id);
-    }
-
-    public Project changeStatus(Integer id, ProjectStatus status) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new GLFException("project not found", HttpStatus.NOT_FOUND));
-        return changeStatus(project, status);
-    }
-
-    public Project changeStatus(Project project, ProjectStatus status) {
-        project.setStatus(status);
-        return projectRepository.save(project);
-    }
-
-    public Project assignChiefEditor(Integer idProject, IdDto idDto) {
-        Project project = this.projectRepository.findById(idProject).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "project id not found"));
-        User user = this.userRepository.findById(idDto.getId()).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "user id not found"));
-
-        if (user.getRole() != RoleName.CHIEF_EDITOR) {
-            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "user is not a CHIEF_EDITOR");
-        }
-
-        project.setChiefEditor(user);
-        project.setStatus(ProjectStatus.ASSIGNED);
+    public Project addCommission(Integer projectId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
+        Project project = this.findById(projectId);
+        project.getProjectCommissions()
+                .add(ProjectCommission.builder()
+                        .newspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()))
+                        .period(saveProjectCommissionDTO.getPeriod())
+                        .anchor(saveProjectCommissionDTO.getAnchor())
+                        .status(ProjectCommissionStatus.CREATED)
+                        .url(saveProjectCommissionDTO.getUrl())
+                        .title(saveProjectCommissionDTO.getTitle())
+                        .notes(saveProjectCommissionDTO.getNotes())
+                        .publicationUrl(saveProjectCommissionDTO.getPublicationUrl())
+                        .project(project)
+                        .build());
 
         return this.projectRepository.save(project);
     }
 
-    public ProjectContentPreview getProjectContentPreview(Integer id) {
-        return this.projectContentPreviewRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "pcp id not found"));
+    public Project removeCommission(Integer projectId, Integer commissionId) {
+        Project project = this.findById(projectId);
+        project.getProjectCommissions()
+                .removeIf(projectCommission -> projectCommission.getId().equals(commissionId));
+        return this.projectRepository.save(project);
+    }
+
+    public Project updateCommission(Integer projectId, Integer commissionId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
+        Project project = this.findById(projectId);
+        project.getProjectCommissions().stream().filter(projectCommission -> projectCommission.getId().equals(commissionId))
+                .findFirst()
+                .ifPresent(projectCommission -> {
+                    projectCommission.setNewspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()));
+                    projectCommission.setPeriod(saveProjectCommissionDTO.getPeriod());
+                    projectCommission.setAnchor(saveProjectCommissionDTO.getAnchor());
+                    projectCommission.setUrl(saveProjectCommissionDTO.getUrl());
+                    projectCommission.setTitle(saveProjectCommissionDTO.getTitle());
+                    projectCommission.setNotes(saveProjectCommissionDTO.getNotes());
+                    projectCommission.setPublicationUrl(saveProjectCommissionDTO.getPublicationUrl());
+                });
+
+        return this.projectRepository.save(project);
+    }
+
+    public Project update(Integer projectId, SaveProjectDTO saveProjectDTO) {
+        Project project = this.findById(projectId);
+        project.setName(saveProjectDTO.getName());
+        project.setCustomer(userService.findById(saveProjectDTO.getCustomerId()));
+        project.setBillingAmount(saveProjectDTO.getBillingAmount());
+        project.setBillingDescription(saveProjectDTO.getBillingDescription());
+        project.setExpiration(saveProjectDTO.getExpiration());
+        return this.projectRepository.save(project);
+    }
+
+    public void delete(Integer projectId) {
+        this.projectRepository.deleteById(projectId);
+    }
+
+    public Project setStatusCommission(Integer projectId, Integer commissionId, String status) {
+        Project project = this.findById(projectId);
+        project.getProjectCommissions().stream().filter(projectCommission -> projectCommission.getId().equals(commissionId))
+                .findFirst()
+                .ifPresent(projectCommission -> {
+                    projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
+                });
+
+        if (project.getProjectCommissions().stream().allMatch(projectCommission -> projectCommission.getStatus() == ProjectCommissionStatus.PUBLISHED)) {
+            project.setStatus(ProjectStatus.PUBLISHED);
+        }
+
+        return this.projectRepository.save(project);
+    }
+
+    public Project closeProject(Integer projectId) {
+        Project project = this.findById(projectId);
+        project.setStatus(ProjectStatus.CLOSED);
+        return this.projectRepository.save(project);
+    }
+
+    public Page<Project> find(String globalSearch, String status, Pageable pageable) {
+        User user = this.userService.userInfo();
+        return this.projectRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            switch (user.getRole()) {
+                case ADMIN:
+                    if (StringUtils.isNotBlank(status)) {
+                        predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
+                    }
+                    break;
+                case PUBLISHER:
+                case CHIEF_EDITOR:
+                case ADMINISTRATION:
+                    predicateList.add(
+                            criteriaBuilder.or(
+                                    criteriaBuilder.equal(root.get("status"), ProjectStatus.CREATED),
+                                    criteriaBuilder.equal(root.get("status"), ProjectStatus.PUBLISHED),
+                                    criteriaBuilder.equal(root.get("status"), ProjectStatus.CLOSED)
+                            )
+                    );
+                    break;
+                case CUSTOMER:
+                    predicateList.add(criteriaBuilder.equal(root.get("customer"), user.getId()));
+                    break;
+            }
+
+            if (StringUtils.isNotBlank(globalSearch)) {
+                Arrays.stream(globalSearch.split(" ")).forEach(s -> {
+                    predicateList.add(criteriaBuilder.or(
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + s.toUpperCase() + "%"),
+                            criteriaBuilder.like(criteriaBuilder.upper(root.get("customer.fullname")), "%" + s.toUpperCase() + "%")
+                    ));
+                });
+            }
+
+            return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
+        }, pageable);
     }
 }

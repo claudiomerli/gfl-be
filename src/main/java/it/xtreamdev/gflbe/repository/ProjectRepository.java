@@ -9,5 +9,4 @@ import java.util.List;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaSpecificationExecutor<Project> {
-    List<Project> findAllByCustomer_Id(Integer idCustomer);
 }

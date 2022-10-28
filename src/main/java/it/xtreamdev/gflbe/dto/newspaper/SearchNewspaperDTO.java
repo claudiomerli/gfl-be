@@ -25,6 +25,7 @@ public class SearchNewspaperDTO {
     private Double costEachTo;
     private Double costSellFrom;
     private Double costSellTo;
+    @Builder.Default
     private List<String> regionalGeolocalization = new ArrayList<>();
     private List<Integer> topics = new ArrayList<>();
 

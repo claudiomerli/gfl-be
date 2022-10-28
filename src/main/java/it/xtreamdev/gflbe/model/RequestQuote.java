@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,8 @@ public class RequestQuote {
     private String signature;
 
     @OneToMany(mappedBy = "requestQuote", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE})
-    private List<RequestQuotePriceReplacement> requestQuotePriceReplacements = new java.util.ArrayList<>();
+    @Builder.Default
+    private List<RequestQuotePriceReplacement> requestQuotePriceReplacements = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "order_id")

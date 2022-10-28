@@ -1,6 +1,8 @@
 package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,9 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -18,44 +18,49 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "project")
+@Table(name = "project_commission")
 @EntityListeners({AuditingEntityListener.class})
-public class Project {
+public class ProjectCommission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "name")
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "newspaper_id")
+    private Newspaper newspaper;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private User customer;
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
+    private Project project;
 
-    @Column(name = "billing_description")
-    private String billingDescription;
+    private String period;
 
-    @Column(name = "billing_amount")
-    private Double billingAmount;
+    private String anchor;
 
-    private LocalDate expiration;
+    private String url;
+
+    private String title;
+
+    private String notes;
+
+    @Column(name = "publication_url")
+    private String publicationUrl;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private ProjectStatus status = ProjectStatus.CREATED;
+    private ProjectCommissionStatus status = ProjectCommissionStatus.CREATED;
 
     @CreatedDate
-    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "created_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdDate;
 
     @LastModifiedDate
-    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "last_modified_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime lastModifiedDate;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectCommission> projectCommissions;
 }

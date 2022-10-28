@@ -1,6 +1,5 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.ChangeProjectStatusContentDTO;
 import it.xtreamdev.gflbe.dto.CustomerNotes;
 import it.xtreamdev.gflbe.dto.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.SearchContentDTO;
@@ -112,14 +111,14 @@ public class ContentController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("{contentId}/change-project-status")
-    public ResponseEntity<Void> changeStatus(
-            @PathVariable Integer contentId,
-            @RequestBody ChangeProjectStatusContentDTO changeProjectStatusContentDTO
-    ) {
-        this.contentService.changeStatus(contentId, changeProjectStatusContentDTO.getStatus());
-        return ResponseEntity.ok().build();
-    }
+//    @PutMapping("{contentId}/change-project-status")
+//    public ResponseEntity<Void> changeStatus(
+//            @PathVariable Integer contentId,
+//            @RequestBody ChangeProjectStatusContentDTO changeProjectStatusContentDTO
+//    ) {
+//        this.contentService.changeStatus(contentId, changeProjectStatusContentDTO.getStatus());
+//        return ResponseEntity.ok().build();
+//    }
 
 
 }

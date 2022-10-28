@@ -7,7 +7,7 @@ import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
-import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
+import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import it.xtreamdev.gflbe.security.JwtTokenUtil;
@@ -451,24 +451,24 @@ public class ContentService {
         this.contentRepository.save(content);
     }
 
-    public void changeStatus(Integer id, ContentProjectStatus status) {
-        Content content = this.contentRepository.findById(id)
-                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
-        content.setProjectStatus(status);
-        this.contentRepository.save(content);
-        if (
-                ContentProjectStatus.TO_BE_PUBLISHED.equals(status)
-                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(),
-                        Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING))
-        ) {
-            this.projectService.changeStatus(content.getProject(), ProjectStatus.TO_BE_PUBLISHED);
-        }
-        if (
-                ContentProjectStatus.PUBLISHED.equals(status)
-                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(),
-                        Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING, ContentProjectStatus.TO_BE_PUBLISHED))
-        ) {
-            this.projectService.changeStatus(content.getProject(), ProjectStatus.TERMINATED);
-        }
-    }
+//    public void changeStatus(Integer id, ContentProjectStatus status) {
+//        Content content = this.contentRepository.findById(id)
+//                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+//        content.setProjectStatus(status);
+//        this.contentRepository.save(content);
+//        if (
+//                ContentProjectStatus.TO_BE_PUBLISHED.equals(status)
+//                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(),
+//                        Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING))
+//        ) {
+//            this.projectService.changeStatus(content.getProject(), ProjectCommissionStatus.TO_BE_PUBLISHED);
+//        }
+//        if (
+//                ContentProjectStatus.PUBLISHED.equals(status)
+//                        && !contentRepository.existsByProjectAndProjectStatusIn(content.getProject(),
+//                        Arrays.asList(ContentProjectStatus.CREATED, ContentProjectStatus.WORKING, ContentProjectStatus.TO_BE_PUBLISHED))
+//        ) {
+//            this.projectService.changeStatus(content.getProject(), ProjectCommissionStatus.TERMINATED);
+//        }
+//    }
 }

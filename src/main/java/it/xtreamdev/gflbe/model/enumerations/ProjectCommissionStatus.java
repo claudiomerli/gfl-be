@@ -1,7 +1,8 @@
 package it.xtreamdev.gflbe.model.enumerations;
 
-public enum ProjectStatus {
+public enum ProjectCommissionStatus {
     CREATED,
+    STARTED,
+    TO_PUBLISH,
     PUBLISHED,
-    CLOSED
 }
