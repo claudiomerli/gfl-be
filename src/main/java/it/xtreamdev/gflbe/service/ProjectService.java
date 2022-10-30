@@ -132,7 +132,7 @@ public class ProjectService {
         User user = this.userService.userInfo();
         return this.projectRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
-            Join<Project, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.INNER);
+            Join<Project, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.LEFT);
             criteriaQuery.distinct(true);
 
             switch (user.getRole()) {
