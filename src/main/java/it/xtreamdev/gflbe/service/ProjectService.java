@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,6 +132,8 @@ public class ProjectService {
         User user = this.userService.userInfo();
         return this.projectRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
+            Join<Project, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.INNER);
+            criteriaQuery.distinct(true);
 
             switch (user.getRole()) {
                 case ADMIN:
@@ -137,16 +141,14 @@ public class ProjectService {
                         predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
                     }
                     break;
-                case PUBLISHER:
                 case CHIEF_EDITOR:
+                    predicateList.add(criteriaBuilder.equal(projectCommissions.get("status"), ProjectCommissionStatus.STARTED));
+                    break;
+                case PUBLISHER:
+                    predicateList.add(criteriaBuilder.equal(projectCommissions.get("status"), ProjectCommissionStatus.TO_PUBLISH));
+                    break;
                 case ADMINISTRATION:
-                    predicateList.add(
-                            criteriaBuilder.or(
-                                    criteriaBuilder.equal(root.get("status"), ProjectStatus.CREATED),
-                                    criteriaBuilder.equal(root.get("status"), ProjectStatus.PUBLISHED),
-                                    criteriaBuilder.equal(root.get("status"), ProjectStatus.CLOSED)
-                            )
-                    );
+                    predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.PUBLISHED));
                     break;
                 case CUSTOMER:
                     predicateList.add(criteriaBuilder.equal(root.get("customer"), user.getId()));
