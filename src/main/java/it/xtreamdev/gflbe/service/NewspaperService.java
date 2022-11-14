@@ -52,9 +52,10 @@ public class NewspaperService {
     public Page<NewspaperDTO> findAll(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
         Page<Newspaper> newspapers = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-
             criteriaQuery.distinct(true);
             Join<Newspaper, Topic> topics = root.join("topics", JoinType.LEFT);
+
+            predicates.add(criteriaBuilder.isFalse(root.get("deleted")));
 
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
             Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
@@ -94,10 +95,6 @@ public class NewspaperService {
         return newspaperMapper.mapEntityToDTO(newspapers);
     }
 
-    public List<SelectDTO> findForSelect() {
-        return newspaperMapper.mapEntityToSelectDTO(this.newspaperRepository.findAll());
-    }
-
     public NewspaperDTO save(SaveNewspaperDTO newspaper) {
         return newspaperMapper.mapEntityToDTO(this.newspaperRepository.save(
                 Newspaper
@@ -117,7 +114,9 @@ public class NewspaperService {
     }
 
     public void delete(Integer id) {
-        this.newspaperRepository.deleteById(id);
+        Newspaper newspaper = this.findById(id);
+        newspaper.setDeleted(true);
+        this.newspaperRepository.save(newspaper);
     }
 
     public NewspaperDTO update(Integer id, SaveNewspaperDTO saveNewspaperDTO) {

@@ -56,6 +56,9 @@ public class Newspaper {
     @Column(name = "za")
     private Integer za;
 
+    @Column(name = "deleted")
+    private Boolean deleted;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

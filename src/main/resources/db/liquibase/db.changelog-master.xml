@@ -644,4 +644,18 @@
             <column name="billing_amount" type="DOUBLE"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1668441978561-2" author="claudiomerli (generated)">
+        <addColumn tableName="newspaper">
+            <column name="deleted" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20221114" author="claudiomerli">
+        <sql>update newspaper set deleted=false where deleted is null</sql>
+    </changeSet>
+    <changeSet id="20221114-2" author="claudiomerli">
+        <sql>update project_commission set status = 'SENT_TO_ADMINISTRATION' where status = 'PUBLISHED'</sql>
+    </changeSet>
+    <changeSet id="20221114-3" author="claudiomerli">
+        <sql>update project set status = 'SENT_TO_ADMINISTRATION' where status = 'PUBLISHED'</sql>
+    </changeSet>
 </databaseChangeLog>

@@ -72,22 +72,6 @@ public class NewspaperController {
         }
     }
 
-//    @GetMapping("/price-quotation")
-//    public ResponseEntity<PageDTO<?>> findForPriceQuotation(
-//            @RequestParam(value = "page", defaultValue = "0") Integer page,
-//            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-//            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
-//            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-//            SearchNewspaperDTO searchNewspaperDTO
-//    ) {
-//        return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
-//    }
-
-    @GetMapping("/select")
-    public ResponseEntity<List<SelectDTO>> findForSelect() {
-        return ResponseEntity.ok(this.newspaperService.findForSelect());
-    }
-
     @PostMapping
     public ResponseEntity<NewspaperDTO> save(@RequestBody SaveNewspaperDTO saveNewspaperDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.newspaperService.save(saveNewspaperDTO));

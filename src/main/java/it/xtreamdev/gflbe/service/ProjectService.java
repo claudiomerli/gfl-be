@@ -8,16 +8,15 @@ import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.repository.*;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
@@ -115,8 +114,8 @@ public class ProjectService {
                     projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
                 });
 
-        if (project.getProjectCommissions().stream().allMatch(projectCommission -> projectCommission.getStatus() == ProjectCommissionStatus.PUBLISHED)) {
-            project.setStatus(ProjectStatus.PUBLISHED);
+        if (project.getProjectCommissions().stream().allMatch(projectCommission -> projectCommission.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
+            project.setStatus(ProjectStatus.SENT_TO_ADMINISTRATION);
         }
 
         return this.projectRepository.save(project);
@@ -133,6 +132,7 @@ public class ProjectService {
         return this.projectRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
             Join<Project, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.LEFT);
+            Join<Project, User> customerJoin = root.join("customer", JoinType.LEFT);
             criteriaQuery.distinct(true);
 
             switch (user.getRole()) {
@@ -142,13 +142,17 @@ public class ProjectService {
                     }
                     break;
                 case CHIEF_EDITOR:
-                    predicateList.add(criteriaBuilder.equal(projectCommissions.get("status"), ProjectCommissionStatus.STARTED));
+                    CriteriaBuilder.In<Object> inClauseChiefEditor = criteriaBuilder.in(projectCommissions.get("status"));
+                    Arrays.asList(ProjectCommissionStatus.STARTED, ProjectCommissionStatus.ASSIGNED, ProjectCommissionStatus.STANDBY_EDITORIAL, ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClauseChiefEditor::value);
+                    predicateList.add(inClauseChiefEditor);
                     break;
                 case PUBLISHER:
-                    predicateList.add(criteriaBuilder.equal(projectCommissions.get("status"), ProjectCommissionStatus.TO_PUBLISH));
+                    CriteriaBuilder.In<Object> inClausePublisher = criteriaBuilder.in(projectCommissions.get("status"));
+                    Arrays.asList(ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClausePublisher::value);
+                    predicateList.add(inClausePublisher);
                     break;
                 case ADMINISTRATION:
-                    predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.PUBLISHED));
+                    predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.SENT_TO_ADMINISTRATION));
                     break;
                 case CUSTOMER:
                     predicateList.add(criteriaBuilder.equal(root.get("customer"), user.getId()));
@@ -159,7 +163,7 @@ public class ProjectService {
                 Arrays.stream(globalSearch.split(" ")).forEach(s -> {
                     predicateList.add(criteriaBuilder.or(
                             criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + s.toUpperCase() + "%"),
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("customer.fullname")), "%" + s.toUpperCase() + "%")
+                            criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("fullname")), "%" + s.toUpperCase() + "%")
                     ));
                 });
             }
