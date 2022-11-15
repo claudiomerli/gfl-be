@@ -650,12 +650,24 @@
         </addColumn>
     </changeSet>
     <changeSet id="20221114" author="claudiomerli">
-        <sql>update newspaper set deleted=false where deleted is null</sql>
+        <validCheckSum>ANY</validCheckSum>
+        <sql>update newspaper
+             set deleted= false
+             where deleted is null</sql>
     </changeSet>
     <changeSet id="20221114-2" author="claudiomerli">
-        <sql>update project_commission set status = 'SENT_TO_ADMINISTRATION' where status = 'PUBLISHED'</sql>
+        <validCheckSum>ANY</validCheckSum>
+        <sql>update project_commission
+             set status = 'SENT_TO_ADMINISTRATION'
+             where status = 'PUBLISHED'</sql>
     </changeSet>
     <changeSet id="20221114-3" author="claudiomerli">
-        <sql>update project set status = 'SENT_TO_ADMINISTRATION' where status = 'PUBLISHED'</sql>
+        <validCheckSum>ANY</validCheckSum>
+        <sql>update project
+             set status = 'SENT_TO_ADMINISTRATION'
+             where status = 'PUBLISHED'</sql>
+    </changeSet>
+    <changeSet id="20221115-1" author="claudiomerli">
+        <renameColumn tableName="newspaper" oldColumnName="deleted" newColumnName="hidden" columnDataType="BOOLEAN"/>
     </changeSet>
 </databaseChangeLog>

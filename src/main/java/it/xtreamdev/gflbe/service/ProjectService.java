@@ -135,17 +135,11 @@ public class ProjectService {
             Join<Project, User> customerJoin = root.join("customer", JoinType.LEFT);
             criteriaQuery.distinct(true);
 
+            if (StringUtils.isNotBlank(status)) {
+                predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
+            }
+
             switch (user.getRole()) {
-                case ADMIN:
-                    if (StringUtils.isNotBlank(status)) {
-                        predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
-                    }
-                    break;
-                case CHIEF_EDITOR:
-                    CriteriaBuilder.In<Object> inClauseChiefEditor = criteriaBuilder.in(projectCommissions.get("status"));
-                    Arrays.asList(ProjectCommissionStatus.STARTED, ProjectCommissionStatus.ASSIGNED, ProjectCommissionStatus.STANDBY_EDITORIAL, ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClauseChiefEditor::value);
-                    predicateList.add(inClauseChiefEditor);
-                    break;
                 case PUBLISHER:
                     CriteriaBuilder.In<Object> inClausePublisher = criteriaBuilder.in(projectCommissions.get("status"));
                     Arrays.asList(ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClausePublisher::value);

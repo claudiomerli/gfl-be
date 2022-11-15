@@ -24,5 +24,6 @@ public class NewspaperDTO {
     private Integer za;
     private String ip;
     Set<TopicDTO> topics;
+    private Boolean hidden;
 
 }

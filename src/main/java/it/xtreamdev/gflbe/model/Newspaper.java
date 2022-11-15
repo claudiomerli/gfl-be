@@ -4,7 +4,6 @@ import lombok.*;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -56,8 +55,8 @@ public class Newspaper {
     @Column(name = "za")
     private Integer za;
 
-    @Column(name = "deleted")
-    private Boolean deleted;
+    @Column(name = "hidden")
+    private Boolean hidden;
 
 
     @ManyToMany(fetch = FetchType.EAGER)

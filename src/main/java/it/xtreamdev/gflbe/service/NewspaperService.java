@@ -2,7 +2,6 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.FinanceDTO;
 import it.xtreamdev.gflbe.dto.MaxMinRangeNewspaperAttributesDTO;
-import it.xtreamdev.gflbe.dto.SelectDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
@@ -10,11 +9,14 @@ import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.model.Topic;
+import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.OrderRepository;
 import it.xtreamdev.gflbe.util.ExcelUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.Opt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +37,7 @@ import java.util.stream.Collectors;
 public class NewspaperService {
 
     @Autowired
-    private OrderRepository orderRepository;
+    private UserService userService;
     @Autowired
     private NewspaperRepository newspaperRepository;
     @Autowired
@@ -50,12 +52,17 @@ public class NewspaperService {
     }
 
     public Page<NewspaperDTO> findAll(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
+        User currentUser = userService.userInfo();
         Page<Newspaper> newspapers = this.newspaperRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             criteriaQuery.distinct(true);
             Join<Newspaper, Topic> topics = root.join("topics", JoinType.LEFT);
 
-            predicates.add(criteriaBuilder.isFalse(root.get("deleted")));
+            if(currentUser.getRole().equals(RoleName.CUSTOMER)){
+                predicates.add(criteriaBuilder.isFalse(root.get("hidden")));
+            } else {
+                Optional.ofNullable(searchNewspaperDTO.getHidden()).ifPresent(hidden -> predicates.add(criteriaBuilder.equal(root.get("hidden"), hidden)));
+            }
 
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
             Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
@@ -108,6 +115,7 @@ public class NewspaperService {
                         .note(newspaper.getNote())
                         .za(newspaper.getZa())
                         .ip(newspaper.getIp())
+                        .hidden(newspaper.getHidden())
                         .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()))
                         .build()
         ));
@@ -115,7 +123,7 @@ public class NewspaperService {
 
     public void delete(Integer id) {
         Newspaper newspaper = this.findById(id);
-        newspaper.setDeleted(true);
+        newspaper.setHidden(true);
         this.newspaperRepository.save(newspaper);
     }
 
@@ -133,6 +141,7 @@ public class NewspaperService {
         persistedNewspaper.setZa(saveNewspaperDTO.getZa());
         persistedNewspaper.setIp(saveNewspaperDTO.getIp());
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
+        persistedNewspaper.setHidden(saveNewspaperDTO.getHidden());
 
         return newspaperMapper.mapEntityToDTO(this.newspaperRepository.save(persistedNewspaper));
     }
