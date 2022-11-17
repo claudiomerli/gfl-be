@@ -1,23 +1,14 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.*;
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
-import it.xtreamdev.gflbe.exception.GLFException;
 import it.xtreamdev.gflbe.model.Project;
-import it.xtreamdev.gflbe.model.ProjectContentPreview;
-import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.service.ProjectService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("api/project")
@@ -94,9 +85,9 @@ public class ProjectController {
         return this.projectService.setStatusCommission(id, idCommission, status);
     }
 
-    @PutMapping("{id}/close")
+    @PutMapping("{id}/invoice")
     public Project close(@PathVariable Integer id) {
-        return this.projectService.closeProject(id);
+        return this.projectService.invoiceProject(id);
     }
 
 }

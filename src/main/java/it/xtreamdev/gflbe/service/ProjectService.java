@@ -83,6 +83,15 @@ public class ProjectService {
         project.getProjectCommissions()
                 .add(projectCommission);
 
+        if (project.getStatus() == ProjectStatus.INVOICED) {
+            project.setStatus(ProjectStatus.CREATED);
+            project.getProjectStatusChanges().add(ProjectStatusChange
+                    .builder()
+                    .projectStatus(ProjectStatus.CREATED)
+                    .project(project)
+                    .build());
+        }
+
         return this.projectRepository.save(project);
     }
 
@@ -151,12 +160,12 @@ public class ProjectService {
         return this.projectRepository.save(project);
     }
 
-    public Project closeProject(Integer projectId) {
+    public Project invoiceProject(Integer projectId) {
         Project project = this.findById(projectId);
-        project.setStatus(ProjectStatus.CLOSED);
+        project.setStatus(ProjectStatus.INVOICED);
         project.getProjectStatusChanges().add(ProjectStatusChange
                 .builder()
-                .projectStatus(ProjectStatus.CLOSED)
+                .projectStatus(ProjectStatus.INVOICED)
                 .project(project)
                 .build());
         return this.projectRepository.save(project);

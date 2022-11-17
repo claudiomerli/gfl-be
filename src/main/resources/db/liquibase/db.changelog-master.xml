@@ -692,4 +692,12 @@
                                  constraintName="FK_PROJECT_STATUS_CHANGE_ON_PROJECT_COMMISSION"
                                  referencedColumnNames="id" referencedTableName="project_commission"/>
     </changeSet>
+    <changeSet id="20221117" author="claudiomerli">
+        <validCheckSum>ANY</validCheckSum>
+        <sql>update project set status = 'INVOICED' where status = 'CLOSED'</sql>
+    </changeSet>
+    <changeSet id="20221117-2" author="claudiomerli">
+        <validCheckSum>ANY</validCheckSum>
+        <sql>update project_status_change set project_status = 'INVOICED' where project_status = 'CLOSED'</sql>
+    </changeSet>
 </databaseChangeLog>
