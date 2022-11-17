@@ -670,4 +670,26 @@
     <changeSet id="20221115-1" author="claudiomerli">
         <renameColumn tableName="newspaper" oldColumnName="deleted" newColumnName="hidden" columnDataType="BOOLEAN"/>
     </changeSet>
+    <changeSet id="1668679986888-1" author="claudiomerli (generated)">
+        <createTable tableName="project_status_change">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_project_status_change"/>
+            </column>
+            <column name="project_status" type="VARCHAR(255)"/>
+            <column name="project_commission_status" type="VARCHAR(255)"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="project_id" type="INT"/>
+            <column name="project_commission_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1668679986888-7" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="project_status_change"
+                                 constraintName="FK_PROJECT_STATUS_CHANGE_ON_PROJECT" referencedColumnNames="id"
+                                 referencedTableName="project"/>
+    </changeSet>
+    <changeSet id="1668679986888-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="project_commission_id" baseTableName="project_status_change"
+                                 constraintName="FK_PROJECT_STATUS_CHANGE_ON_PROJECT_COMMISSION"
+                                 referencedColumnNames="id" referencedTableName="project_commission"/>
+    </changeSet>
 </databaseChangeLog>

@@ -3,7 +3,6 @@ package it.xtreamdev.gflbe.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
-import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -11,6 +10,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -52,6 +53,10 @@ public class ProjectCommission {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ProjectCommissionStatus status = ProjectCommissionStatus.CREATED;
+
+    @OneToMany(mappedBy = "projectCommission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProjectStatusChange> projectStatusChanges = new ArrayList<>();
 
     @CreatedDate
     @Column(name = "created_date")

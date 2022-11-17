@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -41,6 +42,10 @@ public class Project {
     private Double billingAmount;
 
     private LocalDate expiration;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProjectStatusChange> projectStatusChanges = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

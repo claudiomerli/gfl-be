@@ -4,6 +4,7 @@ import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.ProjectCommission;
+import it.xtreamdev.gflbe.model.ProjectStatusChange;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
@@ -20,6 +21,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,30 +45,47 @@ public class ProjectService {
     }
 
     public Project save(SaveProjectDTO saveProjectDTO) {
-        return this.projectRepository.save(
-                Project.builder()
-                        .name(saveProjectDTO.getName())
+        Project project = Project.builder()
+                .name(saveProjectDTO.getName())
+                .build();
+        project.getProjectStatusChanges().add(
+                ProjectStatusChange
+                        .builder()
+                        .project(project)
+                        .projectStatus(ProjectStatus.CREATED)
                         .build()
         );
+
+        return this.projectRepository.save(project);
     }
 
     public Project addCommission(Integer projectId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
         Project project = this.findById(projectId);
+        ProjectCommission projectCommission = ProjectCommission.builder()
+                .newspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()))
+                .period(saveProjectCommissionDTO.getPeriod())
+                .anchor(saveProjectCommissionDTO.getAnchor())
+                .status(ProjectCommissionStatus.CREATED)
+                .url(saveProjectCommissionDTO.getUrl())
+                .title(saveProjectCommissionDTO.getTitle())
+                .notes(saveProjectCommissionDTO.getNotes())
+                .publicationUrl(saveProjectCommissionDTO.getPublicationUrl())
+                .project(project)
+                .build();
+        projectCommission.getProjectStatusChanges().add(
+                ProjectStatusChange
+                        .builder()
+                        .projectCommissionStatus(ProjectCommissionStatus.CREATED)
+                        .projectCommission(projectCommission)
+                        .build()
+        );
+
         project.getProjectCommissions()
-                .add(ProjectCommission.builder()
-                        .newspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()))
-                        .period(saveProjectCommissionDTO.getPeriod())
-                        .anchor(saveProjectCommissionDTO.getAnchor())
-                        .status(ProjectCommissionStatus.CREATED)
-                        .url(saveProjectCommissionDTO.getUrl())
-                        .title(saveProjectCommissionDTO.getTitle())
-                        .notes(saveProjectCommissionDTO.getNotes())
-                        .publicationUrl(saveProjectCommissionDTO.getPublicationUrl())
-                        .project(project)
-                        .build());
+                .add(projectCommission);
 
         return this.projectRepository.save(project);
     }
+
 
     public Project removeCommission(Integer projectId, Integer commissionId) {
         Project project = this.findById(projectId);
@@ -106,16 +125,27 @@ public class ProjectService {
         this.projectRepository.deleteById(projectId);
     }
 
+    @Transactional
     public Project setStatusCommission(Integer projectId, Integer commissionId, String status) {
         Project project = this.findById(projectId);
         project.getProjectCommissions().stream().filter(projectCommission -> projectCommission.getId().equals(commissionId))
                 .findFirst()
                 .ifPresent(projectCommission -> {
                     projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
+                    projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder()
+                            .projectCommissionStatus(projectCommission.getStatus())
+                            .projectCommission(projectCommission)
+                            .build());
                 });
+
 
         if (project.getProjectCommissions().stream().allMatch(projectCommission -> projectCommission.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
             project.setStatus(ProjectStatus.SENT_TO_ADMINISTRATION);
+            project.getProjectStatusChanges().add(ProjectStatusChange
+                    .builder()
+                    .projectStatus(ProjectStatus.SENT_TO_ADMINISTRATION)
+                    .project(project)
+                    .build());
         }
 
         return this.projectRepository.save(project);
@@ -124,6 +154,11 @@ public class ProjectService {
     public Project closeProject(Integer projectId) {
         Project project = this.findById(projectId);
         project.setStatus(ProjectStatus.CLOSED);
+        project.getProjectStatusChanges().add(ProjectStatusChange
+                .builder()
+                .projectStatus(ProjectStatus.CLOSED)
+                .project(project)
+                .build());
         return this.projectRepository.save(project);
     }
 
