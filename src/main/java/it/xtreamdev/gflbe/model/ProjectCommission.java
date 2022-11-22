@@ -45,6 +45,7 @@ public class ProjectCommission {
 
     private String title;
 
+    @Lob
     private String notes;
 
     @Column(name = "publication_url")

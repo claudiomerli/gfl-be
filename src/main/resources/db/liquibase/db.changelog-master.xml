@@ -694,10 +694,17 @@
     </changeSet>
     <changeSet id="20221117" author="claudiomerli">
         <validCheckSum>ANY</validCheckSum>
-        <sql>update project set status = 'INVOICED' where status = 'CLOSED'</sql>
+        <sql>update project
+             set status = 'INVOICED'
+             where status = 'CLOSED'</sql>
     </changeSet>
     <changeSet id="20221117-2" author="claudiomerli">
         <validCheckSum>ANY</validCheckSum>
-        <sql>update project_status_change set project_status = 'INVOICED' where project_status = 'CLOSED'</sql>
+        <sql>update project_status_change
+             set project_status = 'INVOICED'
+             where project_status = 'CLOSED'</sql>
+    </changeSet>
+    <changeSet id="1668771805366-1" author="claudiomerli (generated)">
+        <modifyDataType columnName="notes" newDataType="CLOB" tableName="project_commission"/>
     </changeSet>
 </databaseChangeLog>
