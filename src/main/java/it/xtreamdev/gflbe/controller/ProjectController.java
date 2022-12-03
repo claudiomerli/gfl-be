@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
+import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,15 @@ public class ProjectController {
             @PathVariable String status
     ) {
         return this.projectService.setStatusCommission(id, idCommission, status);
+    }
+
+    @PutMapping("{id}/commission/bulk/{status}")
+    public void setStatusCommission(
+            @PathVariable Integer id,
+            @PathVariable String status,
+            @RequestBody UpdateBulkProjectCommissionStatus updateBulkProjectCommissionStatus
+            ) {
+        this.projectService.setBulkStatusCommission(id, status, updateBulkProjectCommissionStatus);
     }
 
     @PutMapping("{id}/invoice")

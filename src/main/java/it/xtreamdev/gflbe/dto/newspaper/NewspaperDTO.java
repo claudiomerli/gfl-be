@@ -25,5 +25,6 @@ public class NewspaperDTO {
     private String ip;
     Set<TopicDTO> topics;
     private Boolean hidden;
+    private Boolean sensitiveTopics;
 
 }

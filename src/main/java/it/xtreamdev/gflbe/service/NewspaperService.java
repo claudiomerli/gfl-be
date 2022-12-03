@@ -64,6 +64,8 @@ public class NewspaperService {
                 Optional.ofNullable(searchNewspaperDTO.getHidden()).ifPresent(hidden -> predicates.add(criteriaBuilder.equal(root.get("hidden"), hidden)));
             }
 
+            Optional.ofNullable(searchNewspaperDTO.getSensitiveTopics()).ifPresent(sensitiveTopics -> predicates.add(criteriaBuilder.equal(root.get("sensitiveTopics"), sensitiveTopics)));
+
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
             Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
             Optional.ofNullable(searchNewspaperDTO.getPurchasedContentFrom()).ifPresent(purchasedContentFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), purchasedContentFrom)));
@@ -116,6 +118,7 @@ public class NewspaperService {
                         .za(newspaper.getZa())
                         .ip(newspaper.getIp())
                         .hidden(newspaper.getHidden())
+                        .sensitiveTopics(newspaper.getSensitiveTopics())
                         .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()))
                         .build()
         ));
@@ -142,6 +145,7 @@ public class NewspaperService {
         persistedNewspaper.setIp(saveNewspaperDTO.getIp());
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
         persistedNewspaper.setHidden(saveNewspaperDTO.getHidden());
+        persistedNewspaper.setSensitiveTopics(saveNewspaperDTO.getSensitiveTopics());
 
         return newspaperMapper.mapEntityToDTO(this.newspaperRepository.save(persistedNewspaper));
     }

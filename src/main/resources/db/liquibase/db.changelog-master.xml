@@ -707,4 +707,25 @@
     <changeSet id="1668771805366-1" author="claudiomerli (generated)">
         <modifyDataType columnName="notes" newDataType="CLOB" tableName="project_commission"/>
     </changeSet>
+    <changeSet id="1670066962752-6" author="claudiomerli (generated)">
+        <addColumn tableName="project_commission">
+            <column name="year" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1670072358403-2" author="claudiomerli (generated)">
+        <addColumn tableName="newspaper">
+            <column name="sensitive_topics" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20221203" author="claudiomerli">
+        <validCheckSum>ANY</validCheckSum>
+        <sql>update newspaper
+             set sensitive_topics= false
+             where sensitive_topics is null</sql>
+    </changeSet>
+    <changeSet id="1670073272975-3" author="claudiomerli (generated)">
+        <addColumn tableName="project_commission">
+            <column name="publication_date" type="DATE"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

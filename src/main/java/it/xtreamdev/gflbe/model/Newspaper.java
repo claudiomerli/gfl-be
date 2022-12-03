@@ -58,6 +58,9 @@ public class Newspaper {
     @Column(name = "hidden")
     private Boolean hidden;
 
+    @Column(name = "sensitiveTopics")
+    private Boolean sensitiveTopics;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

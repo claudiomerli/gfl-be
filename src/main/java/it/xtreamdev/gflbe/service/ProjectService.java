@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
+import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.ProjectCommission;
 import it.xtreamdev.gflbe.model.ProjectStatusChange;
@@ -64,12 +65,14 @@ public class ProjectService {
         ProjectCommission projectCommission = ProjectCommission.builder()
                 .newspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()))
                 .period(saveProjectCommissionDTO.getPeriod())
+                .year(saveProjectCommissionDTO.getYear())
                 .anchor(saveProjectCommissionDTO.getAnchor())
                 .status(ProjectCommissionStatus.CREATED)
                 .url(saveProjectCommissionDTO.getUrl())
                 .title(saveProjectCommissionDTO.getTitle())
                 .notes(saveProjectCommissionDTO.getNotes())
                 .publicationUrl(saveProjectCommissionDTO.getPublicationUrl())
+                .publicationDate(saveProjectCommissionDTO.getPublicationDate())
                 .project(project)
                 .build();
         projectCommission.getProjectStatusChanges().add(
@@ -110,11 +113,13 @@ public class ProjectService {
                 .ifPresent(projectCommission -> {
                     projectCommission.setNewspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()));
                     projectCommission.setPeriod(saveProjectCommissionDTO.getPeriod());
+                    projectCommission.setYear(saveProjectCommissionDTO.getYear());
                     projectCommission.setAnchor(saveProjectCommissionDTO.getAnchor());
                     projectCommission.setUrl(saveProjectCommissionDTO.getUrl());
                     projectCommission.setTitle(saveProjectCommissionDTO.getTitle());
                     projectCommission.setNotes(saveProjectCommissionDTO.getNotes());
                     projectCommission.setPublicationUrl(saveProjectCommissionDTO.getPublicationUrl());
+                    projectCommission.setPublicationDate(saveProjectCommissionDTO.getPublicationDate());
                 });
 
         return this.projectRepository.save(project);
@@ -208,5 +213,9 @@ public class ProjectService {
 
             return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
         }, pageable);
+    }
+
+    public void setBulkStatusCommission(Integer id, String status, UpdateBulkProjectCommissionStatus updateBulkProjectCommissionStatus) {
+        updateBulkProjectCommissionStatus.getIds().forEach(idCommission -> this.setStatusCommission(id, idCommission, status));
     }
 }

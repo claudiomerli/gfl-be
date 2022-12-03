@@ -26,6 +26,7 @@ public class SearchNewspaperDTO {
     private Double costSellFrom;
     private Double costSellTo;
     private Boolean hidden;
+    private Boolean sensitiveTopics;
 
     @Builder.Default
     private List<String> regionalGeolocalization = new ArrayList<>();

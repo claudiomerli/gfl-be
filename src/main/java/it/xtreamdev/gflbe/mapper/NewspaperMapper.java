@@ -53,6 +53,7 @@ public class NewspaperMapper {
                                 .build())
                         .collect(Collectors.toSet()))
                 .hidden(newspaper.getHidden())
+                .sensitiveTopics(newspaper.getSensitiveTopics())
                 .build();
     }
 

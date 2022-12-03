@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,8 @@ public class ProjectCommission {
 
     private String period;
 
+    private Integer year;
+
     private String anchor;
 
     private String url;
@@ -50,6 +53,10 @@ public class ProjectCommission {
 
     @Column(name = "publication_url")
     private String publicationUrl;
+
+    @Column(name = "publication_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate publicationDate;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
