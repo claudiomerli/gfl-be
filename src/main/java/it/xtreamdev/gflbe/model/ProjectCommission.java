@@ -44,6 +44,10 @@ public class ProjectCommission {
 
     private String anchor;
 
+    private Boolean isAnchorBold;
+
+    private Boolean isAnchorItalic;
+
     private String url;
 
     private String title;

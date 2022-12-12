@@ -67,6 +67,8 @@ public class ProjectService {
                 .period(saveProjectCommissionDTO.getPeriod())
                 .year(saveProjectCommissionDTO.getYear())
                 .anchor(saveProjectCommissionDTO.getAnchor())
+                .isAnchorBold(saveProjectCommissionDTO.getIsAnchorBold())
+                .isAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic())
                 .status(ProjectCommissionStatus.CREATED)
                 .url(saveProjectCommissionDTO.getUrl())
                 .title(saveProjectCommissionDTO.getTitle())
@@ -115,6 +117,8 @@ public class ProjectService {
                     projectCommission.setPeriod(saveProjectCommissionDTO.getPeriod());
                     projectCommission.setYear(saveProjectCommissionDTO.getYear());
                     projectCommission.setAnchor(saveProjectCommissionDTO.getAnchor());
+                    projectCommission.setIsAnchorBold(saveProjectCommissionDTO.getIsAnchorBold());
+                    projectCommission.setIsAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic());
                     projectCommission.setUrl(saveProjectCommissionDTO.getUrl());
                     projectCommission.setTitle(saveProjectCommissionDTO.getTitle());
                     projectCommission.setNotes(saveProjectCommissionDTO.getNotes());

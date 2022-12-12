@@ -18,6 +18,8 @@ public class SaveProjectCommissionDTO {
     private String period;
     private Integer year;
     private String anchor;
+    private Boolean isAnchorBold;
+    private Boolean isAnchorItalic;
     private String url;
     private String title;
     private String notes;

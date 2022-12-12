@@ -728,4 +728,10 @@
             <column name="publication_date" type="DATE"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1670671497574-2" author="claudiomerli (generated)">
+        <addColumn tableName="project_commission">
+            <column name="is_anchor_bold" type="BOOLEAN"/>
+            <column name="is_anchor_italic" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
