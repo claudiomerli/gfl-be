@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Formula;
 
@@ -68,5 +69,9 @@ public class Newspaper {
             joinColumns = @JoinColumn(name = "newspaper_id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
     Set<Topic> topics;
+
+    @OneToMany(mappedBy = "newspaper")
+    @JsonIgnore
+    Set<ProjectCommission> projectCommissions;
 
 }

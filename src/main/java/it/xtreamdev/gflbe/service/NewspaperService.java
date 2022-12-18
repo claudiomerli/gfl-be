@@ -7,9 +7,7 @@ import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
 import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
-import it.xtreamdev.gflbe.model.Newspaper;
-import it.xtreamdev.gflbe.model.Topic;
-import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.OrderRepository;
@@ -57,8 +55,10 @@ public class NewspaperService {
             List<Predicate> predicates = new ArrayList<>();
             criteriaQuery.distinct(true);
             Join<Newspaper, Topic> topics = root.join("topics", JoinType.LEFT);
+            Join<Newspaper, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.LEFT);
+            Join<ProjectCommission, Project> project = projectCommissions.join("project", JoinType.LEFT);
 
-            if(currentUser.getRole().equals(RoleName.CUSTOMER)){
+            if (currentUser.getRole().equals(RoleName.CUSTOMER)) {
                 predicates.add(criteriaBuilder.isFalse(root.get("hidden")));
             } else {
                 Optional.ofNullable(searchNewspaperDTO.getHidden()).ifPresent(hidden -> predicates.add(criteriaBuilder.equal(root.get("hidden"), hidden)));
@@ -95,6 +95,10 @@ public class NewspaperService {
                 CriteriaBuilder.In<Integer> inClause = criteriaBuilder.in(topics.get("id"));
                 searchNewspaperDTO.getTopics().forEach(inClause::value);
                 predicates.add(inClause);
+            }
+
+            if (Objects.nonNull(searchNewspaperDTO.getNotUsedInProject())) {
+                predicates.add(criteriaBuilder.or(project.isNull(), criteriaBuilder.notEqual(project.get("id"), searchNewspaperDTO.getNotUsedInProject())));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
