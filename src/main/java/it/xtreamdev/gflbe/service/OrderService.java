@@ -270,7 +270,8 @@ public class OrderService {
 
 
     public List<RequestQuote> findRequestQuoteByOrderId(Integer id) {
-        return this.requestQuoteRepository.findByOrder_Id(id);
+        Order order = this.findById(id);
+        return this.requestQuoteRepository.findByOrder(order);
     }
 
     private static String substituteDocxSpecialCharacters(String fileContent) {
