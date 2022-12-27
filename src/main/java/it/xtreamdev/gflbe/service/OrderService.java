@@ -60,7 +60,13 @@ public class OrderService {
     private UserService userService;
 
     public Order findById(Integer id) {
-        return this.orderRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "ID not found"));
+        User user = userService.userInfo();
+        Order order = this.orderRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "ID not found"));
+        if (user.getRole().equals(RoleName.CUSTOMER) && !user.getId().equals(order.getCustomer().getId())) {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "User not allowed to view this order");
+        }
+
+        return order;
     }
 
     public Order addOrderElement(Integer id, SaveOrderDTO.SaveOrderElementDTO orderElementDTO) {
