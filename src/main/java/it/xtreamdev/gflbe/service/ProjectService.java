@@ -9,6 +9,7 @@ import it.xtreamdev.gflbe.model.ProjectStatusChange;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
+import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,15 @@ public class ProjectService {
     private NewspaperService newspaperService;
 
     public Project findById(Integer id) {
-        return this.projectRepository
+        User user = userService.userInfo();
+        Project project = this.projectRepository
                 .findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+        if (user.getRole().equals(RoleName.CUSTOMER) && !user.getId().equals(project.getCustomer().getId())) {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "User not allowed to view this project");
+        }
+
+        return project;
     }
 
     public Project save(SaveProjectDTO saveProjectDTO) {
