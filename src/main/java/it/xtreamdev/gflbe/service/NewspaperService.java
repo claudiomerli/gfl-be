@@ -10,11 +10,10 @@ import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
-import it.xtreamdev.gflbe.repository.OrderRepository;
+import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.util.ExcelUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.nullness.Opt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +38,8 @@ public class NewspaperService {
     @Autowired
     private NewspaperRepository newspaperRepository;
     @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
     private NewspaperMapper newspaperMapper;
     @Autowired
     private ExcelUtils excelUtils;
@@ -55,8 +56,6 @@ public class NewspaperService {
             List<Predicate> predicates = new ArrayList<>();
             criteriaQuery.distinct(true);
             Join<Newspaper, Topic> topics = root.join("topics", JoinType.LEFT);
-            Join<Newspaper, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.LEFT);
-            Join<ProjectCommission, Project> project = projectCommissions.join("project", JoinType.LEFT);
 
             if (currentUser.getRole().equals(RoleName.CUSTOMER)) {
                 predicates.add(criteriaBuilder.isFalse(root.get("hidden")));
@@ -98,7 +97,9 @@ public class NewspaperService {
             }
 
             if (Objects.nonNull(searchNewspaperDTO.getNotUsedInProject())) {
-                predicates.add(criteriaBuilder.or(project.isNull(), criteriaBuilder.notEqual(project.get("id"), searchNewspaperDTO.getNotUsedInProject())));
+                Project project = this.projectRepository.findById(searchNewspaperDTO.getNotUsedInProject()).orElseThrow();
+                List<Integer> idToExclude = project.getProjectCommissions().stream().map(ProjectCommission::getNewspaper).map(Newspaper::getId).collect(Collectors.toList());
+                predicates.add(root.get("id").in(idToExclude).not());
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

@@ -12,6 +12,7 @@ import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import org.apache.commons.lang3.StringUtils;
+import org.docx4j.wml.P;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,7 +96,7 @@ public class ProjectService {
         project.getProjectCommissions()
                 .add(projectCommission);
 
-        if (project.getStatus() == ProjectStatus.INVOICED) {
+        if (project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION || project.getStatus() == ProjectStatus.INVOICED) {
             project.setStatus(ProjectStatus.CREATED);
             project.getProjectStatusChanges().add(ProjectStatusChange
                     .builder()
@@ -162,13 +163,20 @@ public class ProjectService {
                             .projectCommission(projectCommission)
                             .build());
                 });
-
+        this.projectRepository.save(project);
 
         if (project.getProjectCommissions().stream().allMatch(projectCommission -> projectCommission.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
             project.setStatus(ProjectStatus.SENT_TO_ADMINISTRATION);
             project.getProjectStatusChanges().add(ProjectStatusChange
                     .builder()
                     .projectStatus(ProjectStatus.SENT_TO_ADMINISTRATION)
+                    .project(project)
+                    .build());
+        } else if(project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION){
+            project.setStatus(ProjectStatus.CREATED);
+            project.getProjectStatusChanges().add(ProjectStatusChange
+                    .builder()
+                    .projectStatus(ProjectStatus.CREATED)
                     .project(project)
                     .build());
         }
@@ -226,6 +234,7 @@ public class ProjectService {
         }, pageable);
     }
 
+    @Transactional
     public void setBulkStatusCommission(Integer id, String status, UpdateBulkProjectCommissionStatus updateBulkProjectCommissionStatus) {
         updateBulkProjectCommissionStatus.getIds().forEach(idCommission -> this.setStatusCommission(id, idCommission, status));
     }
