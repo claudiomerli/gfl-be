@@ -51,12 +51,5 @@ public class User {
     @Column(name = "role")
     private RoleName role;
 
-    @OneToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
-    @Formula("(select avg(c.score) from content c where c.editor_id = id)")
-    private Double averageScore;
-
 
 }

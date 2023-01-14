@@ -734,4 +734,76 @@
             <column name="is_anchor_italic" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1673694559075-6" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content" constraintName="FK2th7h2oyse64yir453lr3dvc4"/>
+    </changeSet>
+    <changeSet id="1673694559075-7" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content" constraintName="FKb61f36y11lhai2hcl3qtl5npy"/>
+    </changeSet>
+    <changeSet id="1673694559075-8" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="customer" constraintName="FKbw67wncs18mm5tbnyb213idxo"/>
+    </changeSet>
+    <changeSet id="1673694559075-9" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content_link" constraintName="FKffpoc9syuf0g3j8h075m3o4o"/>
+    </changeSet>
+    <changeSet id="1673694559075-10" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="attachment" constraintName="FKj6bw2tqkdfdtxbyeibfbwqpu3"/>
+    </changeSet>
+    <changeSet id="1673694559075-11" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content_rules" constraintName="FKmpyd4kn23c3k1l1wmlnicwdqk"/>
+    </changeSet>
+    <changeSet id="1673694559075-12" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content" constraintName="FKoavapuh6pm9ed6lly98ad2ji4"/>
+    </changeSet>
+    <changeSet id="1673694559075-13" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content_link" constraintName="FKrkia4s7gt8etfu1haivs8fac0"/>
+    </changeSet>
+    <changeSet id="1673694559075-14" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content" constraintName="FKrthy7ykyrlfkh53o8kcp4evie"/>
+    </changeSet>
+    <changeSet id="1673694559075-15" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="content" constraintName="FKxwgex486mb50xrm3rghqfc51"/>
+    </changeSet>
+    <changeSet id="1673694559075-16" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="project_content_preview"
+                                  constraintName="projectContentPreview_content"/>
+    </changeSet>
+    <changeSet id="1673694559075-17" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="project_content_preview"
+                                  constraintName="projectContentPreview_project"/>
+    </changeSet>
+    <changeSet id="1673694559075-18" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="project_content_preview"
+                                  constraintName="projectContetPreview_newspaper"/>
+    </changeSet>
+    <changeSet id="1673694559075-19" author="claudiomerli (generated)">
+        <dropForeignKeyConstraint baseTableName="user" constraintName="userCustomer_User"/>
+    </changeSet>
+    <changeSet id="1673694559075-20" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="attachment"/>
+    </changeSet>
+    <changeSet id="1673694559075-21" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="attachment_data"/>
+    </changeSet>
+    <changeSet id="1673694559075-22" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="content"/>
+    </changeSet>
+    <changeSet id="1673694559075-23" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="content_link"/>
+    </changeSet>
+    <changeSet id="1673694559075-24" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="content_rules"/>
+    </changeSet>
+    <changeSet id="1673694559075-25" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="customer"/>
+    </changeSet>
+    <changeSet id="1673694559075-26" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="project_content_preview"/>
+    </changeSet>
+    <changeSet id="1673694559075-27" author="claudiomerli (generated)">
+        <dropTable cascadeConstraints="true" tableName="suggest"/>
+    </changeSet>
+    <changeSet id="1673694559075-28" author="claudiomerli (generated)">
+        <dropColumn columnName="customer_id" tableName="user"/>
+    </changeSet>
 </databaseChangeLog>
