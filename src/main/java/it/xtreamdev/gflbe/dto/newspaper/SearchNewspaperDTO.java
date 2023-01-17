@@ -31,6 +31,7 @@ public class SearchNewspaperDTO {
 
     @Builder.Default
     private List<String> regionalGeolocalization = new ArrayList<>();
+    @Builder.Default
     private List<Integer> topics = new ArrayList<>();
 
 }

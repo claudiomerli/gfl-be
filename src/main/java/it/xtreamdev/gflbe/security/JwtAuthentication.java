@@ -13,6 +13,7 @@ public class JwtAuthentication extends AbstractAuthenticationToken {
     public JwtAuthentication(JwtUserPrincipal jwtUserPrincipal) {
         super(Collections.singletonList(new SimpleGrantedAuthority(jwtUserPrincipal.getUser().getRole().name())));
         this.jwtUserPrincipal = jwtUserPrincipal;
+        this.setAuthenticated(true);
     }
 
     @Override

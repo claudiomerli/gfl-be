@@ -78,7 +78,7 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(SaveUserDTO editsaveUserDTO) {
+    public void createUser(SaveUserDTO editsaveUserDTO) {
         this.userRepository.findByUsername(editsaveUserDTO.getUsername()).ifPresent((user) -> {
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Username already exists");
         });
@@ -95,7 +95,7 @@ public class UserService {
                 .password(this.passwordEncoder.encode(editsaveUserDTO.getPassword()))
                 .build();
 
-        return this.userRepository.save(user);
+        this.userRepository.save(user);
     }
 
     public User updateUser(Integer id, EditUserDTO userUpdated) {

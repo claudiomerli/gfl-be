@@ -9,24 +9,41 @@ import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
-import it.xtreamdev.gflbe.repository.*;
+import it.xtreamdev.gflbe.repository.ContentRepository;
+import it.xtreamdev.gflbe.repository.ProjectCommissionRepository;
+import it.xtreamdev.gflbe.repository.ProjectRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.docx4j.wml.P;
+import org.docx4j.openpackaging.exceptions.InvalidFormatException;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.PartName;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.xlsx4j.exceptions.Xlsx4jException;
+import org.xlsx4j.jaxb.Context;
+import org.xlsx4j.sml.*;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static it.xtreamdev.gflbe.util.ExcelUtils.*;
+
 
 @Service
+@Slf4j
 public class ProjectService {
 
     @Autowired
@@ -211,7 +228,6 @@ public class ProjectService {
             criteriaQuery.distinct(true);
 
 
-
             if (StringUtils.isNotBlank(status)) {
                 predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
             }
@@ -256,5 +272,27 @@ public class ProjectService {
                         .build()
         ));
 
+    }
+
+    public byte[] exportProjectExcel(Integer projectId) {
+        Project project = this.findById(projectId);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            SpreadsheetMLPackage spreadsheet = createSpreadsheet();
+            SheetData sheet = addSheet(spreadsheet, project.getName());
+            addRow(sheet, "Testata", "Url di pubblicazione", "Data di pubblicazione", "Periodo");
+            project.getProjectCommissions().forEach(projectCommission -> {
+                addRow(sheet,
+                        projectCommission.getNewspaper().getName(),
+                        projectCommission.getPublicationUrl(),
+                        projectCommission.getPublicationDate(),
+                        projectCommission.getPeriod());
+            });
+
+            spreadsheet.save(baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            log.error("Error", e);
+            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Error creating excel");
+        }
     }
 }

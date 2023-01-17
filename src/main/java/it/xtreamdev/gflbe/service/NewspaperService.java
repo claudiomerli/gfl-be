@@ -14,21 +14,27 @@ import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.util.ExcelUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.xlsx4j.sml.SheetData;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.http.HttpConnectTimeoutException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static it.xtreamdev.gflbe.util.ExcelUtils.*;
 
 @Service
 public class NewspaperService {
@@ -41,8 +47,7 @@ public class NewspaperService {
     private ProjectRepository projectRepository;
     @Autowired
     private NewspaperMapper newspaperMapper;
-    @Autowired
-    private ExcelUtils excelUtils;
+
     @Autowired
     private PdfUtils pdfUtils;
 
@@ -172,30 +177,31 @@ public class NewspaperService {
         return this.newspaperRepository.finance();
     }
 
-    public byte[] exportExcel(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) throws IOException {
-        List<NewspaperDTO> listaDTO = listForExport(searchNewspaperDTO, pageRequest);
-        excelUtils.creaFoglioConHeader("Testate", "Elenco testate censite", Arrays.asList("ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento"));
-        AtomicInteger colonna = new AtomicInteger(0);
-        excelUtils.nuovaRiga(colonna);
-        try {
-            listaDTO.forEach(dto -> {
-                excelUtils.popolaRiga(colonna, dto.getId());
-                excelUtils.popolaRiga(colonna, dto.getName());
-                excelUtils.popolaRiga(colonna, dto.getPurchasedContent());
-                excelUtils.popolaRiga(colonna, dto.getLeftContent());
-                excelUtils.popolaRiga(colonna, dto.getCostEach());
-                excelUtils.popolaRiga(colonna, dto.getCostSell());
-                excelUtils.popolaRiga(colonna, dto.getZa());
-                excelUtils.popolaRiga(colonna, dto.getEmail());
-                excelUtils.popolaRiga(colonna, dto.getRegionalGeolocalization());
-                excelUtils.popolaRiga(colonna, dto.getTopics().stream().map(TopicDTO::getName).collect(Collectors.joining(", ")));
-                excelUtils.nuovaRiga(colonna);
-            });
+    public byte[] exportExcel(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            List<NewspaperDTO> listaDTO = listForExport(searchNewspaperDTO, pageRequest);
+            SpreadsheetMLPackage spreadsheet = createSpreadsheet();
+            SheetData exportTestate = addSheet(spreadsheet, "Export testate");
+            addRow(exportTestate, "ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento");
+
+            listaDTO.forEach(dto -> addRow(exportTestate,
+                    dto.getId(),
+                    dto.getName(),
+                    dto.getPurchasedContent(),
+                    dto.getLeftContent(),
+                    dto.getCostEach(),
+                    dto.getCostSell(),
+                    dto.getZa(),
+                    dto.getEmail(),
+                    dto.getRegionalGeolocalization(),
+                    dto.getTopics().stream().map(TopicDTO::getName).collect(Collectors.joining(", "))
+            ));
+            spreadsheet.save(baos);
+            return baos.toByteArray();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error");
         }
 
-        return excelUtils.exportExcel();
     }
 
     public byte[] exportPDF(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) throws IOException {

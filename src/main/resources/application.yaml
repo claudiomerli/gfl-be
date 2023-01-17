@@ -9,20 +9,7 @@ spring:
     show-sql: true
     properties:
       hibernate.enable_lazy_load_no_trans: true
-  mail:
-    host: cs03.imgwebsolutions.it
-    username: info@tilinkotool.it
-    port: 25
-    password: Osuu19_2
   liquibase:
     enabled: true
     change-log: db/liquibase/db.changelog-master.xml
-
-
-gfl:
-  ftp:
-    host: 80.241.142.27
-    user: admintlt
-    password: Qw9o&26g
-  suggestUrl: https://suggestqueries.google.com/complete/search?output=toolbar&hl=it&q={keyWord}
 

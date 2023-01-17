@@ -12,11 +12,10 @@ import java.util.stream.Collectors;
 @Component
 public class NewspaperMapper {
 
-    @Autowired
-    NewspaperMapper newspaperMapper;
+
 
     public Page<NewspaperDTO> mapEntityToDTO(Page<Newspaper> newspapers) {
-        return newspapers.map(newspaper -> newspaperMapper.mapEntityToDTO(newspaper));
+        return newspapers.map(this::mapEntityToDTO);
     }
 
     public NewspaperDTO mapEntityToDTO(Newspaper newspaper) {

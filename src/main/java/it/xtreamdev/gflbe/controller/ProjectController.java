@@ -92,13 +92,18 @@ public class ProjectController {
             @PathVariable Integer id,
             @PathVariable String status,
             @RequestBody UpdateBulkProjectCommissionStatus updateBulkProjectCommissionStatus
-            ) {
+    ) {
         this.projectService.setBulkStatusCommission(id, status, updateBulkProjectCommissionStatus);
     }
 
     @PutMapping("{id}/invoice")
     public Project close(@PathVariable Integer id) {
         return this.projectService.invoiceProject(id);
+    }
+
+    @GetMapping("{id}/export")
+    public byte[] exportExcel(@PathVariable Integer id) {
+        return this.projectService.exportProjectExcel(id);
     }
 
 }

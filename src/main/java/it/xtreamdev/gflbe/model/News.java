@@ -1,7 +1,6 @@
 package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import liquibase.pro.packaged.C;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
