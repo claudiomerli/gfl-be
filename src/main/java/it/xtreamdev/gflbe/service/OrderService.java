@@ -34,6 +34,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static it.xtreamdev.gflbe.util.DocxUtils.substituteDocxSpecialCharacters;
+
 @Service
 @Slf4j
 public class OrderService {
@@ -274,20 +276,6 @@ public class OrderService {
         return this.requestQuoteRepository.findByOrder(order);
     }
 
-    private static String substituteDocxSpecialCharacters(String fileContent) {
-        return fileContent
-                .replace("&nbsp;", " ")
-                .replace("&ograve;", "ò")
-                .replace("&agrave;", "à")
-                .replace("&eacute;", "é")
-                .replace("&egrave;", "è")
-                .replace("&ugrave;", "ù")
-                .replace("&igrave;", "ì")
-                .replace("&Egrave;", "È")
-                .replace("&Eacute;", "É")
-                .replace("&rsquo;", "’")
-                .replace("&lsquo;", "‘");
-    }
 
     private static String substituteRows(RequestQuote requestQuote, String fileContent) {
         StringBuilder sbRows = new StringBuilder();

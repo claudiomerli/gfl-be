@@ -1,5 +1,7 @@
 package it.xtreamdev.gflbe;
 
+import it.xtreamdev.gflbe.service.ContentService;
+import it.xtreamdev.gflbe.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -22,6 +24,9 @@ public class GLFBeApplication implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ProjectService projectService;
+
     public static void main(String[] args) {
         SpringApplication.run(GLFBeApplication.class, args);
     }
@@ -30,5 +35,7 @@ public class GLFBeApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         String passwordEncoded = this.passwordEncoder.encode("password");
         log.info("Hash for \"password\": {}", passwordEncoded);
+
+        this.projectService.createMissingContent();
     }
 }

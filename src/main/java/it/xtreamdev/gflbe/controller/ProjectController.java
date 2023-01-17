@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
@@ -19,7 +20,7 @@ public class ProjectController {
     private ProjectService projectService;
 
     @GetMapping
-    public Page<Project> find(
+    public Page<ProjectListElementDTO> find(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,

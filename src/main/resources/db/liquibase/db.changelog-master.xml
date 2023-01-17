@@ -806,4 +806,27 @@
     <changeSet id="1673694559075-28" author="claudiomerli (generated)">
         <dropColumn columnName="customer_id" tableName="user"/>
     </changeSet>
+    <changeSet id="1673708047623-1" author="claudiomerli (generated)">
+        <createTable tableName="content">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_content"/>
+            </column>
+            <column name="body" type="CLOB"/>
+            <column name="content_status" type="VARCHAR(255)"/>
+            <column name="project_commission_id" type="INT"/>
+            <column name="editor_id" type="INT"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1673708047623-6" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="editor_id" baseTableName="content"
+                                 constraintName="FK_CONTENT_ON_EDITOR" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1673708047623-7" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="project_commission_id" baseTableName="content"
+                                 constraintName="FK_CONTENT_ON_PROJECTCOMMISSION" referencedColumnNames="id"
+                                 referencedTableName="project_commission"/>
+    </changeSet>
 </databaseChangeLog>

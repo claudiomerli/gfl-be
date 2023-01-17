@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -63,4 +64,20 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectCommission> projectCommissions;
+
+    public ProjectListElementDTO toListElement(){
+        return ProjectListElementDTO
+                .builder()
+                .billingAmount(billingAmount)
+                .billingDescription(billingDescription)
+                .createdDate(createdDate)
+                .customer(customer)
+                .expiration(expiration)
+                .id(id)
+                .lastModifiedDate(lastModifiedDate)
+                .status(status)
+                .name(name)
+                .build();
+    }
+
 }

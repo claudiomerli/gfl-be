@@ -1,12 +1,11 @@
 package it.xtreamdev.gflbe.service;
 
+import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
-import it.xtreamdev.gflbe.model.Project;
-import it.xtreamdev.gflbe.model.ProjectCommission;
-import it.xtreamdev.gflbe.model.ProjectStatusChange;
-import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.*;
+import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
@@ -20,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +31,13 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private ProjectCommissionRepository projectCommissionRepository;
+
+    @Autowired
+    private ContentRepository contentRepository;
+
     @Autowired
     private UserService userService;
 
@@ -92,6 +95,10 @@ public class ProjectService {
                         .projectCommission(projectCommission)
                         .build()
         );
+        projectCommission.setContent(Content.builder()
+                .contentStatus(ContentStatus.WORKING)
+                .projectCommission(projectCommission)
+                .build());
 
         project.getProjectCommissions()
                 .add(projectCommission);
@@ -172,7 +179,7 @@ public class ProjectService {
                     .projectStatus(ProjectStatus.SENT_TO_ADMINISTRATION)
                     .project(project)
                     .build());
-        } else if(project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION){
+        } else if (project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION) {
             project.setStatus(ProjectStatus.CREATED);
             project.getProjectStatusChanges().add(ProjectStatusChange
                     .builder()
@@ -195,13 +202,15 @@ public class ProjectService {
         return this.projectRepository.save(project);
     }
 
-    public Page<Project> find(String globalSearch, String status, Pageable pageable) {
+    public Page<ProjectListElementDTO> find(String globalSearch, String status, Pageable pageable) {
         User user = this.userService.userInfo();
         return this.projectRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
-            Join<Project, ProjectCommission> projectCommissions = root.join("projectCommissions", JoinType.LEFT);
+            Join<Project, ProjectCommission> projectCommissionsJoin = root.join("projectCommissions", JoinType.LEFT);
             Join<Project, User> customerJoin = root.join("customer", JoinType.LEFT);
             criteriaQuery.distinct(true);
+
+
 
             if (StringUtils.isNotBlank(status)) {
                 predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
@@ -209,7 +218,7 @@ public class ProjectService {
 
             switch (user.getRole()) {
                 case PUBLISHER:
-                    CriteriaBuilder.In<Object> inClausePublisher = criteriaBuilder.in(projectCommissions.get("status"));
+                    CriteriaBuilder.In<Object> inClausePublisher = criteriaBuilder.in(projectCommissionsJoin.get("status"));
                     Arrays.asList(ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClausePublisher::value);
                     predicateList.add(inClausePublisher);
                     break;
@@ -231,11 +240,21 @@ public class ProjectService {
             }
 
             return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
-        }, pageable);
+        }, pageable).map(project -> project.toListElement());
     }
 
     @Transactional
     public void setBulkStatusCommission(Integer id, String status, UpdateBulkProjectCommissionStatus updateBulkProjectCommissionStatus) {
         updateBulkProjectCommissionStatus.getIds().forEach(idCommission -> this.setStatusCommission(id, idCommission, status));
+    }
+
+    public void createMissingContent() {
+        this.projectCommissionRepository.findByContentIsNull().forEach(projectCommission -> this.contentRepository.save(
+                Content.builder()
+                        .contentStatus(ContentStatus.WORKING)
+                        .projectCommission(projectCommission)
+                        .build()
+        ));
+
     }
 }

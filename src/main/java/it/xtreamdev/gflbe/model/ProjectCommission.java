@@ -1,9 +1,9 @@
 package it.xtreamdev.gflbe.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -35,8 +35,13 @@ public class ProjectCommission {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("projectId")
     private Project project;
+
+    @Formula("(select p.name from project p  inner join project_commission pc on pc.project_id = p.id where pc.id = id)")
+    private String projectName;
 
     private String period;
 
@@ -55,6 +60,7 @@ public class ProjectCommission {
     @Lob
     private String notes;
 
+
     @Column(name = "publication_url")
     private String publicationUrl;
 
@@ -65,6 +71,12 @@ public class ProjectCommission {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ProjectCommissionStatus status = ProjectCommissionStatus.CREATED;
+
+    @OneToOne(mappedBy = "projectCommission", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("contentId")
+    private Content content;
 
     @OneToMany(mappedBy = "projectCommission", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
