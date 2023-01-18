@@ -83,7 +83,7 @@ public class ContentService {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
         }
 
-        if (user.getRole() == RoleName.EDITOR && !content.getProjectCommission().getProject().getCustomer().getId().equals(user.getId())) {
+        if (user.getRole() == RoleName.EDITOR && !content.getEditor().getId().equals(user.getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
         }
 
