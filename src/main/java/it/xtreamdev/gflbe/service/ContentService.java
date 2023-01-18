@@ -10,7 +10,6 @@ import it.xtreamdev.gflbe.repository.ContentRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -114,7 +113,7 @@ public class ContentService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
             XHTMLImporterImpl XHTMLImporter = new XHTMLImporterImpl(wordMLPackage);
-            wordMLPackage.getMainDocumentPart().getContent().addAll(XHTMLImporter.convert(substituteDocxSpecialCharacters(content.getBody()), null));
+            wordMLPackage.getMainDocumentPart().getContent().addAll(XHTMLImporter.convert(substituteDocxSpecialCharacters("<div>" + content.getBody() + "</div>"), null));
             wordMLPackage.save(baos);
             return baos.toByteArray();
         } catch (IOException | Docx4JException e) {
