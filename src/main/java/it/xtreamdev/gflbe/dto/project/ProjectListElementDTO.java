@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import it.xtreamdev.gflbe.model.ProjectCommission;
 import it.xtreamdev.gflbe.model.ProjectStatusChange;
 import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,4 +38,15 @@ public class ProjectListElementDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime lastModifiedDate;
 
+    private List<ProjectCommissionListElementDTO> projectCommissions;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    @Builder
+    public static class ProjectCommissionListElementDTO {
+
+        private ProjectCommissionStatus status;
+
+    }
 }

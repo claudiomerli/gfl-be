@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.*;
+import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import lombok.*;
 import org.hibernate.annotations.Formula;
@@ -92,4 +93,10 @@ public class ProjectCommission {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime lastModifiedDate;
 
+    public ProjectListElementDTO.ProjectCommissionListElementDTO toListElement() {
+        return ProjectListElementDTO.ProjectCommissionListElementDTO
+                .builder()
+                .status(status)
+                .build();
+    }
 }

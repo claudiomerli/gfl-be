@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -65,7 +66,7 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectCommission> projectCommissions;
 
-    public ProjectListElementDTO toListElement(){
+    public ProjectListElementDTO toListElement() {
         return ProjectListElementDTO
                 .builder()
                 .billingAmount(billingAmount)
@@ -77,6 +78,7 @@ public class Project {
                 .lastModifiedDate(lastModifiedDate)
                 .status(status)
                 .name(name)
+                .projectCommissions(projectCommissions.stream().map(ProjectCommission::toListElement).collect(Collectors.toList()))
                 .build();
     }
 
