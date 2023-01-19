@@ -42,6 +42,7 @@ public class ContentService {
         return this.contentRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             Join<Content, ProjectCommission> projectCommission = root.join("projectCommission");
+            Join<Content, User> editor = root.join("editor");
             Join<ProjectCommission, Project> project = projectCommission.join("project");
             Join<ProjectCommission, Newspaper> newspaper = projectCommission.join("newspaper");
 
@@ -68,6 +69,10 @@ public class ContentService {
 
             if (StringUtils.isNotBlank(findContentFilterDTO.getNewspaperId())) {
                 predicates.add(criteriaBuilder.equal(newspaper.get("id"), Integer.valueOf(findContentFilterDTO.getNewspaperId())));
+            }
+
+            if (StringUtils.isNotBlank(findContentFilterDTO.getEditorId())) {
+                predicates.add(criteriaBuilder.equal(editor.get("id"), Integer.valueOf(findContentFilterDTO.getEditorId())));
             }
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
