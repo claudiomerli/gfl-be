@@ -2,7 +2,6 @@ package it.xtreamdev.gflbe.model;
 
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import lombok.*;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

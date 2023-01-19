@@ -121,12 +121,8 @@ public class UserService {
     }
 
     public User findById(Integer id) {
-        User user = this.userRepository.findById(id)
+        return this.userRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found"));
-
-        user.setPassword(null);
-
-        return user;
     }
 
     public User userInfo() {
