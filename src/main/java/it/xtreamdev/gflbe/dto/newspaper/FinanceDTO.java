@@ -1,4 +1,5 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.newspaper;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class SuggestsDTO {
+public class FinanceDTO {
 
-    private Integer id;
-    private String keyword;
-    private String suggests;
+    private Double purchasesValue;
+
+    private Double salesValue;
+
 }

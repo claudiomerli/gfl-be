@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.newspaper;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

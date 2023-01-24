@@ -43,6 +43,7 @@ public class Project {
     @Column(name = "billing_amount")
     private Double billingAmount;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate expiration;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -52,6 +53,9 @@ public class Project {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ProjectStatus status = ProjectStatus.CREATED;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private ContentHint hint;
 
     @CreatedDate
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -64,7 +68,8 @@ public class Project {
     private LocalDateTime lastModifiedDate;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectCommission> projectCommissions;
+    @Builder.Default
+    private List<ProjectCommission> projectCommissions = new ArrayList<>();
 
     public ProjectListElementDTO toListElement() {
         return ProjectListElementDTO
@@ -78,7 +83,10 @@ public class Project {
                 .lastModifiedDate(lastModifiedDate)
                 .status(status)
                 .name(name)
-                .projectCommissions(projectCommissions.stream().map(ProjectCommission::toListElement).collect(Collectors.toList()))
+                .projectCommissions(projectCommissions
+                        .stream()
+                        .map(ProjectCommission::toListElement)
+                        .collect(Collectors.toList()))
                 .build();
     }
 

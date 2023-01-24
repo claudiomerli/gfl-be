@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.FindNewsDTO;
-import it.xtreamdev.gflbe.dto.SaveNewsDTO;
+import it.xtreamdev.gflbe.dto.news.FindNewsDTO;
+import it.xtreamdev.gflbe.dto.news.SaveNewsDTO;
 import it.xtreamdev.gflbe.model.News;
 import it.xtreamdev.gflbe.service.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
+import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
@@ -106,4 +108,55 @@ public class ProjectController {
         return this.projectService.exportProjectExcel(id);
     }
 
+
+    @PostMapping("{id}/commission/{idCommission}/hint/attachment")
+    public void addProjectCommissionHintAttachment(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission,
+            @RequestBody SaveAttachmentDTO saveAttachmentDTO
+    ) {
+        this.projectService.addProjectCommissionHintAttachment(id, idCommission, saveAttachmentDTO);
+    }
+
+    @DeleteMapping("{id}/commission/{idCommission}/hint/attachment/{idAttachment}")
+    public void deleteProjectCommissionHintAttachment(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission,
+            @PathVariable Integer idAttachment
+    ) {
+        this.projectService.deleteProjectCommissionHintAttachment(id, idCommission, idAttachment);
+    }
+
+    @PostMapping("{id}/hint/attachment")
+    public void addProjectHintAttachment(
+            @PathVariable Integer id,
+            @RequestBody SaveAttachmentDTO saveAttachmentDTO
+    ) {
+        this.projectService.addProjectHintAttachment(id, saveAttachmentDTO);
+    }
+
+    @DeleteMapping("{id}/hint/attachment/{idAttachment}")
+    public void deleteProjectHintAttachment(
+            @PathVariable Integer id,
+            @PathVariable Integer idAttachment
+    ) {
+        this.projectService.deleteProjectHintAttachment(id, idAttachment);
+    }
+
+    @PutMapping("{id}/hint")
+    public void updateProjectHint(
+            @PathVariable Integer id,
+            @RequestBody SaveProjectCommissionHintDTO saveProjectCommissionHintDTO
+    ) {
+        this.projectService.updateProjectHint(id, saveProjectCommissionHintDTO);
+    }
+
+    @PutMapping("{id}/commission/{idCommission}/hint")
+    public void updateProjectCommissionHint(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission,
+            @RequestBody SaveProjectCommissionHintDTO saveProjectCommissionHintDTO
+    ) {
+        this.projectService.updateProjectCommissionHint(id, idCommission, saveProjectCommissionHintDTO);
+    }
 }

@@ -21,4 +21,5 @@ public class SaveProjectDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate expiration;
+    private String hintBody;
 }

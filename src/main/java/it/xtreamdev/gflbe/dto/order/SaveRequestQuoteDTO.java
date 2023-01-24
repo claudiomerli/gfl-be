@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

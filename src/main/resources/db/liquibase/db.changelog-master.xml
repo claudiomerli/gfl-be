@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-                   xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
     <changeSet author="claudiomerli (generated)" id="1637875150910-1">
         <createTable tableName="attachment">
             <column autoIncrement="true" name="id" type="INT">
@@ -828,5 +828,112 @@
         <addForeignKeyConstraint baseColumnNames="project_commission_id" baseTableName="content"
                                  constraintName="FK_CONTENT_ON_PROJECTCOMMISSION" referencedColumnNames="id"
                                  referencedTableName="project_commission"/>
+    </changeSet>
+    <changeSet id="20230123-1" author="claudiomerli">
+        <sql>
+            UPDATE project_commission
+            set period = '0'
+            where period = 'GENNAIO';
+            UPDATE project_commission
+            set period = '1'
+            where period = 'FEBBRAIO';
+            UPDATE project_commission
+            set period = '2'
+            where period = 'MARZO';
+            UPDATE project_commission
+            set period = '3'
+            where period = 'APRILE';
+            UPDATE project_commission
+            set period = '4'
+            where period = 'MAGGIO';
+            UPDATE project_commission
+            set period = '5'
+            where period = 'GIUGNO';
+            UPDATE project_commission
+            set period = '6'
+            where period = 'LUGLIO';
+            UPDATE project_commission
+            set period = '7'
+            where period = 'AGOSTO';
+            UPDATE project_commission
+            set period = '8'
+            where period = 'SETTEMBRE';
+            UPDATE project_commission
+            set period = '9'
+            where period = 'OTTOBRE';
+            UPDATE project_commission
+            set period = '10'
+            where period = 'NOVEMBRE';
+            UPDATE project_commission
+            set period = '11'
+            where period = 'DICEMBRE';
+        </sql>
+    </changeSet>
+    <changeSet id="20230123-2" author="claudiomerli">
+        <renameColumn tableName="project_commission" oldColumnName="period" newColumnName="period_old"
+                      columnDataType="varchar(255)"/>
+    </changeSet>
+    <changeSet id="20230123-3" author="claudiomerli">
+        <addColumn tableName="project_commission">
+            <column name="period" type="int"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20230123-4" author="claudiomerli">
+        <sql>UPDATE project_commission
+             set period = CAST(period_old AS UNSIGNED)</sql>
+    </changeSet>
+    <changeSet id="20230123-5" author="claudiomerli">
+        <dropColumn tableName="project_commission" columnName="period_old"/>
+    </changeSet>
+    <changeSet id="1674514954354-1" author="claudiomerli (generated)">
+        <createTable tableName="attachment">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_attachment"/>
+            </column>
+            <column name="filename" type="VARCHAR(255)"/>
+            <column name="payload" type="BLOB"/>
+            <column name="content_hint_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1674514954354-2" author="claudiomerli (generated)">
+        <createTable tableName="content_hint">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_content_hint"/>
+            </column>
+            <column name="body" type="VARCHAR(255)"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1674514954354-4" author="claudiomerli (generated)">
+        <addColumn tableName="project_commission">
+            <column name="project_name" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1674514954354-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="content_hint_id" baseTableName="attachment"
+                                 constraintName="FK_ATTACHMENT_ON_CONTENTHINT" referencedColumnNames="id"
+                                 referencedTableName="content_hint"/>
+    </changeSet>
+    <changeSet id="1674515108534-1" author="claudiomerli (generated)">
+        <addColumn tableName="content">
+            <column name="hint_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1674515108534-6" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="hint_id" baseTableName="content" constraintName="FK_CONTENT_ON_HINT"
+                                 referencedColumnNames="id" referencedTableName="content_hint"/>
+    </changeSet>
+    <changeSet id="20230123-6" author="claudiomerli">
+        <modifyDataType tableName="attachment" columnName="payload" newDataType="longblob"/>
+    </changeSet>
+    <changeSet id="1674581531940-1" author="claudiomerli (generated)">
+        <addColumn tableName="project">
+            <column name="hint_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1674581531940-6" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="hint_id" baseTableName="project" constraintName="FK_PROJECT_ON_HINT"
+                                 referencedColumnNames="id" referencedTableName="content_hint"/>
     </changeSet>
 </databaseChangeLog>

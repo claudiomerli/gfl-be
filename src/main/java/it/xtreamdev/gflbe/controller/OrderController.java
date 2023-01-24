@@ -1,6 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.*;
+import it.xtreamdev.gflbe.dto.order.*;
 import it.xtreamdev.gflbe.model.Order;
 import it.xtreamdev.gflbe.model.RequestQuote;
 import it.xtreamdev.gflbe.service.OrderService;

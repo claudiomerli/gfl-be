@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.repository;
 
-import it.xtreamdev.gflbe.dto.FinanceDTO;
-import it.xtreamdev.gflbe.dto.MaxMinRangeNewspaperAttributesDTO;
+import it.xtreamdev.gflbe.dto.newspaper.FinanceDTO;
+import it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO;
 import it.xtreamdev.gflbe.model.Newspaper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,13 +12,13 @@ public interface NewspaperRepository extends JpaRepository<Newspaper, Integer>, 
     @SuppressWarnings("ALL")
     //Aggiungo alla somma dei sold content i prezzi dei pacchetti venduti
     @Query(value = "select " +
-            "new it.xtreamdev.gflbe.dto.FinanceDTO(" +
+            "new it.xtreamdev.gflbe.dto.newspaper.FinanceDTO(" +
             "sum(costEach*purchasedContent)," +
             "sum(costSell*soldContent) + (select COALESCE(sum(o.orderPackPrice),0) from Order o where o.status = 'CONFIRMED' and o.orderPackPrice is not null)) " +
             "from Newspaper")
     FinanceDTO finance();
 
-    @Query(value = "select new it.xtreamdev.gflbe.dto.MaxMinRangeNewspaperAttributesDTO(" +
+    @Query(value = "select new it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO(" +
             "min (n.za)," +
             "max (n.za)," +
             "min (n.purchasedContent)," +

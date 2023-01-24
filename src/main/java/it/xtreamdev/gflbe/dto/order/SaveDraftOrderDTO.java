@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SaveNewsDTO {
+public class SaveDraftOrderDTO {
 
-    private String title;
-    private String body;
-    private String image;
+    private String name;
 
 }

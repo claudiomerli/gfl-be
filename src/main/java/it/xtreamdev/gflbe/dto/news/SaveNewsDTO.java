@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.news;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FindNewsDTO {
+public class SaveNewsDTO {
 
-    private String globalSearch;
+    private String title;
+    private String body;
+    private String image;
 
 }

@@ -1,9 +1,9 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.AccessTokenDTO;
+import it.xtreamdev.gflbe.dto.auth.AccessTokenDTO;
 import it.xtreamdev.gflbe.dto.user.EditUserDTO;
 import it.xtreamdev.gflbe.dto.user.SaveUserDTO;
-import it.xtreamdev.gflbe.dto.SigninDTO;
+import it.xtreamdev.gflbe.dto.auth.SigninDTO;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.UserRepository;
@@ -123,6 +123,10 @@ public class UserService {
     public User findById(Integer id) {
         return this.userRepository.findById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found"));
+    }
+
+    public User findByIdCleaned(Integer id) {
+        return this.findById(id).cleanSensitiveData();
     }
 
     public User userInfo() {

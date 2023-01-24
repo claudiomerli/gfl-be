@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.FinanceDTO;
-import it.xtreamdev.gflbe.dto.MaxMinRangeNewspaperAttributesDTO;
+import it.xtreamdev.gflbe.dto.newspaper.FinanceDTO;
+import it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
@@ -11,7 +11,6 @@ import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
-import it.xtreamdev.gflbe.util.ExcelUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -29,9 +28,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.http.HttpConnectTimeoutException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static it.xtreamdev.gflbe.util.ExcelUtils.*;

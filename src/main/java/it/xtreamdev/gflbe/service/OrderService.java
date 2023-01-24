@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
 import com.itextpdf.html2pdf.HtmlConverter;
-import it.xtreamdev.gflbe.dto.*;
+import it.xtreamdev.gflbe.dto.order.*;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.OrderStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;

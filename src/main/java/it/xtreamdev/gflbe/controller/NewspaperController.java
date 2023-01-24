@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.FinanceDTO;
-import it.xtreamdev.gflbe.dto.MaxMinRangeNewspaperAttributesDTO;
+import it.xtreamdev.gflbe.dto.newspaper.FinanceDTO;
+import it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
 import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;

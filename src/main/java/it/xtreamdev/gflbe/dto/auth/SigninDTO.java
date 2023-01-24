@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class GenerateOrderFromOrderPackDTO {
+public class SigninDTO {
 
-    private String name;
-    private Integer idOrderPack;
+    private String username;
+    private String password;
 
 }

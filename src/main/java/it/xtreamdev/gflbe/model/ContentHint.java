@@ -1,7 +1,6 @@
 package it.xtreamdev.gflbe.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -9,38 +8,41 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "content")
+@Table(name = "content_hint")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EntityListeners({AuditingEntityListener.class})
-public class Content {
+public class ContentHint {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Lob
-    @Column(name = "body")
     private String body;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "content_status")
-    private ContentStatus contentStatus;
+    @OneToMany(mappedBy = "contentHint")
+    @Builder.Default
+    private List<Attachment> attachments = new ArrayList<>();
 
-    @OneToOne
-    private ProjectCommission projectCommission;
+    @OneToOne(mappedBy = "hint")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("contentId")
+    private Content content;
 
-    @ManyToOne
-    private User editor;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    private ContentHint hint;
+    @OneToOne(mappedBy = "hint")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("projectId")
+    private Project project;
 
     @CreatedDate
     @Column(name = "created_date")
@@ -51,5 +53,6 @@ public class Content {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+
 
 }

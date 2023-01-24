@@ -1,13 +1,11 @@
 package it.xtreamdev.gflbe.controller.advisors;
 
-import it.xtreamdev.gflbe.dto.ErrorDTO;
+import it.xtreamdev.gflbe.dto.common.ErrorDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;

@@ -51,4 +51,9 @@ public class User {
     private RoleName role;
 
 
+    public User cleanSensitiveData() {
+        this.password = null;
+        return this;
+    }
+
 }

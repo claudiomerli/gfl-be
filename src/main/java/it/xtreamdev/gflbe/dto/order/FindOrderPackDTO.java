@@ -1,6 +1,5 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.order;
 
-import it.xtreamdev.gflbe.model.enumerations.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,15 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-public class FindOrderDTO {
+public class FindOrderPackDTO {
 
-    private String name;
-
-    private Integer customerId;
-
-    private String status;
-
-    private String excludeOrderPack;
+    private String globalSearch;
 
     @Builder.Default
     private List<Integer> newspaperIds = new ArrayList<>();

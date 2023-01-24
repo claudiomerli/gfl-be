@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.content;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class LinkDto {
-    private String linkUrl;
-    private String linkText;
+public class SaveAttachmentDTO {
+
+    private String filename;
+    private String body;
+
 }

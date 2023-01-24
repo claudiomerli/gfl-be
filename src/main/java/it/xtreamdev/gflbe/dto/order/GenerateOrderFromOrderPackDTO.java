@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class ErrorDTO {
+public class GenerateOrderFromOrderPackDTO {
 
-    private String message;
-    private int statusCode;
+    private String name;
+    private Integer idOrderPack;
 
 }

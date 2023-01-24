@@ -1,6 +1,5 @@
 package it.xtreamdev.gflbe;
 
-import it.xtreamdev.gflbe.service.ContentService;
 import it.xtreamdev.gflbe.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.client.RestTemplate;
 
 @EnableScheduling
 @EnableJpaAuditing
@@ -36,6 +33,6 @@ public class GLFBeApplication implements CommandLineRunner {
         String passwordEncoded = this.passwordEncoder.encode("password");
         log.info("Hash for \"password\": {}", passwordEncoded);
 
-        this.projectService.createMissingContent();
+        this.projectService.createMissingObjects();
     }
 }

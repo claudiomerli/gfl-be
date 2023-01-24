@@ -1,16 +1,16 @@
-package it.xtreamdev.gflbe.dto;
+package it.xtreamdev.gflbe.dto.content;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerNotes {
+@Builder
+@Data
+public class SaveProjectCommissionHintDTO {
 
-    private String notes;
+    private String body;
 
 }

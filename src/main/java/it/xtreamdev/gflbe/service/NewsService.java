@@ -1,10 +1,9 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.FindNewsDTO;
-import it.xtreamdev.gflbe.dto.SaveNewsDTO;
+import it.xtreamdev.gflbe.dto.news.FindNewsDTO;
+import it.xtreamdev.gflbe.dto.news.SaveNewsDTO;
 import it.xtreamdev.gflbe.model.News;
 import it.xtreamdev.gflbe.repository.NewsRepository;
-import org.apache.commons.collections4.list.PredicatedList;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

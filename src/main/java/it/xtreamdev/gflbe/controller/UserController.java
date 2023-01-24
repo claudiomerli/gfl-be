@@ -29,7 +29,7 @@ public class UserController {
             @RequestParam(value = "role", required = false) String role
     ) {
         Page<User> result = this.userService
-                .findUsers(gloabalSearch,role, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy.split(",")));
+                .findUsers(gloabalSearch, role, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy.split(",")));
 
         return ResponseEntity.ok(result);
     }
@@ -53,7 +53,7 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<User> getUser(@PathVariable Integer id) {
-        return ResponseEntity.ok(this.userService.findById(id));
+        return ResponseEntity.ok(this.userService.findByIdCleaned(id));
     }
 
 
