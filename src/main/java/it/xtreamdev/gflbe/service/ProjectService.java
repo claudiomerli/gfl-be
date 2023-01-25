@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -69,14 +66,6 @@ public class ProjectService {
         if (user.getRole().equals(RoleName.CUSTOMER) && !user.getId().equals(project.getCustomer().getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "User not allowed to view this project");
         }
-
-        //Sort commissions
-        project.getProjectCommissions().sort(Comparator
-                .comparing((ProjectCommission pc) -> Optional.ofNullable(pc.getYear()).orElse(LocalDateTime.now().getYear()))
-                .thenComparing((ProjectCommission pc) -> Optional.ofNullable(pc.getPeriod()).orElse(Month.JANUARY))
-                .thenComparing((ProjectCommission pc) -> Optional.ofNullable(pc.getCreatedDate()).orElse(LocalDateTime.now())));
-        Collections.reverse(project.getProjectCommissions());
-
 
         return project;
     }
@@ -285,7 +274,7 @@ public class ProjectService {
                         .projectCommission(projectCommission)
                         .build()
         );
-        Slice<ProjectCommission> pcSlice = this.projectCommissionRepository.findByContentIsNull(PageRequest.of(0, 10));
+        Page<ProjectCommission> pcSlice = this.projectCommissionRepository.findByContentIsNull(PageRequest.of(0, 10));
         pcSlice.forEach(pcConsumer);
         while (pcSlice.hasNext()) {
             log.info(pcSlice.getPageable().getPageNumber() + " page executed");
@@ -302,7 +291,7 @@ public class ProjectService {
                     .build());
             this.contentRepository.save(content);
         };
-        Slice<Content> cSlice = this.contentRepository.findByHintIsNull(PageRequest.of(0, 10));
+        Page<Content> cSlice = this.contentRepository.findByHintIsNull(PageRequest.of(0, 10));
         cSlice.forEach(cConsumer);
         while (cSlice.hasNext()) {
             log.info(cSlice.getPageable().getPageNumber() + " page executed");
@@ -321,7 +310,7 @@ public class ProjectService {
                     .build());
             this.projectRepository.save(project);
         };
-        Slice<Project> pSlice = this.projectRepository.findByHintIsNull(PageRequest.of(0, 10));
+        Page<Project> pSlice = this.projectRepository.findByHintIsNull(PageRequest.of(0, 10));
         pSlice.forEach(pConsumer);
         while (pSlice.hasNext()) {
             log.info(pSlice.getPageable().getPageNumber() + " page executed");
@@ -404,5 +393,16 @@ public class ProjectService {
     public void deleteProjectHintAttachment(Integer id, Integer idAttachment) {
         Project project = this.findById(id);
         this.attachmentRepository.deleteByIdAndContentHint(idAttachment, project.getHint());
+    }
+
+    public Project findByIdForDetail(Integer id) {
+        Project project = this.findById(id);
+        project.setProjectCommissions(null);
+        return project;
+    }
+
+    public List<ProjectCommission> findProjectCommissions(Integer id, Sort sort) {
+        Project project = this.findById(id);
+        return this.projectCommissionRepository.findByProject(project, sort);
     }
 }

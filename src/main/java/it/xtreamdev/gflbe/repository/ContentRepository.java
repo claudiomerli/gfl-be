@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.repository;
 
 import it.xtreamdev.gflbe.model.Content;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -11,5 +12,5 @@ import java.util.List;
 
 public interface ContentRepository extends JpaRepository<Content, Integer>, JpaSpecificationExecutor<Content> {
 
-    Slice<Content> findByHintIsNull(Pageable pageable);
+    Page<Content> findByHintIsNull(Pageable pageable);
 }

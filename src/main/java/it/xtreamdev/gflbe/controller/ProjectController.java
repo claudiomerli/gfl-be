@@ -7,12 +7,16 @@ import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.ProjectCommission;
 import it.xtreamdev.gflbe.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/project")
@@ -37,7 +41,23 @@ public class ProjectController {
 
     @GetMapping("{id}")
     public Project findById(@PathVariable Integer id) {
-        return this.projectService.findById(id);
+        return this.projectService.findByIdForDetail(id);
+    }
+
+    @GetMapping("{id}/commissions")
+    public List<ProjectCommission> findById(
+            @PathVariable Integer id,
+            @RequestParam(value = "sortBy", required = false) String sortBy,
+            @RequestParam(value = "sortDirection", defaultValue = "DESC") String sortDirection
+    ) {
+        List<Sort.Order> orders = new ArrayList<>();
+        Optional.ofNullable(sortBy).ifPresent(s -> Arrays.asList(sortBy.split(","))
+                .forEach(sortEntry -> orders.add(Sort.Order.by(sortEntry).with(Sort.Direction.fromString(sortDirection)))));
+        orders.add(Sort.Order.desc("year"));
+        orders.add(Sort.Order.desc("period"));
+        orders.add(Sort.Order.desc("createdDate"));
+
+        return this.projectService.findProjectCommissions(id, Sort.by(orders.toArray(Sort.Order[]::new)));
     }
 
     @PostMapping

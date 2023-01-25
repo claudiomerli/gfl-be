@@ -31,6 +31,7 @@ public class ProjectListElementDTO {
     private User customer;
     private String billingDescription;
     private Double billingAmount;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate expiration;
     private ProjectStatus status;
     @JsonFormat(pattern = "yyyy-MM-dd")
