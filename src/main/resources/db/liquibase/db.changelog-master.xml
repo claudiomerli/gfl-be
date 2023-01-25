@@ -936,4 +936,10 @@
         <addForeignKeyConstraint baseColumnNames="hint_id" baseTableName="project" constraintName="FK_PROJECT_ON_HINT"
                                  referencedColumnNames="id" referencedTableName="content_hint"/>
     </changeSet>
+    <changeSet id="1674679125710-1" author="claudiomerli (generated)">
+        <modifyDataType columnName="body" newDataType="longtext" tableName="content_hint"/>
+    </changeSet>
+    <changeSet id="1674679589773-1" author="claudiomerli (generated)">
+        <modifyDataType columnName="body" newDataType="CLOB" tableName="content_hint"/>
+    </changeSet>
 </databaseChangeLog>

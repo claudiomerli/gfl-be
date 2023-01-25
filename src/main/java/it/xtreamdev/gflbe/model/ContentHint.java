@@ -26,6 +26,7 @@ public class ContentHint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Lob
     private String body;
 
     @OneToMany(mappedBy = "contentHint")
