@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.repository;
 
+import it.xtreamdev.gflbe.model.EditorInfo;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import org.springframework.data.domain.Page;
@@ -16,12 +17,5 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
     Optional<User> findByUsername(String username);
 
-    Long countByRole(RoleName name);
-
-    Page<User> findByRole(RoleName name, Pageable pageable);
-
-    List<User> findByRole(RoleName editor);
-
-    @Transactional
-    void deleteByIdAndRole(Integer id, RoleName roleName);
+    List<User> findByEditorInfoIsNull();
 }

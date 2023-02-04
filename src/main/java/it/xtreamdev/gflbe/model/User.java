@@ -40,11 +40,8 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "level")
-    private String level;
-
-    @Column(name = "remuneration")
-    private String remuneration;
+    @OneToOne(mappedBy = "editor", cascade = CascadeType.ALL)
+    private EditorInfo editorInfo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")

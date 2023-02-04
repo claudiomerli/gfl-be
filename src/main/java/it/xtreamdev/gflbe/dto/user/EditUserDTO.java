@@ -14,9 +14,11 @@ public class EditUserDTO {
     private String fullname;
     private String email;
     private String mobilePhone;
-    private String level;
-    private String remuneration;
     private String password;
     private RoleName role;
+
+    private String editorInfo;
+    private String editorInfoRemuneration;
+    private String editorInfoNotes;
 
 }

@@ -942,4 +942,59 @@
     <changeSet id="1674679589773-1" author="claudiomerli (generated)">
         <modifyDataType columnName="body" newDataType="CLOB" tableName="content_hint"/>
     </changeSet>
+    <changeSet id="1675518176089-1" author="claudiomerli (generated)">
+        <createTable tableName="domain">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_domain"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="ip" type="VARCHAR(255)"/>
+            <column name="expiration" type="DATE"/>
+            <column name="hosting_id" type="INT"/>
+            <column name="deleted" type="BOOLEAN"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1675518176089-2" author="claudiomerli (generated)">
+        <createTable tableName="editor_info">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_editor_info"/>
+            </column>
+            <column name="editor_id" type="INT"/>
+            <column name="info" type="VARCHAR(255)"/>
+            <column name="remuneration" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1675518176089-3" author="claudiomerli (generated)">
+        <createTable tableName="hosting">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_hosting"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="username" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="url" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="deleted" type="BOOLEAN"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1675518176089-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="hosting_id" baseTableName="domain"
+                                 constraintName="FK_DOMAIN_ON_HOSTING" referencedColumnNames="id"
+                                 referencedTableName="hosting"/>
+    </changeSet>
+    <changeSet id="1675518176089-9" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="editor_id" baseTableName="editor_info"
+                                 constraintName="FK_EDITOR_INFO_ON_EDITOR" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1675518176089-10" author="claudiomerli (generated)">
+        <dropColumn columnName="level" tableName="user"/>
+
+        <dropColumn columnName="remuneration" tableName="user"/>
+    </changeSet>
 </databaseChangeLog>

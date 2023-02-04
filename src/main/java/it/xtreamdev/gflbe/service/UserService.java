@@ -4,6 +4,7 @@ import it.xtreamdev.gflbe.dto.auth.AccessTokenDTO;
 import it.xtreamdev.gflbe.dto.user.EditUserDTO;
 import it.xtreamdev.gflbe.dto.user.SaveUserDTO;
 import it.xtreamdev.gflbe.dto.auth.SigninDTO;
+import it.xtreamdev.gflbe.model.EditorInfo;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.UserRepository;
@@ -89,10 +90,14 @@ public class UserService {
                 .fullname(editsaveUserDTO.getFullname())
                 .email(editsaveUserDTO.getEmail())
                 .mobilePhone(editsaveUserDTO.getMobilePhone())
-                .remuneration(editsaveUserDTO.getRemuneration())
-                .level(editsaveUserDTO.getLevel())
                 .role(editsaveUserDTO.getRole())
                 .password(this.passwordEncoder.encode(editsaveUserDTO.getPassword()))
+                .editorInfo(EditorInfo
+                        .builder()
+                        .remuneration(editsaveUserDTO.getEditorInfoRemuneration())
+                        .info(editsaveUserDTO.getEditorInfo())
+                        .notes(editsaveUserDTO.getEditorInfoNotes())
+                        .build())
                 .build();
 
         this.userRepository.save(user);
@@ -105,9 +110,11 @@ public class UserService {
         userFromDB.setEmail(userUpdated.getEmail());
         userFromDB.setFullname(userUpdated.getFullname());
         userFromDB.setMobilePhone(userUpdated.getMobilePhone());
-        userFromDB.setLevel(userUpdated.getLevel());
-        userFromDB.setRemuneration(userUpdated.getRemuneration());
         userFromDB.setRole(userUpdated.getRole());
+
+        userFromDB.getEditorInfo().setRemuneration(userUpdated.getEditorInfoRemuneration());
+        userFromDB.getEditorInfo().setInfo(userUpdated.getEditorInfo());
+        userFromDB.getEditorInfo().setNotes(userUpdated.getEditorInfoNotes());
 
         if (StringUtils.isNotBlank(userUpdated.getPassword())) {
             userFromDB.setPassword(this.passwordEncoder.encode(userUpdated.getPassword()));
@@ -131,5 +138,13 @@ public class UserService {
 
     public User userInfo() {
         return ((JwtUserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+    }
+
+    public void createMissingObjects() {
+        List<User> userWithMissingEditorInfo = this.userRepository.findByEditorInfoIsNull();
+        userWithMissingEditorInfo.forEach(user -> {
+            user.setEditorInfo(EditorInfo.builder().editor(user).build());
+            this.userRepository.save(user);
+        });
     }
 }
