@@ -70,6 +70,28 @@ public class ProjectService {
         return project;
     }
 
+    public void createProjectFromDomain(Domain domain){
+        Project project = Project.builder()
+                .name(domain.getName())
+                .domain(domain)
+                .hint(ContentHint.builder().build())
+                .build();
+        project.getProjectStatusChanges().add(
+                ProjectStatusChange
+                        .builder()
+                        .project(project)
+                        .projectStatus(ProjectStatus.CREATED)
+                        .build()
+        );
+
+        this.projectRepository.save(project);
+    }
+
+    @Transactional
+    public void removeReferenceFromDomain(Domain domain){
+        this.projectRepository.setDomainToNullWhereDomain(domain);
+    }
+
     public Project save(SaveProjectDTO saveProjectDTO) {
         Project project = Project.builder()
                 .name(saveProjectDTO.getName())
@@ -164,7 +186,7 @@ public class ProjectService {
     public Project update(Integer projectId, SaveProjectDTO saveProjectDTO) {
         Project project = this.findById(projectId);
         project.setName(saveProjectDTO.getName());
-        project.setCustomer(userService.findById(saveProjectDTO.getCustomerId()));
+        project.setCustomer(saveProjectDTO.getCustomerId() != null ? userService.findById(saveProjectDTO.getCustomerId()): null);
         project.setBillingAmount(saveProjectDTO.getBillingAmount());
         project.setBillingDescription(saveProjectDTO.getBillingDescription());
         project.setExpiration(saveProjectDTO.getExpiration());
@@ -246,6 +268,8 @@ public class ProjectService {
                 case CUSTOMER:
                     predicateList.add(criteriaBuilder.equal(root.get("customer"), user.getId()));
                     break;
+                case INTERNAL_NETWORK:
+                    predicateList.add(criteriaBuilder.isNotNull(root.get("domain")));
             }
 
             if (StringUtils.isNotBlank(globalSearch)) {

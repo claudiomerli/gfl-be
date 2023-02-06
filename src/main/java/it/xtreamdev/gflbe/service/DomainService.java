@@ -28,6 +28,9 @@ public class DomainService {
     @Autowired
     private HostingRepository hostingRepository;
 
+    @Autowired
+    private ProjectService projectService;
+
     public Page<Domain> find(SearchDomainDto searchDomainDto, Pageable pageable) {
         return this.domainRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -63,12 +66,16 @@ public class DomainService {
 
     public Domain save(SaveDomainDto saveDomainDto) {
         Hosting hosting = this.hostingRepository.findById(saveDomainDto.getHostingId()).orElseThrow();
-        return this.domainRepository.save(Domain.builder()
+        Domain domain = this.domainRepository.save(Domain.builder()
                 .name(saveDomainDto.getName())
+                .wordpressUsername(saveDomainDto.getWordpressUsername())
+                .wordpressPassword(saveDomainDto.getWordpressPassword())
                 .expiration(saveDomainDto.getExpiration())
                 .ip(saveDomainDto.getIp())
                 .hosting(hosting)
                 .build());
+        projectService.createProjectFromDomain(domain);
+        return domain;
     }
 
 
@@ -76,6 +83,8 @@ public class DomainService {
         Hosting hosting = this.hostingRepository.findById(saveDomainDto.getHostingId()).orElseThrow();
         Domain domain = this.findById(id);
         domain.setName(saveDomainDto.getName());
+        domain.setWordpressUsername(saveDomainDto.getWordpressUsername());
+        domain.setWordpressPassword(saveDomainDto.getWordpressPassword());
         domain.setExpiration(saveDomainDto.getExpiration());
         domain.setIp(saveDomainDto.getIp());
         domain.setHosting(hosting);
@@ -84,6 +93,8 @@ public class DomainService {
 
     public void delete(Integer id) {
         Domain domain = this.findById(id);
+        this.projectService.removeReferenceFromDomain(domain);
+
         domain.setDeleted(true);
         this.domainRepository.save(domain);
     }

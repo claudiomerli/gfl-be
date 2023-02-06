@@ -4,5 +4,5 @@ public enum ContentStatus {
     WORKING,
     DELIVERED,
     SENT_TO_CUSTOMER,
-    APPROVED
+    PUBLISHED_WORDPRESS, APPROVED
 }

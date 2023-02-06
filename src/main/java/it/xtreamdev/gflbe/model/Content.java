@@ -3,6 +3,7 @@ package it.xtreamdev.gflbe.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -33,6 +34,13 @@ public class Content {
     @Column(name = "content_status")
     private ContentStatus contentStatus;
 
+    private String wordpressId;
+
+    private String wordpressUrl;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime wordpressPublicationDate;
+
     @OneToOne
     private ProjectCommission projectCommission;
 
@@ -51,5 +59,8 @@ public class Content {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+
+    @Formula("(select p.domain_id from project p inner join project_commission pc on pc.project_id = p.id where pc.id = project_commission_id) is not null")
+    private Boolean isDomainContent;
 
 }

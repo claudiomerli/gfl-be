@@ -1,9 +1,10 @@
 package it.xtreamdev.gflbe.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.*;
 import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -67,9 +68,18 @@ public class Project {
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
 
+    @OneToOne
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("domainId")
+    private Domain domain;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ProjectCommission> projectCommissions = new ArrayList<>();
+
+    @Formula("domain_id is not null")
+    private Boolean isDomainProject;
 
     public ProjectListElementDTO toListElement() {
         return ProjectListElementDTO

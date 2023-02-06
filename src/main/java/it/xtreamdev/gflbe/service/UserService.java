@@ -92,13 +92,15 @@ public class UserService {
                 .mobilePhone(editsaveUserDTO.getMobilePhone())
                 .role(editsaveUserDTO.getRole())
                 .password(this.passwordEncoder.encode(editsaveUserDTO.getPassword()))
-                .editorInfo(EditorInfo
-                        .builder()
-                        .remuneration(editsaveUserDTO.getEditorInfoRemuneration())
-                        .info(editsaveUserDTO.getEditorInfo())
-                        .notes(editsaveUserDTO.getEditorInfoNotes())
-                        .build())
                 .build();
+
+        user.setEditorInfo(EditorInfo
+                .builder()
+                .remuneration(editsaveUserDTO.getEditorInfoRemuneration())
+                .info(editsaveUserDTO.getEditorInfo())
+                .notes(editsaveUserDTO.getEditorInfoNotes())
+                .editor(user)
+                .build());
 
         this.userRepository.save(user);
     }

@@ -14,5 +14,7 @@
     <exclude-change idName="newspaper#sold_content" tagName="addColumn" />
     <exclude-change idName="booking#total" tagName="addColumn" />
     <exclude-change idName="request_quote#total" tagName="addColumn" />
+    <exclude-change idName="project#is_domain_project" tagName="addColumn" />
+    <exclude-change idName="content#is_domain_content" tagName="addColumn" />
   </component>
 </project>

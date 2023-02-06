@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.content.FindContentFilterDTO;
+import it.xtreamdev.gflbe.dto.content.PublishOnWordpressDTO;
 import it.xtreamdev.gflbe.dto.content.SaveContentDTO;
 import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
@@ -53,5 +54,10 @@ public class ContentController {
     @GetMapping("{id}/export")
     private byte[] exportDocx(@PathVariable Integer id){
         return this.contentService.exportDocx(id);
+    }
+
+    @PostMapping("{id}/publishOnWordpress")
+    private void publishOnWordpress(@PathVariable Integer id, @RequestBody PublishOnWordpressDTO publishOnWordpressDTO){
+        this.contentService.publishOnWordpress(id,publishOnWordpressDTO);
     }
 }

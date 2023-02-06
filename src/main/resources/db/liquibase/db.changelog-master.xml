@@ -997,4 +997,27 @@
 
         <dropColumn columnName="remuneration" tableName="user"/>
     </changeSet>
+    <changeSet id="1675522379471-1" author="claudiomerli (generated)">
+        <addColumn tableName="project">
+            <column name="domain_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1675522379471-6" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="domain_id" baseTableName="project"
+                                 constraintName="FK_PROJECT_ON_DOMAIN" referencedColumnNames="id"
+                                 referencedTableName="domain"/>
+    </changeSet>
+    <changeSet id="1675699868796-7" author="claudiomerli (generated)">
+        <addColumn tableName="domain">
+            <column name="wordpress_password" type="VARCHAR(255)"/>
+            <column name="wordpress_username" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1675702354689-1" author="claudiomerli (generated)">
+        <addColumn tableName="content">
+            <column name="wordpress_id" type="VARCHAR(255)"/>
+            <column name="wordpress_publication_date" type="DATETIME"/>
+            <column name="wordpress_url" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

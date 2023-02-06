@@ -1,6 +1,6 @@
 package it.xtreamdev.gflbe.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +31,11 @@ public class Domain {
 
     private String ip;
 
+    private String wordpressUsername;
+
+    private String wordpressPassword;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate expiration;
 
     @ManyToOne
@@ -38,6 +43,12 @@ public class Domain {
 
     @Builder.Default
     private Boolean deleted = false;
+
+    @OneToOne(mappedBy = "domain")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("projectId")
+    private Project project;
 
     @CreatedDate
     @Column(name = "created_date")

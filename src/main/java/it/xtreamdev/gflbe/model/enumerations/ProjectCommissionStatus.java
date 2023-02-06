@@ -11,4 +11,6 @@ public enum ProjectCommissionStatus {
     SENT_TO_NEWSPAPER,
     STANDBY_PUBLICATION,
     SENT_TO_ADMINISTRATION,
+
+    PUBLISHED_INTERNAL_NETWORK
 }
