@@ -5,6 +5,7 @@ import it.xtreamdev.gflbe.dto.content.PublishOnWordpressDTO;
 import it.xtreamdev.gflbe.dto.content.SaveContentDTO;
 import it.xtreamdev.gflbe.dto.content.wordpress.WordpressBaseApi;
 import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
+import it.xtreamdev.gflbe.dto.content.wordpress.media.response.WordpressUploadMediaResponse;
 import it.xtreamdev.gflbe.dto.content.wordpress.publication.WordpressCreatePostResponse;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
@@ -19,10 +20,12 @@ import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,6 +38,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static it.xtreamdev.gflbe.util.DocxUtils.substituteDocxSpecialCharacters;
@@ -161,7 +166,7 @@ public class ContentService {
         String wordpressPassword = domain.getWordpressPassword();
         String encodedHeader = "Basic " + new String(Base64.getEncoder().encode((wordpressUsername + ":" + wordpressPassword).getBytes()));
         WordpressBaseApi baseApi = this.restTemplate.getForEntity("https://" + domain.getName() + "/index.php?rest_route=/", WordpressBaseApi.class).getBody();
-        String baseUrl = baseApi.getUrl().replace("http://","https://");
+        String baseUrl = baseApi.getUrl().replace("http://", "https://");
 
         return this.restTemplate
                 .exchange(
@@ -172,6 +177,7 @@ public class ContentService {
                         }).getBody();
     }
 
+
     @Transactional
     public void publishOnWordpress(Integer id, PublishOnWordpressDTO publishOnWordpressDTO) {
         Content content = this.findById(id);
@@ -179,6 +185,10 @@ public class ContentService {
         String wordpressUsername = domain.getWordpressUsername();
         String wordpressPassword = domain.getWordpressPassword();
         String encodedHeader = "Basic " + new String(Base64.getEncoder().encode((wordpressUsername + ":" + wordpressPassword).getBytes()));
+        WordpressBaseApi baseApi = this.restTemplate.getForEntity("https://" + domain.getName() + "/index.php?rest_route=/", WordpressBaseApi.class).getBody();
+        String baseUrl = baseApi.getUrl().replace("http://", "https://");
+
+
         log.info("Using header {}", encodedHeader);
         Map<String, Object> body = new HashMap<>();
         body.put("title", content.getProjectCommission().getTitle());
@@ -187,8 +197,16 @@ public class ContentService {
         body.put("content", content.getBody());
         body.put("categories", publishOnWordpressDTO.getCategories());
 
-        WordpressBaseApi baseApi = this.restTemplate.getForEntity("https://" + domain.getName() + "/index.php?rest_route=/", WordpressBaseApi.class).getBody();
-        String baseUrl = baseApi.getUrl().replace("http://","https://");
+        String featuredMediaUrl = null;
+        if (StringUtils.isNotBlank(publishOnWordpressDTO.getFeaturedMediaBase64())) {
+            WordpressUploadMediaResponse wordpressUploadMediaResponse = this.publishMediaOnWordpress(baseUrl, encodedHeader, publishOnWordpressDTO.getFeaturedMediaBase64());
+            body.put("featured_media", wordpressUploadMediaResponse.getId());
+            featuredMediaUrl = wordpressUploadMediaResponse.getMediaDetails().getSizes().getMedium().getSourceUrl();
+        }
+        if (publishOnWordpressDTO.getRemoveFeaturedMedia()) {
+            body.put("featured_media", null);
+        }
+
         try {
             RequestEntity<Map<String, Object>> request;
             if (content.getWordpressId() != null) {
@@ -211,6 +229,10 @@ public class ContentService {
             content.setWordpressPublicationDate(LocalDateTime.parse(response.getDate()));
             content.setWordpressUrl(response.getLink());
             content.setContentStatus(ContentStatus.PUBLISHED_WORDPRESS);
+
+            content.setWordpressFeaturedMediaId(response.getFeaturedMedia());
+            content.setWordpressFeaturedMediaUrl(featuredMediaUrl);
+
             content.getWordpressCategories().clear();
             content.getWordpressCategories().addAll(response.getCategories().stream().map(integer -> ContentWordpressCategory.builder().categoryId(integer).content(content).build()).collect(Collectors.toList()));
             this.contentRepository.save(content);
@@ -219,7 +241,32 @@ public class ContentService {
             log.error("Error publishing on wordpress", e);
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Pubblicazione fallita con il seguente messaggio: " + e.getMessage());
         }
+    }
 
+    public WordpressUploadMediaResponse publishMediaOnWordpress(String baseUrl, String encodedHeader, String fileUrl) {
+        Pattern compile = Pattern.compile("(data:image\\/)(jpeg)(;base64,)(.*)");
+        Matcher matcher = compile.matcher(fileUrl);
+        if(matcher.find()){
+            String extension = matcher.group(2);
+            String base64 = matcher.group(4);
 
+            LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.put("file", List.of(new ByteArrayResource(Base64.getDecoder().decode(base64)){
+                @Override
+                public String getFilename() {
+                    return "media." + extension; // Filename has to be returned in order to be able to post.
+                }
+            }));
+
+            RequestEntity<LinkedMultiValueMap<String, Object>> requestEntity = RequestEntity.post(baseUrl + "/index.php?rest_route=/wp/v2/media")
+                    .header(HttpHeaders.AUTHORIZATION, encodedHeader)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body);
+
+            return this.restTemplate.exchange(requestEntity, WordpressUploadMediaResponse.class).getBody();
+        }
+
+        throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
     }
 }

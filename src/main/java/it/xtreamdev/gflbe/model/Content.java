@@ -51,6 +51,10 @@ public class Content {
     @OneToOne(cascade = CascadeType.ALL)
     private ContentHint hint;
 
+    private String wordpressFeaturedMediaUrl;
+
+    private Integer wordpressFeaturedMediaId;
+
     @CreatedDate
     @Column(name = "created_date")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -66,5 +70,7 @@ public class Content {
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContentWordpressCategory> wordpressCategories;
+
+
 
 }

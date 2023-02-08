@@ -22,4 +22,8 @@ public class PublishOnWordpressDTO {
 
     private List<Integer> categories;
 
+    private String featuredMediaBase64;
+
+    private Boolean removeFeaturedMedia;
+
 }

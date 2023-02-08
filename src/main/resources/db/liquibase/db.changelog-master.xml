@@ -1034,4 +1034,13 @@
                                  constraintName="FK_CONTENT_WORDPRESS_CATEGORY_ON_CONTENT" referencedColumnNames="id"
                                  referencedTableName="content"/>
     </changeSet>
+    <changeSet id="1675878874278-1" author="claudiomerli (generated)">
+        <addColumn tableName="content">
+            <column name="wordpress_featured_media_id" type="INT"/>
+            <column name="wordpress_featured_media_url" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20230208-1" author="claudiomerli">
+        <modifyDataType tableName="content" columnName="wordpress_featured_media_url" newDataType="varchar(1024)"/>
+    </changeSet>
 </databaseChangeLog>
