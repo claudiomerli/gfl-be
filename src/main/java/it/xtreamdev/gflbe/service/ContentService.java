@@ -3,12 +3,16 @@ package it.xtreamdev.gflbe.service;
 import it.xtreamdev.gflbe.dto.content.FindContentFilterDTO;
 import it.xtreamdev.gflbe.dto.content.PublishOnWordpressDTO;
 import it.xtreamdev.gflbe.dto.content.SaveContentDTO;
-import it.xtreamdev.gflbe.dto.content.wordpress.WordpressCreatePostResponse;
+import it.xtreamdev.gflbe.dto.content.wordpress.WordpressBaseApi;
+import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
+import it.xtreamdev.gflbe.dto.content.wordpress.publication.WordpressCreatePostResponse;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.ContentRepository;
+import it.xtreamdev.gflbe.repository.ContentWordpressCategoryRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -17,11 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,20 +31,24 @@ import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.xtreamdev.gflbe.util.DocxUtils.substituteDocxSpecialCharacters;
 
 
 @Service
+@Slf4j
 public class ContentService {
 
     @Autowired
     private ContentRepository contentRepository;
+
+    @Autowired
+    private ContentWordpressCategoryRepository contentWordpressCategoryRepository;
 
     @Autowired
     private ProjectService projectService;
@@ -76,7 +81,7 @@ public class ContentService {
                 predicates.add(projectCommission.get("status").in(ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.SENT_TO_ADMINISTRATION, ProjectCommissionStatus.PUBLISHED_INTERNAL_NETWORK));
             }
 
-            if(user.getRole() == RoleName.INTERNAL_NETWORK){
+            if (user.getRole() == RoleName.INTERNAL_NETWORK) {
                 predicates.add(criteriaBuilder.isNotNull(project.get("domain")));
             }
 
@@ -149,6 +154,24 @@ public class ContentService {
         }
     }
 
+    public List<WordpressCategoryResponse> getCategoriesWordpress(Integer id) {
+        Content content = this.findById(id);
+        Domain domain = content.getProjectCommission().getProject().getDomain();
+        String wordpressUsername = domain.getWordpressUsername();
+        String wordpressPassword = domain.getWordpressPassword();
+        String encodedHeader = "Basic " + new String(Base64.getEncoder().encode((wordpressUsername + ":" + wordpressPassword).getBytes()));
+        WordpressBaseApi baseApi = this.restTemplate.getForEntity("https://" + domain.getName() + "/index.php?rest_route=/", WordpressBaseApi.class).getBody();
+        String baseUrl = baseApi.getUrl().replace("http://","https://");
+
+        return this.restTemplate
+                .exchange(
+                        RequestEntity.get(baseUrl + "/index.php?rest_route=/wp/v2/categories")
+                                .header(HttpHeaders.AUTHORIZATION, encodedHeader)
+                                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build(),
+                        new ParameterizedTypeReference<List<WordpressCategoryResponse>>() {
+                        }).getBody();
+    }
+
     @Transactional
     public void publishOnWordpress(Integer id, PublishOnWordpressDTO publishOnWordpressDTO) {
         Content content = this.findById(id);
@@ -156,32 +179,44 @@ public class ContentService {
         String wordpressUsername = domain.getWordpressUsername();
         String wordpressPassword = domain.getWordpressPassword();
         String encodedHeader = "Basic " + new String(Base64.getEncoder().encode((wordpressUsername + ":" + wordpressPassword).getBytes()));
-        Map<String, String> body = new HashMap<>();
+        log.info("Using header {}", encodedHeader);
+        Map<String, Object> body = new HashMap<>();
         body.put("title", content.getProjectCommission().getTitle());
         body.put("status", "future");
         body.put("date", LocalDateTime.of(publishOnWordpressDTO.getPublishDate(), LocalTime.of(0, 0, 0)).format(DateTimeFormatter.ISO_DATE_TIME));
         body.put("content", content.getBody());
+        body.put("categories", publishOnWordpressDTO.getCategories());
 
+        WordpressBaseApi baseApi = this.restTemplate.getForEntity("https://" + domain.getName() + "/index.php?rest_route=/", WordpressBaseApi.class).getBody();
+        String baseUrl = baseApi.getUrl().replace("http://","https://");
         try {
-            RequestEntity<Map<String, String>> request;
+            RequestEntity<Map<String, Object>> request;
             if (content.getWordpressId() != null) {
-                request = RequestEntity.post("https://" + domain.getName() + "/index.php?rest_route=/wp/v2/posts/{id}", content.getWordpressId())
+                request = RequestEntity.post(baseUrl + "/index.php?rest_route=/wp/v2/posts/{id}", content.getWordpressId())
                         .header(HttpHeaders.AUTHORIZATION, encodedHeader)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .body(body);
             } else {
-                request = RequestEntity.post("https://" + domain.getName() + "/index.php?rest_route=/wp/v2/posts")
+                request = RequestEntity.post(baseUrl + "/index.php?rest_route=/wp/v2/posts")
                         .header(HttpHeaders.AUTHORIZATION, encodedHeader)
+                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .body(body);
             }
 
             WordpressCreatePostResponse response = this.restTemplate.exchange(request, WordpressCreatePostResponse.class).getBody();
+
             content.setWordpressId(String.valueOf(response.getId()));
             content.setWordpressPublicationDate(LocalDateTime.parse(response.getDate()));
             content.setWordpressUrl(response.getLink());
             content.setContentStatus(ContentStatus.PUBLISHED_WORDPRESS);
+            content.getWordpressCategories().clear();
+            content.getWordpressCategories().addAll(response.getCategories().stream().map(integer -> ContentWordpressCategory.builder().categoryId(integer).content(content).build()).collect(Collectors.toList()));
             this.contentRepository.save(content);
             this.projectService.setStatusCommission(content.getProjectCommission().getProject().getId(), content.getProjectCommission().getId(), String.valueOf(ProjectCommissionStatus.PUBLISHED_INTERNAL_NETWORK));
         } catch (Exception e) {
+            log.error("Error publishing on wordpress", e);
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Pubblicazione fallita con il seguente messaggio: " + e.getMessage());
         }
 

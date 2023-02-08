@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "content")
@@ -62,5 +63,8 @@ public class Content {
 
     @Formula("(select p.domain_id from project p inner join project_commission pc on pc.project_id = p.id where pc.id = project_commission_id) is not null")
     private Boolean isDomainContent;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContentWordpressCategory> wordpressCategories;
 
 }

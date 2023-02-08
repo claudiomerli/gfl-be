@@ -202,18 +202,20 @@ public class ProjectService {
     @Transactional
     public Project setStatusCommission(Integer projectId, Integer commissionId, String status) {
         Project project = this.findById(projectId);
-        project.getProjectCommissions().stream().filter(projectCommission -> projectCommission.getId().equals(commissionId))
-                .findFirst()
-                .ifPresent(projectCommission -> {
-                    projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
-                    projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder()
-                            .projectCommissionStatus(projectCommission.getStatus())
-                            .projectCommission(projectCommission)
-                            .build());
-                });
-        this.projectRepository.save(project);
+        ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId))
+                .findFirst().orElseThrow();
 
-        if (project.getProjectCommissions().stream().allMatch(projectCommission -> projectCommission.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
+        if(projectCommission.getStatus().equals(ProjectCommissionStatus.valueOf(status))){
+            return project;
+        }
+
+        projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
+        projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder()
+                .projectCommissionStatus(projectCommission.getStatus())
+                .projectCommission(projectCommission)
+                .build());
+
+        if (project.getProjectCommissions().stream().allMatch(pc -> pc.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
             project.setStatus(ProjectStatus.SENT_TO_ADMINISTRATION);
             project.getProjectStatusChanges().add(ProjectStatusChange
                     .builder()

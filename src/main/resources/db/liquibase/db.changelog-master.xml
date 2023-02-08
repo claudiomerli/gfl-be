@@ -1020,4 +1020,18 @@
             <column name="wordpress_url" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1675867592018-1" author="claudiomerli (generated)">
+        <createTable tableName="content_wordpress_category">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_content_wordpress_category"/>
+            </column>
+            <column name="category_id" type="INT"/>
+            <column name="content_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1675867592018-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="content_id" baseTableName="content_wordpress_category"
+                                 constraintName="FK_CONTENT_WORDPRESS_CATEGORY_ON_CONTENT" referencedColumnNames="id"
+                                 referencedTableName="content"/>
+    </changeSet>
 </databaseChangeLog>
