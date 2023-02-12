@@ -161,7 +161,7 @@ public class ContentService {
 
     public List<WordpressCategoryResponse> getCategoriesWordpress(Integer id) {
         Content content = this.findById(id);
-        Domain domain = content.getProjectCommission().getProject().getDomain();
+        Domain domain = content.getProjectCommission().getNewspaper().getDomain();
         String wordpressUsername = domain.getWordpressUsername();
         String wordpressPassword = domain.getWordpressPassword();
         String encodedHeader = "Basic " + new String(Base64.getEncoder().encode((wordpressUsername + ":" + wordpressPassword).getBytes()));
@@ -181,7 +181,7 @@ public class ContentService {
     @Transactional
     public void publishOnWordpress(Integer id, PublishOnWordpressDTO publishOnWordpressDTO) {
         Content content = this.findById(id);
-        Domain domain = content.getProjectCommission().getProject().getDomain();
+        Domain domain = content.getProjectCommission().getNewspaper().getDomain();
         String wordpressUsername = domain.getWordpressUsername();
         String wordpressPassword = domain.getWordpressPassword();
         String encodedHeader = "Basic " + new String(Base64.getEncoder().encode((wordpressUsername + ":" + wordpressPassword).getBytes()));

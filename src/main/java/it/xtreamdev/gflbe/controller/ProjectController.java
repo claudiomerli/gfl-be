@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
+import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
@@ -178,5 +179,10 @@ public class ProjectController {
             @RequestBody SaveProjectCommissionHintDTO saveProjectCommissionHintDTO
     ) {
         this.projectService.updateProjectCommissionHint(id, idCommission, saveProjectCommissionHintDTO);
+    }
+
+    @GetMapping("{id}/newspaper")
+    public NewspaperDTO findNewspaperForDomainProject(@PathVariable Integer id) {
+        return this.projectService.findNewspaperForDomainProject(id);
     }
 }

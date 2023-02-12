@@ -50,6 +50,10 @@ public class Domain {
     @JsonProperty("projectId")
     private Project project;
 
+    @OneToOne
+    @JsonIgnore
+    private Newspaper newspaper;
+
     @CreatedDate
     @Column(name = "created_date")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

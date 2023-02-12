@@ -59,9 +59,12 @@ public class Newspaper {
     @Column(name = "hidden")
     private Boolean hidden;
 
-    @Column(name = "sensitiveTopics")
+    @Column(name = "sensitive_topics")
     private Boolean sensitiveTopics;
 
+    @OneToOne(mappedBy = "newspaper")
+    @JsonIgnore
+    private Domain domain;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

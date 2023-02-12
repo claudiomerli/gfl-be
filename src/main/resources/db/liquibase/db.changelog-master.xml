@@ -1043,4 +1043,33 @@
     <changeSet id="20230208-1" author="claudiomerli">
         <modifyDataType tableName="content" columnName="wordpress_featured_media_url" newDataType="varchar(1024)"/>
     </changeSet>
+    <changeSet id="1676223178406-4" author="claudiomerli (generated)">
+        <addColumn tableName="domain">
+            <column name="newspaper_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1676223178406-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="domain"
+                                 constraintName="FK_DOMAIN_ON_NEWSPAPER" referencedColumnNames="id"
+                                 referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1676225182092-1" author="claudiomerli (generated)">
+        <addColumn tableName="project">
+            <column name="deleted" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20230212-01" author="claudiomerli">
+        <sql>
+            update project
+            set deleted = true
+            where deleted is null;
+        </sql>
+    </changeSet>
+    <changeSet id="20230212-02" author="claudiomerli">
+        <sql>
+            update project
+            set deleted = false
+            where deleted is true;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

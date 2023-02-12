@@ -27,4 +27,6 @@ public class SaveDomainDto {
 
     private Integer hostingId;
 
+    private Integer newspaperId;
+
 }

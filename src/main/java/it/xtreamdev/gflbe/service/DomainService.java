@@ -4,8 +4,10 @@ import it.xtreamdev.gflbe.dto.domain.SaveDomainDto;
 import it.xtreamdev.gflbe.dto.domain.SearchDomainDto;
 import it.xtreamdev.gflbe.model.Domain;
 import it.xtreamdev.gflbe.model.Hosting;
+import it.xtreamdev.gflbe.model.Newspaper;
 import it.xtreamdev.gflbe.repository.DomainRepository;
 import it.xtreamdev.gflbe.repository.HostingRepository;
+import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,9 @@ public class DomainService {
 
     @Autowired
     private HostingRepository hostingRepository;
+
+    @Autowired
+    private NewspaperRepository newspaperRepository;
 
     @Autowired
     private ProjectService projectService;
@@ -66,6 +71,7 @@ public class DomainService {
 
     public Domain save(SaveDomainDto saveDomainDto) {
         Hosting hosting = this.hostingRepository.findById(saveDomainDto.getHostingId()).orElseThrow();
+        Newspaper newspaper = this.newspaperRepository.findById(saveDomainDto.getNewspaperId()).orElseThrow();
         Domain domain = this.domainRepository.save(Domain.builder()
                 .name(saveDomainDto.getName())
                 .wordpressUsername(saveDomainDto.getWordpressUsername())
@@ -73,6 +79,7 @@ public class DomainService {
                 .expiration(saveDomainDto.getExpiration())
                 .ip(saveDomainDto.getIp())
                 .hosting(hosting)
+                .newspaper(newspaper)
                 .build());
         projectService.createProjectFromDomain(domain);
         return domain;
@@ -81,6 +88,7 @@ public class DomainService {
 
     public Domain update(Integer id, SaveDomainDto saveDomainDto) {
         Hosting hosting = this.hostingRepository.findById(saveDomainDto.getHostingId()).orElseThrow();
+        Newspaper newspaper = this.newspaperRepository.findById(saveDomainDto.getNewspaperId()).orElseThrow();
         Domain domain = this.findById(id);
         domain.setName(saveDomainDto.getName());
         domain.setWordpressUsername(saveDomainDto.getWordpressUsername());
@@ -88,6 +96,7 @@ public class DomainService {
         domain.setExpiration(saveDomainDto.getExpiration());
         domain.setIp(saveDomainDto.getIp());
         domain.setHosting(hosting);
+        domain.setNewspaper(newspaper);
         return this.domainRepository.save(domain);
     }
 

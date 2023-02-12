@@ -5,6 +5,7 @@ import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.*;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "project")
 @EntityListeners({AuditingEntityListener.class})
+@Where(clause = "deleted = false")
 public class Project {
 
     @Id
@@ -80,6 +82,9 @@ public class Project {
 
     @Formula("domain_id is not null")
     private Boolean isDomainProject;
+
+    @Builder.Default
+    private Boolean deleted = false;
 
     public ProjectListElementDTO toListElement() {
         return ProjectListElementDTO

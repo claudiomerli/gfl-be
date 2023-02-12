@@ -2,10 +2,12 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
+import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
 import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
 import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
+import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
 import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
@@ -59,6 +61,8 @@ public class ProjectService {
 
     @Autowired
     private NewspaperService newspaperService;
+    @Autowired
+    private NewspaperMapper newspaperMapper;
 
     public Project findById(Integer id) {
         User user = userService.userInfo();
@@ -70,7 +74,7 @@ public class ProjectService {
         return project;
     }
 
-    public void createProjectFromDomain(Domain domain){
+    public void createProjectFromDomain(Domain domain) {
         Project project = Project.builder()
                 .name(domain.getName())
                 .domain(domain)
@@ -88,7 +92,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void removeReferenceFromDomain(Domain domain){
+    public void removeReferenceFromDomain(Domain domain) {
         this.projectRepository.setDomainToNullWhereDomain(domain);
     }
 
@@ -186,7 +190,7 @@ public class ProjectService {
     public Project update(Integer projectId, SaveProjectDTO saveProjectDTO) {
         Project project = this.findById(projectId);
         project.setName(saveProjectDTO.getName());
-        project.setCustomer(saveProjectDTO.getCustomerId() != null ? userService.findById(saveProjectDTO.getCustomerId()): null);
+        project.setCustomer(saveProjectDTO.getCustomerId() != null ? userService.findById(saveProjectDTO.getCustomerId()) : null);
         project.setBillingAmount(saveProjectDTO.getBillingAmount());
         project.setBillingDescription(saveProjectDTO.getBillingDescription());
         project.setExpiration(saveProjectDTO.getExpiration());
@@ -195,8 +199,11 @@ public class ProjectService {
         return this.projectRepository.save(project);
     }
 
+    @Transactional
     public void delete(Integer projectId) {
-        this.projectRepository.deleteById(projectId);
+        Project project = this.findById(projectId);
+        project.setDeleted(true);
+        this.projectRepository.save(project);
     }
 
     @Transactional
@@ -205,7 +212,7 @@ public class ProjectService {
         ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId))
                 .findFirst().orElseThrow();
 
-        if(projectCommission.getStatus().equals(ProjectCommissionStatus.valueOf(status))){
+        if (projectCommission.getStatus().equals(ProjectCommissionStatus.valueOf(status))) {
             return project;
         }
 
@@ -430,5 +437,14 @@ public class ProjectService {
     public List<ProjectCommission> findProjectCommissions(Integer id, Sort sort) {
         Project project = this.findById(id);
         return this.projectCommissionRepository.findByProject(project, sort);
+    }
+
+    public NewspaperDTO findNewspaperForDomainProject(Integer projectId) {
+        Project project = this.findById(projectId);
+        if (project.getIsDomainProject()) {
+            return this.newspaperMapper.mapEntityToDTO(project.getDomain().getNewspaper());
+        } else {
+            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "The project is not a domain project");
+        }
     }
 }
