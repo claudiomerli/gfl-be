@@ -201,7 +201,7 @@ public class ContentService {
         if (StringUtils.isNotBlank(publishOnWordpressDTO.getFeaturedMediaBase64())) {
             WordpressUploadMediaResponse wordpressUploadMediaResponse = this.publishMediaOnWordpress(baseUrl, encodedHeader, publishOnWordpressDTO.getFeaturedMediaBase64());
             body.put("featured_media", wordpressUploadMediaResponse.getId());
-            featuredMediaUrl = wordpressUploadMediaResponse.getMediaDetails().getSizes().getMedium().getSourceUrl();
+            featuredMediaUrl = wordpressUploadMediaResponse.getMediaDetails().getSizes().getFull().getSourceUrl();
         }
         if (publishOnWordpressDTO.getRemoveFeaturedMedia()) {
             body.put("featured_media", null);
