@@ -1072,4 +1072,29 @@
             where deleted is true;
         </sql>
     </changeSet>
+    <changeSet id="1676230108118-1" author="claudiomerli (generated)">
+        <addColumn tableName="content">
+            <column name="assign_date" type="DATETIME"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1676238285828-1" author="claudiomerli (generated)">
+        <createTable tableName="project_final_customers">
+            <column name="project_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="final_customers_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1676238285828-8" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="project_final_customers"
+                                 constraintName="fk_profincus_on_project" referencedColumnNames="id"
+                                 referencedTableName="project"/>
+    </changeSet>
+    <changeSet id="1676238285828-9" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="final_customers_id" baseTableName="project_final_customers"
+                                 constraintName="fk_profincus_on_user" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
 </databaseChangeLog>

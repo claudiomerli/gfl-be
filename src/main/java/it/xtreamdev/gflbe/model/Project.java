@@ -86,6 +86,9 @@ public class Project {
     @Builder.Default
     private Boolean deleted = false;
 
+    @ManyToMany
+    private List<User> finalCustomers;
+
     public ProjectListElementDTO toListElement() {
         return ProjectListElementDTO
                 .builder()

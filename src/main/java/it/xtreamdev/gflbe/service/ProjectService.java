@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static it.xtreamdev.gflbe.util.ExcelUtils.*;
 
@@ -277,6 +278,9 @@ public class ProjectService {
                 case CUSTOMER:
                     predicateList.add(criteriaBuilder.equal(root.get("customer"), user.getId()));
                     break;
+                case FINAL_CUSTOMER:
+                    predicateList.add(criteriaBuilder.isMember(user, root.get("finalCustomers")));
+                    break;
                 case INTERNAL_NETWORK:
                     predicateList.add(criteriaBuilder.isNotNull(root.get("domain")));
             }
@@ -446,5 +450,21 @@ public class ProjectService {
         } else {
             throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "The project is not a domain project");
         }
+    }
+
+    @Transactional
+    public void assignFinalCustomer(Integer id, List<Integer> ids) {
+        Project project = this.findById(id);
+        List<User> finalCustomers = ids.stream().map(userId -> this.userService.findById(userId)).collect(Collectors.toList());
+        project.getFinalCustomers().clear();
+        project.getFinalCustomers().addAll(finalCustomers);
+        this.projectRepository.save(project);
+    }
+
+    @Transactional
+    public void setCommissionPublicationInfo(ProjectCommission projectCommission, LocalDateTime wordpressPublicationDate, String wordpressUrl) {
+        projectCommission.setPublicationDate(wordpressPublicationDate.toLocalDate());
+        projectCommission.setPublicationUrl(wordpressUrl);
+        this.projectCommissionRepository.save(projectCommission);
     }
 }

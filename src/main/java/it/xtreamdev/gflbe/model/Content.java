@@ -42,6 +42,9 @@ public class Content {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime wordpressPublicationDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime assignDate;
+
     @OneToOne
     private ProjectCommission projectCommission;
 

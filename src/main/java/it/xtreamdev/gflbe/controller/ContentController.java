@@ -1,8 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.content.FindContentFilterDTO;
-import it.xtreamdev.gflbe.dto.content.PublishOnWordpressDTO;
-import it.xtreamdev.gflbe.dto.content.SaveContentDTO;
+import it.xtreamdev.gflbe.dto.common.PaginationRequest;
+import it.xtreamdev.gflbe.dto.content.*;
 import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
 import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
@@ -30,8 +29,13 @@ public class ContentController {
             @RequestParam(name = "sortDirection", defaultValue = "DESC", required = false) String sortDirection,
             FindContentFilterDTO findContentFilterDTO
     ) {
-        return this.contentService.findAll(findContentFilterDTO,PageRequest
-                .of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy));
+        return this.contentService.findAll(findContentFilterDTO, PageRequest
+                .of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy.split(",")));
+    }
+
+    @GetMapping("titles")
+    public Page<TitleResponseDTO> getTitles(SearchTitleRequestDTO searchTitleRequestDTO, PaginationRequest paginationRequest) {
+        return this.contentService.searchTitle(searchTitleRequestDTO, paginationRequest.getPageRequest());
     }
 
     @GetMapping("{id}")
@@ -55,17 +59,19 @@ public class ContentController {
     }
 
     @GetMapping("{id}/export")
-    public byte[] exportDocx(@PathVariable Integer id){
+    public byte[] exportDocx(@PathVariable Integer id) {
         return this.contentService.exportDocx(id);
     }
 
     @PostMapping("{id}/publishOnWordpress")
-    public void publishOnWordpress(@PathVariable Integer id, @RequestBody PublishOnWordpressDTO publishOnWordpressDTO){
-        this.contentService.publishOnWordpress(id,publishOnWordpressDTO);
+    public void publishOnWordpress(@PathVariable Integer id, @RequestBody PublishOnWordpressDTO publishOnWordpressDTO) {
+        this.contentService.publishOnWordpress(id, publishOnWordpressDTO);
     }
 
     @GetMapping("{id}/wordpressCategory")
-    public List<WordpressCategoryResponse> getDomainCategory(@PathVariable Integer id){
+    public List<WordpressCategoryResponse> getDomainCategory(@PathVariable Integer id) {
         return this.contentService.getCategoriesWordpress(id);
     }
+
+
 }

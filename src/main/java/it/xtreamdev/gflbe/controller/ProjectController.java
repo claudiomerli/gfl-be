@@ -185,4 +185,9 @@ public class ProjectController {
     public NewspaperDTO findNewspaperForDomainProject(@PathVariable Integer id) {
         return this.projectService.findNewspaperForDomainProject(id);
     }
+
+    @PutMapping("{id}/assignFinalCustomers")
+    public void assignFinalCustomers(@PathVariable Integer id, @RequestBody List<Integer> ids) {
+        this.projectService.assignFinalCustomer(id, ids);
+    }
 }

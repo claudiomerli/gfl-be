@@ -9,6 +9,7 @@ public enum RoleName {
     PUBLISHER,
     ADMINISTRATION,
     CUSTOMER,
+    FINAL_CUSTOMER,
 
     INTERNAL_NETWORK
 

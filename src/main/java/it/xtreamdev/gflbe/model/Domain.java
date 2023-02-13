@@ -51,7 +51,6 @@ public class Domain {
     private Project project;
 
     @OneToOne
-    @JsonIgnore
     private Newspaper newspaper;
 
     @CreatedDate

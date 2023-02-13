@@ -6,6 +6,7 @@ public enum ProjectCommissionStatus {
 
     ASSIGNED,
     STANDBY_EDITORIAL,
+    WORKED,
     TO_PUBLISH,
 
     SENT_TO_NEWSPAPER,

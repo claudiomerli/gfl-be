@@ -1,8 +1,6 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.content.FindContentFilterDTO;
-import it.xtreamdev.gflbe.dto.content.PublishOnWordpressDTO;
-import it.xtreamdev.gflbe.dto.content.SaveContentDTO;
+import it.xtreamdev.gflbe.dto.content.*;
 import it.xtreamdev.gflbe.dto.content.wordpress.WordpressBaseApi;
 import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
 import it.xtreamdev.gflbe.dto.content.wordpress.media.response.WordpressUploadMediaResponse;
@@ -23,6 +21,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -36,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -51,9 +51,6 @@ public class ContentService {
 
     @Autowired
     private ContentRepository contentRepository;
-
-    @Autowired
-    private ContentWordpressCategoryRepository contentWordpressCategoryRepository;
 
     @Autowired
     private ProjectService projectService;
@@ -80,6 +77,10 @@ public class ContentService {
             if (user.getRole() == RoleName.CUSTOMER) {
                 predicates.add(criteriaBuilder.equal(project.get("customer"), user));
                 predicates.add(root.get("contentStatus").in(ContentStatus.SENT_TO_CUSTOMER, ContentStatus.APPROVED));
+            }
+
+            if (user.getRole() == RoleName.FINAL_CUSTOMER) {
+                predicates.add(criteriaBuilder.isMember(user, root.get("projectCommission").get("project").get("finalCustomers")));
             }
 
             if (user.getRole() == RoleName.PUBLISHER) {
@@ -118,6 +119,10 @@ public class ContentService {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
         }
 
+        if (user.getRole() == RoleName.FINAL_CUSTOMER && !content.getProjectCommission().getProject().getFinalCustomers().stream().map(User::getId).collect(Collectors.toList()).contains(user)) {
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
+        }
+
         if (user.getRole() == RoleName.EDITOR && !content.getEditor().getId().equals(user.getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
         }
@@ -142,6 +147,7 @@ public class ContentService {
         Content content = this.findById(id);
         User user = this.userService.findById(editorId);
         content.setEditor(user);
+        content.setAssignDate(LocalDateTime.now());
         projectService.setStatusCommission(content.getProjectCommission().getProject().getId(), content.getProjectCommission().getId(), ProjectCommissionStatus.ASSIGNED.name());
         this.contentRepository.save(content);
     }
@@ -176,7 +182,6 @@ public class ContentService {
                         new ParameterizedTypeReference<List<WordpressCategoryResponse>>() {
                         }).getBody();
     }
-
 
     @Transactional
     public void publishOnWordpress(Integer id, PublishOnWordpressDTO publishOnWordpressDTO) {
@@ -236,6 +241,7 @@ public class ContentService {
             content.getWordpressCategories().clear();
             content.getWordpressCategories().addAll(response.getCategories().stream().map(integer -> ContentWordpressCategory.builder().categoryId(integer).content(content).build()).collect(Collectors.toList()));
             this.contentRepository.save(content);
+            this.projectService.setCommissionPublicationInfo(content.getProjectCommission(), content.getWordpressPublicationDate(), content.getWordpressUrl());
             this.projectService.setStatusCommission(content.getProjectCommission().getProject().getId(), content.getProjectCommission().getId(), String.valueOf(ProjectCommissionStatus.PUBLISHED_INTERNAL_NETWORK));
         } catch (Exception e) {
             log.error("Error publishing on wordpress", e);
@@ -243,15 +249,16 @@ public class ContentService {
         }
     }
 
+    @Transactional
     public WordpressUploadMediaResponse publishMediaOnWordpress(String baseUrl, String encodedHeader, String fileUrl) {
         Pattern compile = Pattern.compile("(data:image\\/)(jpeg)(;base64,)(.*)");
         Matcher matcher = compile.matcher(fileUrl);
-        if(matcher.find()){
+        if (matcher.find()) {
             String extension = matcher.group(2);
             String base64 = matcher.group(4);
 
             LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.put("file", List.of(new ByteArrayResource(Base64.getDecoder().decode(base64)){
+            body.put("file", List.of(new ByteArrayResource(Base64.getDecoder().decode(base64)) {
                 @Override
                 public String getFilename() {
                     return "media." + extension; // Filename has to be returned in order to be able to post.
@@ -268,5 +275,43 @@ public class ContentService {
         }
 
         throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+    }
+
+    public Page<TitleResponseDTO> searchTitle(SearchTitleRequestDTO searchTitleRequestDTO, Pageable pageable) {
+        return this.contentRepository.findAll((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(criteriaBuilder.isNotNull(root.get("projectCommission").get("title")));
+            predicates.add(criteriaBuilder.notEqual(criteriaBuilder.trim(root.get("projectCommission").get("title")), ""));
+
+            if (StringUtils.isNotBlank(searchTitleRequestDTO.getTitle())) {
+                Arrays.asList(searchTitleRequestDTO.getTitle().split(" ")).forEach(searchPortion -> predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.upper(root.get("projectCommission").get("title")), "%" + searchPortion.toUpperCase() + "%")
+                )));
+            }
+
+            if (searchTitleRequestDTO.getEditorId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("editor").get("id"), searchTitleRequestDTO.getEditorId()));
+            }
+
+            if (searchTitleRequestDTO.getProjectId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("projectCommission").get("project").get("id"), searchTitleRequestDTO.getProjectId()));
+            }
+
+            if (searchTitleRequestDTO.getYear() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("projectCommission").get("year"), searchTitleRequestDTO.getYear()));
+            }
+
+            if (StringUtils.isNotBlank(searchTitleRequestDTO.getPeriod())) {
+                predicates.add(criteriaBuilder.equal(root.get("projectCommission").get("period"), Month.valueOf(searchTitleRequestDTO.getPeriod())));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        }, pageable).map(content -> TitleResponseDTO.builder()
+                .title(content.getProjectCommission().getTitle())
+                .period(content.getProjectCommission().getPeriod().name())
+                .year(content.getProjectCommission().getYear())
+                .editor(content.getEditor())
+                .project(content.getProjectCommission().getProject()).build());
     }
 }
