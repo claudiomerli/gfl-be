@@ -69,7 +69,7 @@ public class Content {
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
 
-    @Formula("(SELECT d.id from domain d inner join newspaper n on d.newspaper_id = n.id inner JOIN project_commission pc on pc.newspaper_id = n.id INNER JOIN content c on c.project_commission_id = pc.id where c.id = project_commission_id) is not null")
+    @Formula("(SELECT d.id from domain d inner join newspaper n on d.newspaper_id = n.id inner JOIN project_commission pc on pc.newspaper_id = n.id INNER JOIN content c on c.project_commission_id = pc.id where c.id = id) is not null")
     private Boolean isDomainContent;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)

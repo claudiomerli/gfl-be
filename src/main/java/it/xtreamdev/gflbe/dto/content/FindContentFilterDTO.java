@@ -15,5 +15,7 @@ public class FindContentFilterDTO {
     private String projectId;
     private String newspaperId;
     private String editorId;
+    private Integer year;
+    private String period;
 
 }

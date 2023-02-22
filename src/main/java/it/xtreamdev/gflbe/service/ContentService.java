@@ -107,6 +107,14 @@ public class ContentService {
                 predicates.add(criteriaBuilder.equal(editor.get("id"), Integer.valueOf(findContentFilterDTO.getEditorId())));
             }
 
+            if (findContentFilterDTO.getYear() != null) {
+                predicates.add(criteriaBuilder.equal(projectCommission.get("year"), findContentFilterDTO.getYear()));
+            }
+
+            if(StringUtils.isNotBlank(findContentFilterDTO.getPeriod())){
+                predicates.add(criteriaBuilder.equal(projectCommission.get("period"), Month.valueOf(findContentFilterDTO.getPeriod())));
+            }
+
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         }, pageRequest);
     }
