@@ -25,19 +25,16 @@ public class Newspaper {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "purchased_content")
-    private Integer purchasedContent;
-
     @Column(name = "cost_each")
     private Double costEach;
 
     @Column(name = "cost_sell")
     private Double costSell;
 
-    @Formula("(select count(*) from project_commission pc where pc.newspaper_id = id and pc.status = 'SENT_TO_ADMINISTRATION')")
+    @Formula("(select count(*) from project_commission pc where pc.newspaper_id = id and pc.content_purchase_id is not null)")
     private Integer soldContent;
 
-    @Formula("purchased_content - (select count(*) from project_commission pc where pc.newspaper_id = id and pc.status = 'SENT_TO_ADMINISTRATION')")
+    @Formula("(SELECT COALESCE(sum(cp.content_number - ( select count(*) from project_commission pc where pc.content_purchase_id = cp.id)),0) FROM content_purchase cp inner join content_purchase_newspaper cpn on cp.id = cpn.content_purchase_id WHERE cpn.newspapers_id = id)")
     private Integer leftContent;
 
     @Column(name = "email")

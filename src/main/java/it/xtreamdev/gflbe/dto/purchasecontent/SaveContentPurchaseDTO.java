@@ -8,11 +8,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ContentPurchaseSaveDTO {
+public class SaveContentPurchaseDTO {
 
 
     private Double amount;
     private Integer contentNumber;
-    private List<Integer> newspaperId;
+    private String note;
+    private List<Integer> newspapers;
 
 }

@@ -71,6 +71,10 @@ public class ProjectCommission {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate publicationDate;
 
+    @ManyToOne
+    @JsonIgnore
+    private ContentPurchase contentPurchase;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ProjectCommissionStatus status = ProjectCommissionStatus.CREATED;

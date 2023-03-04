@@ -1,9 +1,10 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.news.FindNewsDTO;
-import it.xtreamdev.gflbe.dto.news.SaveNewsDTO;
-import it.xtreamdev.gflbe.model.News;
-import it.xtreamdev.gflbe.repository.NewsRepository;
+import it.xtreamdev.gflbe.dto.purchasecontent.SaveContentPurchaseDTO;
+import it.xtreamdev.gflbe.dto.purchasecontent.FindContentPurchaseDTO;
+import it.xtreamdev.gflbe.model.ContentPurchase;
+import it.xtreamdev.gflbe.model.Newspaper;
+import it.xtreamdev.gflbe.repository.ContentPurchaseRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,55 +17,65 @@ import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class NewsService {
+public class ContentPurchaseService {
 
     @Autowired
-    private NewsRepository newsRepository;
+    private ContentPurchaseRepository contentPurchaseRepository;
 
-    public Page<News> findNews(FindNewsDTO findNewsDTO, PageRequest pageRequest) {
-        return this.newsRepository.findAll(((root, criteriaQuery, criteriaBuilder) -> {
+    @Autowired
+    private NewspaperService newspaperService;
+
+    public Page<ContentPurchase> findContentPurchase(FindContentPurchaseDTO findContentPurchaseDTO, PageRequest pageRequest) {
+        return this.contentPurchaseRepository.findAll(((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (StringUtils.isNotBlank(findNewsDTO.getGlobalSearch())) {
-                Arrays.asList(findNewsDTO.getGlobalSearch().split(" ")).forEach(portion -> {
-                    predicates.add(criteriaBuilder.or(
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("title")), "%" + portion.toUpperCase() + "%"),
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("body")), "%" + portion.toUpperCase() + "%")
-                    ));
-                });
+            if(StringUtils.isNotBlank(findContentPurchaseDTO.getGlobalSearch())){
+                Arrays.asList(findContentPurchaseDTO.getGlobalSearch().split(" ")).forEach(searchPortion ->
+                        predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("note")), "%" + searchPortion.toUpperCase() + "%"))
+                );
+            }
+
+            if (findContentPurchaseDTO.getNewspaperId() != null) {
+                Newspaper newspaper = this.newspaperService.findById(findContentPurchaseDTO.getNewspaperId());
+                predicates.add(criteriaBuilder.isMember(newspaper, root.get("newspapers")));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }), pageRequest);
     }
 
-    public News findById(Integer id) {
-        return this.newsRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
+    public ContentPurchase findById(Integer id) {
+        return this.contentPurchaseRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
     }
 
-    public News save(SaveNewsDTO saveNewsDTO) {
-        return this.newsRepository.save(News
+    public ContentPurchase save(SaveContentPurchaseDTO saveContentPurchaseDTO) {
+        return this.contentPurchaseRepository.save(ContentPurchase
                 .builder()
-                .title(saveNewsDTO.getTitle())
-                .body(saveNewsDTO.getBody())
-                .image(saveNewsDTO.getImage())
+                .contentNumber(saveContentPurchaseDTO.getContentNumber())
+                .note(saveContentPurchaseDTO.getNote())
+                .amount(saveContentPurchaseDTO.getAmount())
+                .newspapers(saveContentPurchaseDTO.getNewspapers().stream().map(integer -> this.newspaperService.findById(integer)).collect(Collectors.toList()))
                 .build());
     }
 
-    public News update(Integer id, SaveNewsDTO saveNewsDTO) {
-        News newsToUpdate = this.findById(id);
+    public ContentPurchase update(Integer id, SaveContentPurchaseDTO saveContentPurchaseDTO) {
+        ContentPurchase contentPurchaseToUpdate = this.findById(id);
 
-        newsToUpdate.setTitle(saveNewsDTO.getTitle());
-        newsToUpdate.setBody(saveNewsDTO.getBody());
-        newsToUpdate.setImage(saveNewsDTO.getImage());
+        contentPurchaseToUpdate.getNewspapers().clear();
 
-        return this.newsRepository.save(newsToUpdate);
+        contentPurchaseToUpdate.setContentNumber(saveContentPurchaseDTO.getContentNumber());
+        contentPurchaseToUpdate.setAmount(saveContentPurchaseDTO.getAmount());
+        contentPurchaseToUpdate.getNewspapers().addAll(saveContentPurchaseDTO.getNewspapers().stream().map(integer -> this.newspaperService.findById(integer)).collect(Collectors.toList()));
+        contentPurchaseToUpdate.setNote(saveContentPurchaseDTO.getNote());
+
+        return this.contentPurchaseRepository.save(contentPurchaseToUpdate);
     }
 
     public void delete(Integer id) {
-        this.newsRepository.deleteById(id);
+        this.contentPurchaseRepository.deleteById(id);
     }
 
 

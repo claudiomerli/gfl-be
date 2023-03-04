@@ -56,6 +56,8 @@ public class ProjectService {
     private ContentHintRepository contentHintRepository;
     @Autowired
     private AttachmentRepository attachmentRepository;
+    @Autowired
+    private ContentPurchaseService contentPurchaseService;
 
     @Autowired
     private UserService userService;
@@ -209,6 +211,11 @@ public class ProjectService {
 
     @Transactional
     public Project setStatusCommission(Integer projectId, Integer commissionId, String status) {
+        return this.setStatusCommission(projectId, commissionId, status, null);
+    }
+
+    @Transactional
+    public Project setStatusCommission(Integer projectId, Integer commissionId, String status, Map<String, String> metadata) {
         Project project = this.findById(projectId);
         ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId))
                 .findFirst().orElseThrow();
@@ -217,11 +224,19 @@ public class ProjectService {
             return project;
         }
 
+
+
         projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
         projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder()
                 .projectCommissionStatus(projectCommission.getStatus())
                 .projectCommission(projectCommission)
                 .build());
+
+        if(ProjectCommissionStatus.valueOf(status) == ProjectCommissionStatus.SENT_TO_ADMINISTRATION){
+            String contentPurchasedId = metadata.get("contentPurchasedId");
+            ContentPurchase contentPurchase = this.contentPurchaseService.findById(Integer.valueOf(contentPurchasedId));
+            projectCommission.setContentPurchase(contentPurchase);
+        }
 
         if (project.getProjectCommissions().stream().allMatch(pc -> pc.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
             project.setStatus(ProjectStatus.SENT_TO_ADMINISTRATION);

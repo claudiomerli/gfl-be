@@ -14,7 +14,6 @@ public class NewspaperDTO {
 
     private Integer id;
     private String name;
-    private Integer purchasedContent;
     private Integer leftContent;
     private Double costEach;
     private Double costSell;

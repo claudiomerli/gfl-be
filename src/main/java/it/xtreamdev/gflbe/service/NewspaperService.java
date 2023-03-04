@@ -69,8 +69,6 @@ public class NewspaperService {
 
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
             Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
-            Optional.ofNullable(searchNewspaperDTO.getPurchasedContentFrom()).ifPresent(purchasedContentFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("purchasedContent"), purchasedContentFrom)));
-            Optional.ofNullable(searchNewspaperDTO.getPurchasedContentTo()).ifPresent(purchasedContentTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("purchasedContent"), purchasedContentTo)));
             Optional.ofNullable(searchNewspaperDTO.getLeftContentFrom()).ifPresent(leftContentFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("leftContent"), leftContentFrom)));
             Optional.ofNullable(searchNewspaperDTO.getLeftContentTo()).ifPresent(leftContentTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("leftContent"), leftContentTo)));
             Optional.ofNullable(searchNewspaperDTO.getCostEachFrom()).ifPresent(costEachFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("costEach"), costEachFrom)));
@@ -119,7 +117,6 @@ public class NewspaperService {
                         .costEach(newspaper.getCostEach())
                         .costSell(newspaper.getCostSell())
                         .email(newspaper.getEmail())
-                        .purchasedContent(newspaper.getPurchasedContent())
                         .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                         .note(newspaper.getNote())
                         .za(newspaper.getZa())
@@ -144,7 +141,6 @@ public class NewspaperService {
         persistedNewspaper.setEmail(saveNewspaperDTO.getEmail());
         persistedNewspaper.setCostEach(saveNewspaperDTO.getCostEach());
         persistedNewspaper.setCostSell(saveNewspaperDTO.getCostSell());
-        persistedNewspaper.setPurchasedContent(saveNewspaperDTO.getPurchasedContent());
         persistedNewspaper.setRegionalGeolocalization(saveNewspaperDTO.getRegionalGeolocalization());
         persistedNewspaper.setNote(saveNewspaperDTO.getNote());
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
@@ -171,7 +167,10 @@ public class NewspaperService {
     }
 
     public FinanceDTO finance() {
-        return this.newspaperRepository.finance();
+        return FinanceDTO.builder()
+                .purchasesValue(this.newspaperRepository.totalCost())
+                .salesValue(this.newspaperRepository.totalSell())
+                .build();
     }
 
     public byte[] exportExcel(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
@@ -184,7 +183,6 @@ public class NewspaperService {
             listaDTO.forEach(dto -> addRow(exportTestate,
                     dto.getId(),
                     dto.getName(),
-                    dto.getPurchasedContent(),
                     dto.getLeftContent(),
                     dto.getCostEach(),
                     dto.getCostSell(),
@@ -203,11 +201,10 @@ public class NewspaperService {
 
     public byte[] exportPDF(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) throws IOException {
         List<NewspaperDTO> listaDTO = listForExport(searchNewspaperDTO, pageRequest);
-        pdfUtils.exportPdf("Elenco testate censite", Arrays.asList("ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento"));
+        pdfUtils.exportPdf("Elenco testate censite", Arrays.asList("ID", "Nome", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento"));
         listaDTO.forEach(dto -> {
             pdfUtils.setValore(dto.getId());
             pdfUtils.setValore(dto.getName());
-            pdfUtils.setValore(dto.getPurchasedContent());
             pdfUtils.setValore(dto.getLeftContent());
             pdfUtils.setValore(dto.getCostEach());
             pdfUtils.setValore(dto.getCostSell());

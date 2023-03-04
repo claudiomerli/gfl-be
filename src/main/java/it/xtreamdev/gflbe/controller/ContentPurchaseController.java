@@ -2,7 +2,11 @@ package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.news.FindNewsDTO;
 import it.xtreamdev.gflbe.dto.news.SaveNewsDTO;
+import it.xtreamdev.gflbe.dto.purchasecontent.FindContentPurchaseDTO;
+import it.xtreamdev.gflbe.dto.purchasecontent.SaveContentPurchaseDTO;
+import it.xtreamdev.gflbe.model.ContentPurchase;
 import it.xtreamdev.gflbe.model.News;
+import it.xtreamdev.gflbe.service.ContentPurchaseService;
 import it.xtreamdev.gflbe.service.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,42 +14,42 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("api/news")
+@RequestMapping("api/content-purchase")
 @RestController
-public class NewsController {
+public class ContentPurchaseController {
 
     @Autowired
-    private NewsService newsService;
+    private ContentPurchaseService contentPurchaseService;
 
     @GetMapping
-    public Page<News> find(
+    public Page<ContentPurchase> find(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            FindNewsDTO findNewsDTO
+            FindContentPurchaseDTO contentPurchaseDTO
     ) {
-        return this.newsService.findNews(findNewsDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy));
+        return this.contentPurchaseService.findContentPurchase(contentPurchaseDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy));
     }
 
     @GetMapping("{id}")
-    private News findById(@PathVariable Integer id) {
-        return this.newsService.findById(id);
+    private ContentPurchase findById(@PathVariable Integer id) {
+        return this.contentPurchaseService.findById(id);
     }
 
     @PostMapping
-    private News save(@RequestBody SaveNewsDTO saveNewsDTO) {
-        return this.newsService.save(saveNewsDTO);
+    private ContentPurchase save(@RequestBody SaveContentPurchaseDTO saveContentPurchaseDTO) {
+        return this.contentPurchaseService.save(saveContentPurchaseDTO);
     }
 
     @PutMapping("{id}")
-    private News update(@PathVariable Integer id, @RequestBody SaveNewsDTO saveNewsDTO) {
-        return this.newsService.update(id, saveNewsDTO);
+    private ContentPurchase update(@PathVariable Integer id, @RequestBody SaveContentPurchaseDTO saveContentPurchaseDTO) {
+        return this.contentPurchaseService.update(id, saveContentPurchaseDTO);
     }
 
     @DeleteMapping("{id}")
     private void delete(@PathVariable Integer id) {
-        this.newsService.delete(id);
+        this.contentPurchaseService.delete(id);
     }
 
 }

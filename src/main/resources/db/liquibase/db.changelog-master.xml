@@ -1097,4 +1097,68 @@
                                  constraintName="fk_profincus_on_user" referencedColumnNames="id"
                                  referencedTableName="user"/>
     </changeSet>
+    <changeSet id="1677922780376-1" author="claudiomerli (generated)">
+        <createTable tableName="content_purchase">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_content_purchase"/>
+            </column>
+            <column name="amount" type="DOUBLE"/>
+            <column name="content_number" type="INT"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1677922780376-2" author="claudiomerli (generated)">
+        <createTable tableName="content_purchase_newspaper">
+            <column name="content_purchase_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="newspapers_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1677922780376-9" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="content_purchase_id" baseTableName="content_purchase_newspaper"
+                                 constraintName="fk_conpurnew_on_content_purchase" referencedColumnNames="id"
+                                 referencedTableName="content_purchase"/>
+    </changeSet>
+    <changeSet id="1677922780376-10" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspapers_id" baseTableName="content_purchase_newspaper"
+                                 constraintName="fk_conpurnew_on_newspaper" referencedColumnNames="id"
+                                 referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1677935063062-4" author="claudiomerli (generated)">
+        <addColumn tableName="content_purchase">
+            <column name="note" type="CLOB"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1677949036144-4" author="claudiomerli (generated)">
+        <addColumn tableName="content_purchase">
+            <column name="used" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="2023-03-04-1" author="claudiomerli (generated)">
+        <sql>
+            update content_purchase
+            set used = 0
+            where used is null;
+        </sql>
+    </changeSet>
+    <changeSet id="1677949758943-1" author="claudiomerli (generated)">
+        <addColumn tableName="project_commission">
+            <column name="content_purchase_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1677949758943-9" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="content_purchase_id" baseTableName="project_commission"
+                                 constraintName="FK_PROJECT_COMMISSION_ON_CONTENTPURCHASE" referencedColumnNames="id"
+                                 referencedTableName="content_purchase"/>
+    </changeSet>
+    <changeSet id="1677949758943-10" author="claudiomerli (generated)">
+        <dropColumn columnName="used" tableName="content_purchase"/>
+    </changeSet>
+    <changeSet id="1677952124183-9" author="claudiomerli (generated)">
+        <dropColumn columnName="purchased_content" tableName="newspaper"/>
+    </changeSet>
 </databaseChangeLog>

@@ -1,4 +1,8 @@
 package it.xtreamdev.gflbe.repository;
 
-public interface ContentPurchaseRepository extends org.springframework.data.jpa.repository.JpaRepository<it.xtreamdev.gflbe.model.ContentPurchase, java.lang.Integer> ,org.springframework.data.jpa.repository.JpaSpecificationExecutor<it.xtreamdev.gflbe.model.ContentPurchase> {
+import it.xtreamdev.gflbe.model.ContentPurchase;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface ContentPurchaseRepository extends JpaRepository<ContentPurchase, Integer>, JpaSpecificationExecutor<ContentPurchase> {
 }

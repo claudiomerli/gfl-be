@@ -105,9 +105,10 @@ public class ProjectController {
     public Project setStatusCommission(
             @PathVariable Integer id,
             @PathVariable Integer idCommission,
-            @PathVariable String status
+            @PathVariable String status,
+            @RequestBody Map<String, String> metadata
     ) {
-        return this.projectService.setStatusCommission(id, idCommission, status);
+        return this.projectService.setStatusCommission(id, idCommission, status, metadata);
     }
 
     @PutMapping("{id}/commission/bulk/{status}")

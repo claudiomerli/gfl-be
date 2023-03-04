@@ -16,5 +16,8 @@
     <exclude-change idName="request_quote#total" tagName="addColumn" />
     <exclude-change idName="project#is_domain_project" tagName="addColumn" />
     <exclude-change idName="content#is_domain_content" tagName="addColumn" />
+    <exclude-change idName="content_purchase#remaining" tagName="addColumn" />
+    <exclude-change idName="content_purchase#content_remaining" tagName="addColumn" />
+    <exclude-change idName="content_purchase#content_used" tagName="addColumn" />
   </component>
 </project>

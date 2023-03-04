@@ -14,9 +14,6 @@ public class MaxMinRangeNewspaperAttributesDTO {
     private Integer minZA;
     private Integer maxZA;
 
-    private Integer minPurchasedContent;
-    private Integer maxPurchasedContent;
-
     private Integer minLeftContent;
     private Integer maxLeftContent;
 

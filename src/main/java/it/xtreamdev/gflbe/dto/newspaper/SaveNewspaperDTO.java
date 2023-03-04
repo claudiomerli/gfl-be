@@ -13,7 +13,6 @@ import java.util.Set;
 public class SaveNewspaperDTO {
 
     private String name;
-    private Integer purchasedContent;
     private Double costEach;
     private Double costSell;
     private String email;

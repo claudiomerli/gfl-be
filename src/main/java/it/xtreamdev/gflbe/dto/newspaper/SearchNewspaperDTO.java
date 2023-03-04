@@ -17,8 +17,6 @@ public class SearchNewspaperDTO {
     private String id;
     private Long zaFrom;
     private Long zaTo;
-    private Long purchasedContentFrom;
-    private Long purchasedContentTo;
     private Long leftContentFrom;
     private Long leftContentTo;
     private Double costEachFrom;

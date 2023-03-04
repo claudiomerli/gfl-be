@@ -27,7 +27,6 @@ public class NewspaperMapper {
                 .leftContent(newspaper.getLeftContent())
                 .name(newspaper.getName())
                 .email(newspaper.getEmail())
-                .purchasedContent(newspaper.getPurchasedContent())
                 .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                 .note(newspaper.getNote())
                 .za(newspaper.getZa())
