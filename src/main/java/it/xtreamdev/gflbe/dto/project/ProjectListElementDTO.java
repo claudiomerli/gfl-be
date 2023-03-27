@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -38,6 +39,10 @@ public class ProjectListElementDTO {
     private LocalDateTime createdDate;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime lastModifiedDate;
+
+    private Boolean hasStartedCommission;
+    private Boolean hasAssignedCommission;
+    private Boolean hasWorkedCommission;
 
     private List<ProjectCommissionListElementDTO> projectCommissions;
 

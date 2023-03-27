@@ -3,10 +3,7 @@ package it.xtreamdev.gflbe.service;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
-import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
-import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
-import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
-import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
+import it.xtreamdev.gflbe.dto.project.*;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
@@ -225,14 +222,13 @@ public class ProjectService {
         }
 
 
-
         projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
         projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder()
                 .projectCommissionStatus(projectCommission.getStatus())
                 .projectCommission(projectCommission)
                 .build());
 
-        if(ProjectCommissionStatus.valueOf(status) == ProjectCommissionStatus.SENT_TO_ADMINISTRATION){
+        if (ProjectCommissionStatus.valueOf(status) == ProjectCommissionStatus.SENT_TO_ADMINISTRATION) {
             String contentPurchasedId = metadata.get("contentPurchasedId");
             ContentPurchase contentPurchase = this.contentPurchaseService.findById(Integer.valueOf(contentPurchasedId));
             projectCommission.setContentPurchase(contentPurchase);
@@ -268,7 +264,7 @@ public class ProjectService {
         return this.projectRepository.save(project);
     }
 
-    public Page<ProjectListElementDTO> find(String globalSearch, String status, Pageable pageable) {
+    public Page<ProjectListElementDTO> find(SearchProjectDTO searchProjectDTO, Pageable pageable) {
         User user = this.userService.userInfo();
         return this.projectRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
@@ -277,8 +273,8 @@ public class ProjectService {
             criteriaQuery.distinct(true);
 
 
-            if (StringUtils.isNotBlank(status)) {
-                predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(status)));
+            if (StringUtils.isNotBlank(searchProjectDTO.getStatus())) {
+                predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.valueOf(searchProjectDTO.getStatus())));
             }
 
             switch (user.getRole()) {
@@ -300,13 +296,27 @@ public class ProjectService {
                     predicateList.add(criteriaBuilder.isNotNull(root.get("domain")));
             }
 
-            if (StringUtils.isNotBlank(globalSearch)) {
-                Arrays.stream(globalSearch.split(" ")).forEach(s -> {
+            if (StringUtils.isNotBlank(searchProjectDTO.getGlobalSearch())) {
+                Arrays.stream(searchProjectDTO.getGlobalSearch().split(" ")).forEach(s -> {
                     predicateList.add(criteriaBuilder.or(
                             criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + s.toUpperCase() + "%"),
                             criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("fullname")), "%" + s.toUpperCase() + "%")
                     ));
                 });
+            }
+
+            if (searchProjectDTO.getProjectCommissionStatus() != null &&
+                    !searchProjectDTO.getProjectCommissionStatus().isEmpty()) {
+                predicateList.add(criteriaBuilder.or(searchProjectDTO.getProjectCommissionStatus().stream().map(statusFilter -> criteriaBuilder.equal(projectCommissionsJoin.get("status"), ProjectCommissionStatus.valueOf(statusFilter))).toArray(Predicate[]::new)));
+            }
+
+
+            if (StringUtils.isNotBlank(searchProjectDTO.getCommissionPeriod())) {
+                predicateList.add(criteriaBuilder.equal(projectCommissionsJoin.get("period"), Month.valueOf(searchProjectDTO.getCommissionPeriod())));
+            }
+
+            if (searchProjectDTO.getCommissionYear() != null) {
+                predicateList.add(criteriaBuilder.equal(projectCommissionsJoin.get("year"), searchProjectDTO.getCommissionYear()));
             }
 
             return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));

@@ -3,10 +3,7 @@ package it.xtreamdev.gflbe.controller;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
-import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
-import it.xtreamdev.gflbe.dto.project.SaveProjectCommissionDTO;
-import it.xtreamdev.gflbe.dto.project.SaveProjectDTO;
-import it.xtreamdev.gflbe.dto.project.UpdateBulkProjectCommissionStatus;
+import it.xtreamdev.gflbe.dto.project.*;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.ProjectCommission;
 import it.xtreamdev.gflbe.service.ProjectService;
@@ -17,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/project")
@@ -32,12 +28,9 @@ public class ProjectController {
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-            @RequestParam(value = "globalSearch") String globalSearch,
-            @RequestParam(value = "status") String status
+            SearchProjectDTO searchProjectDTO
     ) {
-        return this.projectService.find(globalSearch, status,
-                PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)
-        );
+        return this.projectService.find(searchProjectDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy));
     }
 
     @GetMapping("{id}")

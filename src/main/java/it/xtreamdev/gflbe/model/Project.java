@@ -83,6 +83,15 @@ public class Project {
     @Formula("domain_id is not null")
     private Boolean isDomainProject;
 
+    @Formula("(select count(*) > 0 from project_commission pc where pc.status = 'STARTED' and pc.project_id = id)")
+    private Boolean hasStartedCommission;
+
+    @Formula("(select count(*) > 0 from project_commission pc where pc.status = 'ASSIGNED' and pc.project_id = id)")
+    private Boolean hasAssignedCommission;
+
+    @Formula("(select count(*) > 0 from project_commission pc where pc.status = 'WORKED' and pc.project_id = id)")
+    private Boolean hasWorkedCommission;
+
     @Builder.Default
     private Boolean deleted = false;
 
@@ -99,6 +108,9 @@ public class Project {
                 .expiration(expiration)
                 .id(id)
                 .lastModifiedDate(lastModifiedDate)
+                .hasStartedCommission(hasStartedCommission)
+                .hasAssignedCommission(hasAssignedCommission)
+                .hasWorkedCommission(hasWorkedCommission)
                 .status(status)
                 .name(name)
                 .projectCommissions(projectCommissions

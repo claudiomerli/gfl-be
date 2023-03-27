@@ -63,7 +63,6 @@ public class ProjectCommission {
     @Lob
     private String notes;
 
-
     @Column(name = "publication_url")
     private String publicationUrl;
 
