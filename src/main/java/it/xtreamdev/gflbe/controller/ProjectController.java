@@ -4,8 +4,10 @@ import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.project.*;
+import it.xtreamdev.gflbe.model.ContentHintTemplate;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.ProjectCommission;
+import it.xtreamdev.gflbe.service.ContentHintTemplateService;
 import it.xtreamdev.gflbe.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ContentHintTemplateService contentHintTemplateService;
 
     @GetMapping
     public Page<ProjectListElementDTO> find(
@@ -183,5 +188,20 @@ public class ProjectController {
     @PutMapping("{id}/assignFinalCustomers")
     public void assignFinalCustomers(@PathVariable Integer id, @RequestBody List<Integer> ids) {
         this.projectService.assignFinalCustomer(id, ids);
+    }
+
+    @GetMapping("contentHintTemplate")
+    public List<ContentHintTemplate> findAllContentHintTemplate(){
+        return this.contentHintTemplateService.findAll();
+    }
+
+    @PostMapping("contentHintTemplate")
+    public void saveContentHintTemplate(@RequestBody SaveContentHintTemplate saveContentHintTemplate){
+        this.contentHintTemplateService.save(saveContentHintTemplate);
+    }
+
+    @DeleteMapping("contentHintTemplate/{id}")
+    public void deleteContentHintTemplate(@PathVariable Integer id){
+        this.contentHintTemplateService.delete(id);
     }
 }

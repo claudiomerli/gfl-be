@@ -1161,4 +1161,12 @@
     <changeSet id="1677952124183-9" author="claudiomerli (generated)">
         <dropColumn columnName="purchased_content" tableName="newspaper"/>
     </changeSet>
+    <changeSet id="1680695167689-1" author="claudiomerli (generated)">
+        <createTable tableName="content_hint_template">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_content_hint_template"/>
+            </column>
+            <column name="body" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
