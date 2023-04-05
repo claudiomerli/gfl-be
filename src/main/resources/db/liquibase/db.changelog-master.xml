@@ -1169,4 +1169,7 @@
             <column name="body" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+    <changeSet id="1680706076028-1" author="claudiomerli (generated)">
+        <modifyDataType columnName="body" newDataType="CLOB" tableName="content_hint_template"/>
+    </changeSet>
 </databaseChangeLog>

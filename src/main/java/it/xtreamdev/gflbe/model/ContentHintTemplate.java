@@ -18,6 +18,7 @@ public class ContentHintTemplate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Lob
     private String body;
 
 }
