@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -22,5 +23,8 @@ public class SearchProjectDTO {
     private Integer commissionYear;
 
     private String commissionPeriod;
+
+    @Builder.Default
+    private List<Integer> newspapers = new ArrayList<>();
 
 }

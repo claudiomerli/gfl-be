@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.dto.purchasecontent;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -15,5 +16,6 @@ public class SaveContentPurchaseDTO {
     private Integer contentNumber;
     private String note;
     private List<Integer> newspapers;
+    private LocalDate expiration;
 
 }

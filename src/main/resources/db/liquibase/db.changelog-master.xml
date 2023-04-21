@@ -1172,4 +1172,9 @@
     <changeSet id="1680706076028-1" author="claudiomerli (generated)">
         <modifyDataType columnName="body" newDataType="CLOB" tableName="content_hint_template"/>
     </changeSet>
+    <changeSet id="1680773196434-1" author="claudiomerli (generated)">
+        <addColumn tableName="content_purchase">
+            <column name="expiration" type="DATE"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

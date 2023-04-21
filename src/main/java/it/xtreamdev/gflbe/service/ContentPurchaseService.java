@@ -32,7 +32,7 @@ public class ContentPurchaseService {
         return this.contentPurchaseRepository.findAll(((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if(StringUtils.isNotBlank(findContentPurchaseDTO.getGlobalSearch())){
+            if (StringUtils.isNotBlank(findContentPurchaseDTO.getGlobalSearch())) {
                 Arrays.asList(findContentPurchaseDTO.getGlobalSearch().split(" ")).forEach(searchPortion ->
                         predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("note")), "%" + searchPortion.toUpperCase() + "%"))
                 );
@@ -41,6 +41,14 @@ public class ContentPurchaseService {
             if (findContentPurchaseDTO.getNewspaperId() != null) {
                 Newspaper newspaper = this.newspaperService.findById(findContentPurchaseDTO.getNewspaperId());
                 predicates.add(criteriaBuilder.isMember(newspaper, root.get("newspapers")));
+            }
+
+            if(findContentPurchaseDTO.getExpirationFrom() != null){
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("expiration"),findContentPurchaseDTO.getExpirationFrom()));
+            }
+
+            if(findContentPurchaseDTO.getExpirationTo() != null){
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("expiration"),findContentPurchaseDTO.getExpirationTo()));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -58,6 +66,7 @@ public class ContentPurchaseService {
                 .note(saveContentPurchaseDTO.getNote())
                 .amount(saveContentPurchaseDTO.getAmount())
                 .newspapers(saveContentPurchaseDTO.getNewspapers().stream().map(integer -> this.newspaperService.findById(integer)).collect(Collectors.toList()))
+                .expiration(saveContentPurchaseDTO.getExpiration())
                 .build());
     }
 
@@ -70,6 +79,7 @@ public class ContentPurchaseService {
         contentPurchaseToUpdate.setAmount(saveContentPurchaseDTO.getAmount());
         contentPurchaseToUpdate.getNewspapers().addAll(saveContentPurchaseDTO.getNewspapers().stream().map(integer -> this.newspaperService.findById(integer)).collect(Collectors.toList()));
         contentPurchaseToUpdate.setNote(saveContentPurchaseDTO.getNote());
+        contentPurchaseToUpdate.setExpiration(saveContentPurchaseDTO.getExpiration());
 
         return this.contentPurchaseRepository.save(contentPurchaseToUpdate);
     }

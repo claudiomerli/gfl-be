@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class ContentPurchase {
 
     @Formula("content_number - (select count(*) from project_commission pc where pc.content_purchase_id = id)")
     private Integer contentRemaining;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expiration;
 
     @Lob
     private String note;

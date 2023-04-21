@@ -319,6 +319,13 @@ public class ProjectService {
                 predicateList.add(criteriaBuilder.equal(projectCommissionsJoin.get("year"), searchProjectDTO.getCommissionYear()));
             }
 
+            if(searchProjectDTO.getNewspapers() != null && !searchProjectDTO.getNewspapers().isEmpty()){
+                predicateList.add(criteriaBuilder.or(searchProjectDTO.getNewspapers().stream().map(idNewspaper -> {
+                    Newspaper newspaper = this.newspaperService.findById(idNewspaper);
+                    return criteriaBuilder.equal(projectCommissionsJoin.get("newspaper"), newspaper);
+                }).collect(Collectors.toList()).toArray(Predicate[]::new)));
+            }
+
             return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
         }, pageable).map(Project::toListElement);
     }
