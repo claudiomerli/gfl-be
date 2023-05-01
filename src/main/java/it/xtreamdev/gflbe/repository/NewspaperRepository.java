@@ -12,6 +12,9 @@ public interface NewspaperRepository extends JpaRepository<Newspaper, Integer>, 
     @Query(value = "select sum(cp.amount) from ContentPurchase cp")
     Double totalCost();
 
+    @Query(value = "select sum(cp.amountRemaining) from ContentPurchase cp")
+    Double totalRemaining();
+
     @Query(value = "select sum(o.total) from Order o where o.status = 'CONFIRMED'")
     Double totalSell();
 

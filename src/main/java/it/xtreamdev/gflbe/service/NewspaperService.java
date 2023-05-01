@@ -170,6 +170,7 @@ public class NewspaperService {
         return FinanceDTO.builder()
                 .purchasesValue(this.newspaperRepository.totalCost())
                 .salesValue(this.newspaperRepository.totalSell())
+                .amountRemaining(this.newspaperRepository.totalRemaining())
                 .build();
     }
 

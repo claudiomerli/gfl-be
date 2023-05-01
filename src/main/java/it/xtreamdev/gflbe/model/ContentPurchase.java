@@ -30,6 +30,9 @@ public class ContentPurchase {
 
     private Double amount;
 
+    @Formula("(amount / content_number)*(content_number - (select count(*) from project_commission pc where pc.content_purchase_id = id))")
+    private Double amountRemaining;
+
     private Integer contentNumber;
 
     @Formula("(select count(*) from project_commission pc where pc.content_purchase_id = id)")

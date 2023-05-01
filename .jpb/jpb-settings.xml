@@ -22,5 +22,6 @@
     <exclude-change idName="project#has_assigned_commission" tagName="addColumn" />
     <exclude-change idName="project#has_started_commission" tagName="addColumn" />
     <exclude-change idName="project#has_worked_commission" tagName="addColumn" />
+    <exclude-change idName="content_purchase#amount_remaining" tagName="addColumn" />
   </component>
 </project>

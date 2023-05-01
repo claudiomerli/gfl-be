@@ -16,4 +16,6 @@ public class FinanceDTO {
 
     private Double salesValue;
 
+    private Double amountRemaining;
+
 }
