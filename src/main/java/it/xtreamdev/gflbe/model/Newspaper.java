@@ -58,6 +58,9 @@ public class Newspaper {
     @Column(name = "sensitive_topics")
     private Boolean sensitiveTopics;
 
+    @Column(name = "warning")
+    private Boolean warning;
+
     @OneToOne(mappedBy = "newspaper")
     @JsonIgnore
     private Domain domain;

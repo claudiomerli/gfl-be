@@ -1177,4 +1177,12 @@
             <column name="expiration" type="DATE"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1684523774570-9" author="claudiomerli (generated)">
+        <addColumn tableName="newspaper">
+            <column name="warning" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="20230519-2" author="claudiomerli (generated)">
+        <sql>update newspaper set warning = false where warning is null</sql>
+    </changeSet>
 </databaseChangeLog>

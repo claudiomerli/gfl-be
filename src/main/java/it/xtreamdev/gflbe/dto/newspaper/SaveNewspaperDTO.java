@@ -23,4 +23,5 @@ public class SaveNewspaperDTO {
     private String ip;
     private Boolean hidden;
     private Boolean sensitiveTopics;
+    private Boolean warning;
 }

@@ -123,6 +123,7 @@ public class NewspaperService {
                         .ip(newspaper.getIp())
                         .hidden(newspaper.getHidden())
                         .sensitiveTopics(newspaper.getSensitiveTopics())
+                        .warning(newspaper.getWarning())
                         .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()))
                         .build()
         ));
@@ -149,6 +150,7 @@ public class NewspaperService {
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
         persistedNewspaper.setHidden(saveNewspaperDTO.getHidden());
         persistedNewspaper.setSensitiveTopics(saveNewspaperDTO.getSensitiveTopics());
+        persistedNewspaper.setWarning(saveNewspaperDTO.getWarning());
 
         return newspaperMapper.mapEntityToDTO(this.newspaperRepository.save(persistedNewspaper));
     }

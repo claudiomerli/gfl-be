@@ -25,5 +25,6 @@ public class NewspaperDTO {
     Set<TopicDTO> topics;
     private Boolean hidden;
     private Boolean sensitiveTopics;
+    private Boolean warning;
 
 }
