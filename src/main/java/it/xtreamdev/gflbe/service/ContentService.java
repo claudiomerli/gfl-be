@@ -64,8 +64,8 @@ public class ContentService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${tilinkotool.chatgpt.apikey}")
-    private String chatGPTApiKey;
+    @Value("${CHATGPT_API_KEY:}")
+    private String CHAT_GPT_APIKEY;
 
     public Page<Content> findAll(FindContentFilterDTO findContentFilterDTO, PageRequest pageRequest) {
         User user = userService.userInfo();
@@ -331,7 +331,7 @@ public class ContentService {
 
     public ChatGPTResponse doChatGPTRequest(ChatGPTRequest chatGPTRequest) {
         RequestEntity<ChatGPTRequest> request = RequestEntity.post("https://api.openai.com/v1/chat/completions")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + chatGPTApiKey)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + CHAT_GPT_APIKEY)
                 .body(chatGPTRequest);
 
         ResponseEntity<ChatGPTResponse> chatGPTResponseResponseEntity = this.restTemplate.exchange(request, ChatGPTResponse.class);

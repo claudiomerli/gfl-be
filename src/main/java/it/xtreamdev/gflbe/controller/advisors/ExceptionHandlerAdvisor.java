@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.controller.advisors;
 
 import it.xtreamdev.gflbe.dto.common.ErrorDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,11 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
+@Slf4j
 public class ExceptionHandlerAdvisor {
 
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<ErrorDTO> handleValidationExceptions(HttpClientErrorException ex) {
-
+        log.error("Error", ex);
         return ResponseEntity
                 .status(ex.getStatusCode())
                 .body(ErrorDTO.builder()
@@ -27,7 +29,7 @@ public class ExceptionHandlerAdvisor {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
-
+        log.error("Error", ex);
         List<String> errorMessage = new ArrayList<>();
 
         ex.getBindingResult().getAllErrors().forEach((error) -> {
