@@ -13,3 +13,6 @@ spring:
     enabled: true
     change-log: db/liquibase/db.changelog-master.xml
 
+tilinkotool:
+  chatgpt:
+    apikey: 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

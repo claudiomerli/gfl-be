@@ -1,5 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTRequest;
+import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTResponse;
 import it.xtreamdev.gflbe.dto.common.PaginationRequest;
 import it.xtreamdev.gflbe.dto.content.*;
 import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
@@ -72,6 +74,12 @@ public class ContentController {
     public List<WordpressCategoryResponse> getDomainCategory(@PathVariable Integer id) {
         return this.contentService.getCategoriesWordpress(id);
     }
+
+    @PostMapping("assistant")
+    public ChatGPTResponse getDomainCategory(@RequestBody ChatGPTRequest chatGPTRequest) {
+        return this.contentService.doChatGPTRequest(chatGPTRequest);
+    }
+
 
 
 }

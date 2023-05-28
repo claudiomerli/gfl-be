@@ -1,5 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
+import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTRequest;
+import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTResponse;
 import it.xtreamdev.gflbe.dto.content.*;
 import it.xtreamdev.gflbe.dto.content.wordpress.WordpressBaseApi;
 import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
@@ -17,6 +19,7 @@ import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -60,6 +63,9 @@ public class ContentService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Value("${tilinkotool.chatgpt.apikey}")
+    private String chatGPTApiKey;
 
     public Page<Content> findAll(FindContentFilterDTO findContentFilterDTO, PageRequest pageRequest) {
         User user = userService.userInfo();
@@ -111,7 +117,7 @@ public class ContentService {
                 predicates.add(criteriaBuilder.equal(projectCommission.get("year"), findContentFilterDTO.getYear()));
             }
 
-            if(StringUtils.isNotBlank(findContentFilterDTO.getPeriod())){
+            if (StringUtils.isNotBlank(findContentFilterDTO.getPeriod())) {
                 predicates.add(criteriaBuilder.equal(projectCommission.get("period"), Month.valueOf(findContentFilterDTO.getPeriod())));
             }
 
@@ -321,5 +327,14 @@ public class ContentService {
                 .year(content.getProjectCommission().getYear())
                 .editor(content.getEditor())
                 .project(content.getProjectCommission().getProject()).build());
+    }
+
+    public ChatGPTResponse doChatGPTRequest(ChatGPTRequest chatGPTRequest) {
+        RequestEntity<ChatGPTRequest> request = RequestEntity.post("https://api.openai.com/v1/chat/completions")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + chatGPTApiKey)
+                .body(chatGPTRequest);
+
+        ResponseEntity<ChatGPTResponse> chatGPTResponseResponseEntity = this.restTemplate.exchange(request, ChatGPTResponse.class);
+        return chatGPTResponseResponseEntity.getBody();
     }
 }

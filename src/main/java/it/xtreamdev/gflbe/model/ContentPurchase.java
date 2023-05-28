@@ -35,6 +35,9 @@ public class ContentPurchase {
 
     private Integer contentNumber;
 
+    @Formula("(amount / content_number)")
+    private Double eachCost;
+
     @Formula("(select count(*) from project_commission pc where pc.content_purchase_id = id)")
     private Integer contentUsed;
 
