@@ -124,8 +124,17 @@ public class ProjectController {
     }
 
     @GetMapping("{id}/export")
-    public byte[] exportExcel(@PathVariable Integer id) {
-        return this.projectService.exportProjectExcel(id);
+    public byte[] exportExcel(@PathVariable Integer id,
+                              @RequestParam(value = "sortBy", required = false) String sortBy,
+                              @RequestParam(value = "sortDirection", defaultValue = "DESC") String sortDirection) {
+        List<Sort.Order> orders = new ArrayList<>();
+        Optional.ofNullable(sortBy).ifPresent(s -> Arrays.asList(sortBy.split(","))
+                .forEach(sortEntry -> orders.add(Sort.Order.by(sortEntry).with(Sort.Direction.fromString(sortDirection)))));
+        orders.add(Sort.Order.desc("year"));
+        orders.add(Sort.Order.desc("period"));
+        orders.add(Sort.Order.desc("createdDate"));
+
+        return this.projectService.exportProjectExcel(id, Sort.by(orders.toArray(Sort.Order[]::new)));
     }
 
 
@@ -191,17 +200,17 @@ public class ProjectController {
     }
 
     @GetMapping("contentHintTemplate")
-    public List<ContentHintTemplate> findAllContentHintTemplate(){
+    public List<ContentHintTemplate> findAllContentHintTemplate() {
         return this.contentHintTemplateService.findAll();
     }
 
     @PostMapping("contentHintTemplate")
-    public void saveContentHintTemplate(@RequestBody SaveContentHintTemplate saveContentHintTemplate){
+    public void saveContentHintTemplate(@RequestBody SaveContentHintTemplate saveContentHintTemplate) {
         this.contentHintTemplateService.save(saveContentHintTemplate);
     }
 
     @DeleteMapping("contentHintTemplate/{id}")
-    public void deleteContentHintTemplate(@PathVariable Integer id){
+    public void deleteContentHintTemplate(@PathVariable Integer id) {
         this.contentHintTemplateService.delete(id);
     }
 }

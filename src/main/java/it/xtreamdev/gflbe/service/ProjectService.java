@@ -29,6 +29,8 @@ import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -319,7 +321,7 @@ public class ProjectService {
                 predicateList.add(criteriaBuilder.equal(projectCommissionsJoin.get("year"), searchProjectDTO.getCommissionYear()));
             }
 
-            if(searchProjectDTO.getNewspapers() != null && !searchProjectDTO.getNewspapers().isEmpty()){
+            if (searchProjectDTO.getNewspapers() != null && !searchProjectDTO.getNewspapers().isEmpty()) {
                 predicateList.add(criteriaBuilder.or(searchProjectDTO.getNewspapers().stream().map(idNewspaper -> {
                     Newspaper newspaper = this.newspaperService.findById(idNewspaper);
                     return criteriaBuilder.equal(projectCommissionsJoin.get("newspaper"), newspaper);
@@ -390,20 +392,18 @@ public class ProjectService {
         log.info("Done!");
     }
 
-    public byte[] exportProjectExcel(Integer projectId) {
-        Project project = this.findById(projectId);
+    public byte[] exportProjectExcel(Integer id, Sort sort) {
+        Project project = this.findById(id);
+        List<ProjectCommission> projectCommissions = this.findProjectCommissions(id, sort);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             SpreadsheetMLPackage spreadsheet = createSpreadsheet();
             SheetData sheet = addSheet(spreadsheet, project.getName());
             addRow(sheet, "Testata", "Url di pubblicazione", "Data di pubblicazione", "Periodo");
-            project.getProjectCommissions().forEach(projectCommission -> {
-                addRow(sheet,
-                        projectCommission.getNewspaper().getName(),
-                        projectCommission.getPublicationUrl(),
-                        projectCommission.getPublicationDate(),
-                        projectCommission.getPeriod());
-            });
-
+            projectCommissions.forEach(projectCommission -> addRow(sheet,
+                    projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getName() : null,
+                    projectCommission.getPublicationUrl() != null ? projectCommission.getPublicationUrl() : null,
+                    projectCommission.getPublicationDate() != null ? projectCommission.getPublicationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
+                    projectCommission.getPeriod() != null ? projectCommission.getPeriod().getDisplayName(TextStyle.FULL, Locale.ITALY) : null));
             spreadsheet.save(baos);
             return baos.toByteArray();
         } catch (Exception e) {
