@@ -117,7 +117,7 @@ public class ProjectService {
     public Project addCommission(Integer projectId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
         Project project = this.findById(projectId);
         ProjectCommission projectCommission = ProjectCommission.builder()
-                .newspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()))
+                .newspaper(saveProjectCommissionDTO.getNewspaperId() != null ? this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()) : null)
                 .period(Month.valueOf(saveProjectCommissionDTO.getPeriod()))
                 .year(saveProjectCommissionDTO.getYear())
                 .anchor(saveProjectCommissionDTO.getAnchor())

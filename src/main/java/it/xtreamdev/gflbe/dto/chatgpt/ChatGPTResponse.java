@@ -23,7 +23,7 @@ public class ChatGPTResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    private static class ChatGPTResponseUsage {
+    public static class ChatGPTResponseUsage {
         private int prompt_tokens;
         private int completion_tokens;
         private int total_tokens;
@@ -33,7 +33,7 @@ public class ChatGPTResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    private static class ChatGPTResponseChoice {
+    public static class ChatGPTResponseChoice {
         private ChatGPTResponseMessage message;
         private String finish_reason;
         private int index;
@@ -43,7 +43,7 @@ public class ChatGPTResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    private static class ChatGPTResponseMessage {
+    public static class ChatGPTResponseMessage {
         private String role;
         private String content;
     }

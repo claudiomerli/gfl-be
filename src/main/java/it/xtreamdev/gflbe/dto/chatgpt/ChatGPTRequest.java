@@ -25,7 +25,8 @@ public class ChatGPTRequest {
     @AllArgsConstructor
     @Builder
     public static class ChatGPTRequestMessage{
-        private String role;
+        @Builder.Default
+        private String role = "user";
         private String content;
     }
 

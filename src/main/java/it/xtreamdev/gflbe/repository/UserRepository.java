@@ -1,15 +1,10 @@
 package it.xtreamdev.gflbe.repository;
 
-import it.xtreamdev.gflbe.model.EditorInfo;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,5 +12,14 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByUsernameAndRoleAndActiveTrue(String username, RoleName roleName);
+
     List<User> findByEditorInfoIsNull();
+
+    Optional<User> findByActivationCode(String code);
+    Optional<User> findByEmailVerificationCode(String code);
+    Optional<User> findByResetPasswordCode(String code);
+
+    Optional<User> findByEmail(String email);
+
 }

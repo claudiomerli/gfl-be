@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto.news;
+package it.xtreamdev.gflbe.dto.chatgpt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FindNewsDTO {
+public class ChatGPTContentResponse {
 
-    private String globalSearch;
-    private Integer exclude;
+    private String content;
 
 }

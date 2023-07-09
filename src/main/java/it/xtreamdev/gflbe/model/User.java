@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import lombok.*;
 
@@ -43,10 +44,28 @@ public class User {
     @OneToOne(mappedBy = "editor", cascade = CascadeType.ALL)
     private EditorInfo editorInfo;
 
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private CustomerInfo customerInfo;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private RoleName role;
 
+    @JsonIgnore
+    private String activationCode;
+
+    @JsonIgnore
+    @Builder.Default
+    private Boolean active = false;
+
+    @Builder.Default
+    private Boolean emailVerified = true;
+
+    @JsonIgnore
+    private String emailVerificationCode;
+
+    @JsonIgnore
+    private String resetPasswordCode;
 
     public User cleanSensitiveData() {
         this.password = null;

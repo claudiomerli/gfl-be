@@ -12,3 +12,32 @@ spring:
   liquibase:
     enabled: true
     change-log: db/liquibase/db.changelog-master.xml
+  mail:
+    host: cs03.imgwebsolutions.it
+    username: tools@tilinkotool.it
+    port: 465
+    password: t1S7*4vx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          socketFactory:
+            class: "javax.net.ssl.SSLSocketFactory"
+  main:
+    allow-circular-references: true
+tilinko:
+  confirm-base-url: "http://localhost:4200/confirm?code="
+  confirm-email-base-url: "http://localhost:4200/confirm-email?code="
+  reset-password-base-url: "http://localhost:4200/reset-password?code="
+
+tilinkotool:
+  hintPositiveLinksRatio: "Dal report del tuo sito abbiamo rilevato che hai il %s link dofollow e il %s di link nofollow. Ti consigliamo di aumentare la quota di link dofollow che puntano al tuo sito."
+  hintNegativeLinksRatio: "Dal report del tuo sito abbiamo rilevato che hai il %s link dofollow e il %s di link nofollow. Ti consigliamo di aumentare la quota di link nofollow che puntano al tuo sito."
+  hintNegativeTextBrandRatio: "Dal report del tuo sito abbiamo rilevato che hai il %s di anchor text brand, per questo motivo ti consigliamo di acquisire link con anchor brand."
+  hintPositiveTextBrandRatio: "Dal report del tuo sito abbiamo rilevato che hai il %s di anchor text brand, per questo motivo ti consigliamo di acquisire link con anchor brand manipolativa per spingere le pagine più importanti del tuo sito."
+  hintLowLinks: "Hai un basso quantitativo di link che puntano al tuo sito (meno di 100). Il consiglio è quello di aumentare, in modo graduale, il numero di link così da rendere più solido il profilo link del tuo sito. Questo ti permette, anche, di subire meno danni in caso di attacchi di negative seo da parte di competitor."
+  hintLowRefDomains: "Il tuo sito ha un basso numero di domini referenti (siti che linkano il tuo sito web). Il nostro consiglio è quello di aumentare questo valore ottenendo più link da siti di notizie locali e nazionali, siti verticali del tuo settore e magazine generalisti."
+  hintMissingDomains: "Abbiamo visto che il tuo sito non riceve link da %s. Sono siti nostri partner che potrebbero aiutarti ad aumentare l’autorevolezza del tuo sito web e migliorare il posizionamento sui motori di ricerca. Se vuoi possiamo occuparci di realizzare dei contenuti che valorizzino il tuo brand e pubblicarli sulle suddette testate."
+  hintGoodComparisonWithCompetitor: "Dall'analisi dei competitor abbiamo rilevato che il tuo sito ha più referring domain rispetto ai tuoi diretti concorrenti. Continua così in modo da aumentare l'autorevolezza del tuo brand agli occhi dei motori di ricerca e degli utenti"
+  hintBadComparisonWithCompetitor: "Dall'analisi dei competitor abbiamo rilevato che il tuo sito ha meno referring domain rispetto ai tuoi diretti concorrenti. Devi colmare il divario in modo da aumentare l'autorevolezza del tuo brand agli occhi dei motori di ricerca e degli utenti"
+  hintMediumComparisonWithCompetitor : "Dall'analisi dei competitor abbiamo rilevato che il tuo sito ha meno referring domain rispetto a %s ma di più di %s. Il consiglio è quello di aumentare il numero di referring domain che linkano il tuo sito così da aumentare l'autorevolezza del tuo brand agli occhi dei motori di ricerca e degli utenti"

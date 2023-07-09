@@ -26,6 +26,10 @@ public class JwtSecurityConfig {
                 .authorizeRequests(expressionInterceptUrlRegistry -> expressionInterceptUrlRegistry
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .antMatchers("/api/auth/userInfo").authenticated()
+                        .antMatchers("/api/auth/update-customer-info/*").authenticated()
+                        .antMatchers("/api/auth/update-customer-email/*").authenticated()
+                        .antMatchers("/api/auth/update-customer-password/*").authenticated()
+
                         .antMatchers("/api/auth/**").permitAll()
                         .antMatchers("/api/content/customer/**").permitAll()
                         .antMatchers("/api/**").authenticated()

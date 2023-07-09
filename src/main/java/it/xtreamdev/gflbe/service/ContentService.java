@@ -329,12 +329,4 @@ public class ContentService {
                 .project(content.getProjectCommission().getProject()).build());
     }
 
-    public ChatGPTResponse doChatGPTRequest(ChatGPTRequest chatGPTRequest) {
-        RequestEntity<ChatGPTRequest> request = RequestEntity.post("https://api.openai.com/v1/chat/completions")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + CHAT_GPT_APIKEY)
-                .body(chatGPTRequest);
-
-        ResponseEntity<ChatGPTResponse> chatGPTResponseResponseEntity = this.restTemplate.exchange(request, ChatGPTResponse.class);
-        return chatGPTResponseResponseEntity.getBody();
-    }
 }

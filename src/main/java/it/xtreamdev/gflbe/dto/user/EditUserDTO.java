@@ -21,4 +21,5 @@ public class EditUserDTO {
     private String editorInfoRemuneration;
     private String editorInfoNotes;
 
+
 }

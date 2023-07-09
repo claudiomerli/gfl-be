@@ -7,6 +7,7 @@ import it.xtreamdev.gflbe.dto.content.*;
 import it.xtreamdev.gflbe.dto.content.wordpress.categories.WordpressCategoryResponse;
 import it.xtreamdev.gflbe.model.Content;
 import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
+import it.xtreamdev.gflbe.service.ChatGPTService;
 import it.xtreamdev.gflbe.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,9 @@ public class ContentController {
 
     @Autowired
     public ContentService contentService;
+
+    @Autowired
+    public ChatGPTService chatGPTService;
 
     @GetMapping
     public Page<Content> findAll(
@@ -77,7 +81,7 @@ public class ContentController {
 
     @PostMapping("assistant")
     public ChatGPTResponse getDomainCategory(@RequestBody ChatGPTRequest chatGPTRequest) {
-        return this.contentService.doChatGPTRequest(chatGPTRequest);
+        return this.chatGPTService.doChatGPTRequest(chatGPTRequest);
     }
 
 

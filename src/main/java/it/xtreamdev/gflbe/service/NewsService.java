@@ -36,6 +36,10 @@ public class NewsService {
                 });
             }
 
+            if (findNewsDTO.getExclude() != null) {
+                predicates.add(criteriaBuilder.notEqual(root.get("id"), findNewsDTO.getExclude()));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         }), pageRequest);
     }
