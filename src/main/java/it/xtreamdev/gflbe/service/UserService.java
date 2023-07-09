@@ -121,6 +121,14 @@ public class UserService {
         userFromDB.getEditorInfo().setInfo(userUpdated.getEditorInfo());
         userFromDB.getEditorInfo().setNotes(userUpdated.getEditorInfoNotes());
 
+        userFromDB.getCustomerInfo().setCompanyName(userUpdated.getCompanyName());
+        userFromDB.getCustomerInfo().setUrl(userUpdated.getUrl());
+        userFromDB.getCustomerInfo().setCompanyDimension(userUpdated.getCompanyDimension());
+        userFromDB.getCustomerInfo().setBusinessArea(userUpdated.getBusinessArea());
+        userFromDB.getCustomerInfo().setAddress(userUpdated.getAddress());
+        userFromDB.getCustomerInfo().setCompetitor1(userUpdated.getCompetitor1());
+        userFromDB.getCustomerInfo().setCompetitor2(userUpdated.getCompetitor2());
+
         if (StringUtils.isNotBlank(userUpdated.getPassword())) {
             userFromDB.setPassword(this.passwordEncoder.encode(userUpdated.getPassword()));
         }
@@ -258,25 +266,25 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    public void updateCustomerCompetitors(Integer id, SaveCustomerCompetitorsDTO saveCustomerCompetitorsDTO){
+    public void updateCustomerCompetitors(Integer id, SaveCustomerCompetitorsDTO saveCustomerCompetitorsDTO) {
         User user = this.findById(id);
         User currentUser = userInfo();
-        if(currentUser.getRole() == RoleName.CUSTOMER){
-            if(!currentUser.getId().equals(user.getId())
+        if (currentUser.getRole() == RoleName.CUSTOMER) {
+            if (!currentUser.getId().equals(user.getId())
                     ||
                     StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1()) && StringUtils.isNotBlank(user.getCustomerInfo().getCompetitor1())
                     ||
                     StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2()) && StringUtils.isNotBlank(user.getCustomerInfo().getCompetitor2())
-            ){
-                throw new HttpClientErrorException(HttpStatus.FORBIDDEN,"Cannot update already saved competitor");
+            ) {
+                throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Cannot update already saved competitor");
             }
         }
 
-        if(StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1())){
+        if (StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1())) {
             user.getCustomerInfo().setCompetitor1(extractDomain(saveCustomerCompetitorsDTO.getCompetitor1()));
         }
 
-        if(StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2())){
+        if (StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2())) {
             user.getCustomerInfo().setCompetitor2(extractDomain(saveCustomerCompetitorsDTO.getCompetitor2()));
         }
 
@@ -297,8 +305,6 @@ public class UserService {
         user.setResetPasswordCode(null);
         this.userRepository.save(user);
     }
-
-
 
 
 }

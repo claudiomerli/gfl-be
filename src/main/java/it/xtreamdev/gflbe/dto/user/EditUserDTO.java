@@ -21,5 +21,13 @@ public class EditUserDTO {
     private String editorInfoRemuneration;
     private String editorInfoNotes;
 
+    private String companyName;
+    private String url;
+    private String companyDimension;
+    private String businessArea;
+    private String address;
+    private String competitor1;
+    private String competitor2;
+
 
 }

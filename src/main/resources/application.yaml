@@ -14,9 +14,9 @@ spring:
     change-log: db/liquibase/db.changelog-master.xml
   mail:
     host: cs03.imgwebsolutions.it
-    username: tools@tilinkotool.it
+    username: info@tilinkotool.it
     port: 465
-    password: t1S7*4vx
+    password: ?1xx53nH
     properties:
       mail:
         smtp:
