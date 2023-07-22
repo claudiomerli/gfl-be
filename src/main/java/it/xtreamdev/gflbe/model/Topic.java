@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.xtreamdev.gflbe.dto.enumerations.NewspaperTopic;
+import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,4 +31,12 @@ public class Topic {
     @ManyToMany(mappedBy = "topics")
     @JsonIgnore
     Set<Newspaper> newspapers;
+
+    public TopicDTO toDto() {
+        return TopicDTO
+                .builder()
+                .id(this.id)
+                .name(this.name)
+                .build();
+    }
 }

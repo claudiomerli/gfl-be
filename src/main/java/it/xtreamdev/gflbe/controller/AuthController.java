@@ -87,8 +87,8 @@ public class AuthController {
     }
 
     @PutMapping("update-customer-competitors/{id}")
-    public void updateCustomerPassword(@PathVariable Integer id, @RequestBody @Valid SaveCustomerCompetitorsDTO saveCustomerCompetitorsDTO) {
-        this.userService.updateCustomerCompetitors(id, saveCustomerCompetitorsDTO);
+    public void updateCustomerPassword(@PathVariable Integer id, @RequestBody @Valid SaveCustomerStatisticDomainDTO saveCustomerStatisticDomainDTO) {
+        this.userService.updateCustomerCompetitors(id, saveCustomerStatisticDomainDTO);
     }
 
 }

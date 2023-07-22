@@ -31,5 +31,9 @@ public interface NewspaperRepository extends JpaRepository<Newspaper, Integer>, 
             ") from Newspaper n")
     MaxMinRangeNewspaperAttributesDTO getMaxMinRangeNewspaperAttributes();
 
+    @Query("select max(n.costSell) from Newspaper n where n.hidden is false")
+    Double findMaxPriceForCustomer();
 
+    @Query("select min(n.costSell) from Newspaper n where n.hidden is false")
+    Double findMinPriceForCustomer();
 }

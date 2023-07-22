@@ -25,4 +25,13 @@
     <exclude-change idName="content_purchase#amount_remaining" tagName="addColumn" />
     <exclude-change idName="content_purchase#each_cost" tagName="addColumn" />
   </component>
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit name="Default" defaultIncludeChangeLogFile="src/main/resources/db/liquibase/db.changelog-master.xml">
+        <packages>
+          <package value="it.xtreamdev.gflbe" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
 </project>

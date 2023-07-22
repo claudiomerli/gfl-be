@@ -28,21 +28,16 @@ public class ToolsService {
     @Autowired
     private UserService userService;
 
-    private final String chatGPTRequestKeyword = "trova parole collegate a '%s' rispondendomi con questo formato:\n" +
-            "{\n" +
-            "\"keywords\" : [\"a\",\"b\",\"c\",...]\n" +
-            "}";
-    private final String chatGPTRequestAnchorTexts = "suggeriscimi parole chiave per linkare questa pagina:\n '%s', dammi anche qualche consiglio";
+    private final String chatGPTRequestKeyword = "Trova parole chiave correlate a \"%s\" da usare per la link building e dammi qualche consiglio";
+    private final String chatGPTRequestAnchorTexts = "Suggeriscimi parole chiave per linkare questa pagina: \"%s\" e dammi qualche consiglio";
 
-    public List<String> generateKeywords(String word) {
+    public ChatGPTContentResponse generateKeywords(String word) {
         ChatGPTResponse chatGPTResponse = this.chatGPTService.doChatGPTRequest(String.format(chatGPTRequestKeyword, word));
-        String jsonResponse = chatGPTResponse.getChoices().get(0).getMessage().getContent();
-        JSONArray keywords = new JSONObject(jsonResponse).getJSONArray("keywords");
-        return keywords.toList().stream().map(o -> (String) o).collect(Collectors.toList());
+        return ChatGPTContentResponse.builder().content(chatGPTResponse.getChoices().get(0).getMessage().getContent()).build();
     }
 
     public ChatGPTContentResponse generateKeywordsForUrl(String url) {
-        checkIsRequestCustomerDomain(url);
+//        checkIsRequestCustomerDomain(url);
         ChatGPTResponse chatGPTResponse = this.chatGPTService.doChatGPTRequest(String.format(chatGPTRequestAnchorTexts, url));
         return ChatGPTContentResponse.builder().content(chatGPTResponse.getChoices().get(0).getMessage().getContent()).build();
     }
@@ -60,7 +55,7 @@ public class ToolsService {
     }
 
     public List<String> getAnchorText(String url){
-        checkIsRequestCustomerDomain(url);
+//        checkIsRequestCustomerDomain(url);
         return this.majesticSEOService.getAnchorTextByUrl(url);
     }
 

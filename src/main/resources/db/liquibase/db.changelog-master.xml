@@ -1238,5 +1238,35 @@
             <column name="competitor2" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
+    <changeSet id="20230709-1" author="claudiomerli">
+        <validCheckSum>ANY</validCheckSum>
+        <sql>
+            INSERT INTO customer_info (customer_id)
+            SELECT id
+            FROM user
+            WHERE role = 'CUSTOMER'
+              AND NOT EXISTS (SELECT 1
+                              FROM customer_info
+                              WHERE customer_info.customer_id = user.id);
+
+        </sql>
+    </changeSet>
+    <changeSet id="20230709-2" author="claudiomerli">
+        <validCheckSum>ANY</validCheckSum>
+        <sql>
+            INSERT INTO customer_info (customer_id)
+            SELECT id
+            FROM user
+            WHERE NOT EXISTS (SELECT 1
+                              FROM customer_info
+                              WHERE customer_info.customer_id = user.id);
+
+        </sql>
+    </changeSet>
+    <changeSet id="1689764900652-11" author="claudio.merli (generated)">
+        <addColumn tableName="customer_info">
+            <column name="principal_domain" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

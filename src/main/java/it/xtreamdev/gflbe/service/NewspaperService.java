@@ -1,16 +1,13 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.newspaper.FinanceDTO;
-import it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO;
-import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
-import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
-import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
+import it.xtreamdev.gflbe.dto.newspaper.*;
 import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
+import it.xtreamdev.gflbe.repository.TopicRepository;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -44,6 +41,8 @@ public class NewspaperService {
     private ProjectRepository projectRepository;
     @Autowired
     private NewspaperMapper newspaperMapper;
+    @Autowired
+    private TopicRepository topicRepository;
 
     @Autowired
     private PdfUtils pdfUtils;
@@ -98,7 +97,7 @@ public class NewspaperService {
 
             if (Objects.nonNull(searchNewspaperDTO.getNotUsedInProject())) {
                 Project project = this.projectRepository.findById(searchNewspaperDTO.getNotUsedInProject()).orElseThrow();
-                List<Integer> idToExclude = project.getProjectCommissions().stream().map(ProjectCommission::getNewspaper).map(Newspaper::getId).collect(Collectors.toList());
+                List<Integer> idToExclude = project.getProjectCommissions().stream().map(ProjectCommission::getNewspaper).filter(Objects::nonNull).map(Newspaper::getId).collect(Collectors.toList());
                 predicates.add(root.get("id").in(idToExclude).not());
             }
 
@@ -107,6 +106,57 @@ public class NewspaperService {
 
 
         return newspaperMapper.mapEntityToDTO(newspapers);
+    }
+
+    public Page<NewspaperDTO> findForCustomer(SearchNewspaperCustomerDTO searchNewspaperCustomerDTO, PageRequest pageRequest) {
+        Page<Newspaper> newspapers = this.newspaperRepository
+                .findAll((root, query, criteriaBuilder) -> {
+                    List<Predicate> predicates = new ArrayList<>();
+
+                    predicates.add(criteriaBuilder.isFalse(root.get("hidden")));
+
+                    if (StringUtils.isNotBlank(searchNewspaperCustomerDTO.getGlobalSearch())) {
+                        predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + searchNewspaperCustomerDTO.getGlobalSearch().toUpperCase() + "%"));
+                    }
+
+                    if (Objects.nonNull(searchNewspaperCustomerDTO.getProjectId())) {
+                        Project project = this.projectRepository.findById(searchNewspaperCustomerDTO.getProjectId()).orElseThrow();
+                        List<Integer> idToExclude = project.getProjectCommissions().stream().map(ProjectCommission::getNewspaper).filter(Objects::nonNull).map(Newspaper::getId).collect(Collectors.toList());
+                        predicates.add(root.get("id").in(idToExclude).not());
+                    }
+
+                    if (Objects.nonNull(searchNewspaperCustomerDTO.getTopicId())) {
+                        predicates.add(criteriaBuilder.isMember(searchNewspaperCustomerDTO.getTopicId(), root.get("topics")));
+                    }
+
+                    if (Objects.nonNull(searchNewspaperCustomerDTO.getMaxCost())) {
+                        predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("costSell"), searchNewspaperCustomerDTO.getMaxCost()));
+                    }
+
+                    if (StringUtils.isNotBlank(searchNewspaperCustomerDTO.getTypology())) {
+                        predicates.add(criteriaBuilder.equal(root.get("regionalGeolocalization"), searchNewspaperCustomerDTO.getTypology()));
+                    }
+
+                    return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+                }, pageRequest);
+
+        return newspaperMapper.mapEntityToDTO(newspapers);
+    }
+
+    public NewspaperCustomerFilterPopulationDTO getNewspaperPopulationFilter() {
+        User currentUser = userService.userInfo();
+        List<Project> customerProjects = this.projectRepository.findByCustomer(currentUser);
+        Double maxPriceForCustomer = this.newspaperRepository.findMaxPriceForCustomer();
+        Double minPriceForCustomer = this.newspaperRepository.findMinPriceForCustomer();
+        List<Topic> topics = this.topicRepository.findAll();
+
+        return NewspaperCustomerFilterPopulationDTO
+                .builder()
+                .projects(customerProjects.stream().map(Project::toLazyProject).collect(Collectors.toList()))
+                .maxNewspaperCost(maxPriceForCustomer)
+                .minNewspaperCost(minPriceForCustomer)
+                .topics(topics.stream().map(Topic::toDto).collect(Collectors.toList()))
+                .build();
     }
 
     public NewspaperDTO save(SaveNewspaperDTO newspaper) {

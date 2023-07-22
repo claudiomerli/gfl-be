@@ -97,6 +97,7 @@ public class UserService {
                 .password(this.passwordEncoder.encode(editsaveUserDTO.getPassword()))
                 .build();
 
+        user.setCustomerInfo(CustomerInfo.builder().customer(user).build());
         user.setEditorInfo(EditorInfo
                 .builder()
                 .remuneration(editsaveUserDTO.getEditorInfoRemuneration())
@@ -128,6 +129,7 @@ public class UserService {
         userFromDB.getCustomerInfo().setAddress(userUpdated.getAddress());
         userFromDB.getCustomerInfo().setCompetitor1(userUpdated.getCompetitor1());
         userFromDB.getCustomerInfo().setCompetitor2(userUpdated.getCompetitor2());
+        userFromDB.getCustomerInfo().setPrincipalDomain(userUpdated.getPrincipalDomain());
 
         if (StringUtils.isNotBlank(userUpdated.getPassword())) {
             userFromDB.setPassword(this.passwordEncoder.encode(userUpdated.getPassword()));
@@ -266,27 +268,37 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    public void updateCustomerCompetitors(Integer id, SaveCustomerCompetitorsDTO saveCustomerCompetitorsDTO) {
+    public void updateCustomerCompetitors(Integer id, SaveCustomerStatisticDomainDTO saveCustomerStatisticDomainDTO) {
         User user = this.findById(id);
         User currentUser = userInfo();
-        if (currentUser.getRole() == RoleName.CUSTOMER) {
-            if (!currentUser.getId().equals(user.getId())
-                    ||
-                    StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1()) && StringUtils.isNotBlank(user.getCustomerInfo().getCompetitor1())
-                    ||
-                    StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2()) && StringUtils.isNotBlank(user.getCustomerInfo().getCompetitor2())
-            ) {
-                throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Cannot update already saved competitor");
-            }
+
+        if(currentUser.getRole() == RoleName.CUSTOMER && !currentUser.getId().equals(user.getId())){
+            throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Cannot update another customer");
         }
 
-        if (StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1())) {
-            user.getCustomerInfo().setCompetitor1(extractDomain(saveCustomerCompetitorsDTO.getCompetitor1()));
-        }
+//        if (currentUser.getRole() == RoleName.CUSTOMER) {
+//            if (!currentUser.getId().equals(user.getId())
+//                    ||
+//                    StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1()) && StringUtils.isNotBlank(user.getCustomerInfo().getCompetitor1())
+//                    ||
+//                    StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2()) && StringUtils.isNotBlank(user.getCustomerInfo().getCompetitor2())
+//            ) {
+//                throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Cannot update already saved competitor");
+//            }
+//        }
+//
+//        if (StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor1())) {
+//            user.getCustomerInfo().setCompetitor1(extractDomain(saveCustomerCompetitorsDTO.getCompetitor1()));
+//        }
+//
+//        if (StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2())) {
+//            user.getCustomerInfo().setCompetitor2(extractDomain(saveCustomerCompetitorsDTO.getCompetitor2()));
+//        }
 
-        if (StringUtils.isNotBlank(saveCustomerCompetitorsDTO.getCompetitor2())) {
-            user.getCustomerInfo().setCompetitor2(extractDomain(saveCustomerCompetitorsDTO.getCompetitor2()));
-        }
+        user.getCustomerInfo().setPrincipalDomain(extractDomain(saveCustomerStatisticDomainDTO.getPrincipalDomain()));
+        user.getCustomerInfo().setCompetitor1(extractDomain(saveCustomerStatisticDomainDTO.getCompetitor1()));
+        user.getCustomerInfo().setCompetitor2(extractDomain(saveCustomerStatisticDomainDTO.getCompetitor2()));
+
 
         this.userRepository.save(user);
     }

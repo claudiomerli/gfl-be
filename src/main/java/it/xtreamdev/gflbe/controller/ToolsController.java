@@ -18,7 +18,7 @@ public class ToolsController {
     private ToolsService toolsService;
 
     @GetMapping("keywords")
-    public List<String> keywords(
+    public ChatGPTContentResponse keywords(
             @RequestParam("word") String word
     ) {
         return this.toolsService.generateKeywords(word);

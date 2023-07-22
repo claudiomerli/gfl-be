@@ -30,6 +30,8 @@ public class CustomerInfo {
     private String companyDimension;
     private String businessArea;
     private String address;
+
+    private String principalDomain;
     private String competitor1;
     private String competitor2;
 

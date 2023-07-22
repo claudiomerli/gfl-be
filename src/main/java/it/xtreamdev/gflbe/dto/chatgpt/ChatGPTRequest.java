@@ -17,7 +17,7 @@ public class ChatGPTRequest {
     @Builder.Default
     private String model = "gpt-3.5-turbo";
     @Builder.Default
-    private Double temperature = 0.5;
+    private Double temperature = 1.0;
     private List<ChatGPTRequestMessage> messages;
 
     @Data

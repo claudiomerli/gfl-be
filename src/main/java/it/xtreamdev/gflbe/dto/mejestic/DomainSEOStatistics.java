@@ -31,7 +31,12 @@ public class DomainSEOStatistics {
     private String analysisLinksRatio;
     private String analysisTextBrandRatio;
     private String analysisLowLinks;
+
     private String analysisLowRefDomains;
+    private String analysisHighRefDomains;
+    private String analysisMediumRefDomains;
+    private String analysisMinimumRefDomains;
+
     private String analysisMissingDomains;
     private String analysisCompetitorComparison;
 

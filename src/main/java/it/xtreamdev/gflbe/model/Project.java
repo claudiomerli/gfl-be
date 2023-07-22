@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.*;
+import it.xtreamdev.gflbe.dto.newspaper.NewspaperCustomerFilterPopulationDTO;
 import it.xtreamdev.gflbe.dto.project.ProjectListElementDTO;
 import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
 import lombok.*;
@@ -117,6 +118,14 @@ public class Project {
                         .stream()
                         .map(ProjectCommission::toListElement)
                         .collect(Collectors.toList()))
+                .build();
+    }
+
+    public NewspaperCustomerFilterPopulationDTO.LazyProject toLazyProject(){
+        return NewspaperCustomerFilterPopulationDTO.LazyProject
+                .builder()
+                .id(this.id)
+                .name(this.name)
                 .build();
     }
 

@@ -24,8 +24,10 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static it.xtreamdev.gflbe.util.FormatUtils.percentInstanceFormatter;
 
@@ -71,7 +73,7 @@ public class MajesticSEOService {
             anchorTexts.add(jsonArray.getJSONObject(i).getString("AnchorText"));
         }
 
-        return anchorTexts;
+        return anchorTexts.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
     }
 
     public FullDomainSeoStatistic getStatisticsByDomain(String domain, String competitor1, String competitor2, Boolean disableCache) {
@@ -240,6 +242,22 @@ public class MajesticSEOService {
         if (domainSEOStatistics.getRefDomains() < 100) {
             domainSEOStatistics.setAnalysisLowRefDomains(env.getProperty("tilinkotool.hintLowRefDomains"));
         }
+        if (domainSEOStatistics.getRefDomains() >= 100) {
+            domainSEOStatistics.setAnalysisHighRefDomains(env.getProperty("tilinkotool.hintHighRefDomains"));
+        }
+        if (competitor1SeoReportForDomain != null && competitor2SeoReportForDomain != null &&
+                ((domainSEOStatistics.getRefDomains() < competitor1SeoReportForDomain.getRefDomains() && domainSEOStatistics.getRefDomains() >= competitor2SeoReportForDomain.getRefDomains())
+                        || (domainSEOStatistics.getRefDomains() >= competitor1SeoReportForDomain.getRefDomains() && domainSEOStatistics.getRefDomains() < competitor2SeoReportForDomain.getRefDomains()))) {
+            domainSEOStatistics.setAnalysisMediumRefDomains(env.getProperty("tilinkotool.hintMediumRefDomain"));
+        }
+        if (Stream.of(domainSEOStatistics, competitor1SeoReportForDomain, competitor2SeoReportForDomain)
+                .filter(Objects::nonNull)
+                .mapToInt(DomainSEOStatistics::getRefDomains)
+                .min().getAsInt() == domainSEOStatistics.getRefDomains()
+        ) {
+            domainSEOStatistics.setAnalysisMinimumRefDomains(env.getProperty("tilinkotool.hintMinimumRefDomain"));
+        }
+
 
         if (domainSEOStatistics.getMissingDomains().size() > 0) {
             domainSEOStatistics.setAnalysisMissingDomains(String.format(
@@ -315,7 +333,8 @@ public class MajesticSEOService {
 
     public FullDomainSeoStatistic getCustomerStatistics() {
         User user = this.userService.userInfo();
-        return this.majesticSEOService.getStatisticsByDomain(user.getCustomerInfo().getUrl(),
+        return this.majesticSEOService.getStatisticsByDomain(
+                user.getCustomerInfo().getPrincipalDomain(),
                 user.getCustomerInfo().getCompetitor1(),
                 user.getCustomerInfo().getCompetitor2(),
                 false);

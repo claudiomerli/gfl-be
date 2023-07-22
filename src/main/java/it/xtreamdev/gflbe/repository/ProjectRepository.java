@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.repository;
 
 import it.xtreamdev.gflbe.model.Domain;
 import it.xtreamdev.gflbe.model.Project;
+import it.xtreamdev.gflbe.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -23,4 +24,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaS
     @Modifying
     @Query("update Project set domain = null where domain = :domain")
     void setDomainToNullWhereDomain(@Param("domain") Domain domain);
+
+    List<Project> findByCustomer(User user);
+
 }

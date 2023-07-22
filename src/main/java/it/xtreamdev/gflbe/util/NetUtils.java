@@ -14,8 +14,7 @@ public class NetUtils {
             String host = url.getHost();
             return host.startsWith("www.") ? host.substring(4) : host;
         } catch (MalformedURLException e) {
-            log.error(e);
-            return null;
+            return urlString;
         }
     }
 

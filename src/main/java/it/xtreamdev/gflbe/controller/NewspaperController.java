@@ -1,10 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.newspaper.FinanceDTO;
-import it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO;
-import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
-import it.xtreamdev.gflbe.dto.newspaper.SaveNewspaperDTO;
-import it.xtreamdev.gflbe.dto.newspaper.SearchNewspaperDTO;
+import it.xtreamdev.gflbe.dto.newspaper.*;
 import it.xtreamdev.gflbe.service.NewspaperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -34,6 +30,24 @@ public class NewspaperController {
     ) {
         return ResponseEntity.ok(this.newspaperService.findAll(searchNewspaperDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
     }
+
+    @GetMapping("customer/filter")
+    public ResponseEntity<NewspaperCustomerFilterPopulationDTO> findFilterForCustomer() {
+        return ResponseEntity.ok(this.newspaperService.getNewspaperPopulationFilter());
+    }
+
+    @GetMapping("customer")
+    public ResponseEntity<Page<NewspaperDTO>> findForCustomer(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+            SearchNewspaperCustomerDTO searchNewspaperCustomerDTO
+    ) {
+        return ResponseEntity.ok(this.newspaperService.findForCustomer(searchNewspaperCustomerDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
+    }
+
+
 
     @GetMapping("maxMinRangeAttributes")
     public ResponseEntity<MaxMinRangeNewspaperAttributesDTO> getMaxMinRangeNewspaperAttributes() {
