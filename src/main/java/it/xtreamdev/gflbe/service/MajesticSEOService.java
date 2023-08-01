@@ -245,17 +245,16 @@ public class MajesticSEOService {
         if (domainSEOStatistics.getRefDomains() >= 100) {
             domainSEOStatistics.setAnalysisHighRefDomains(env.getProperty("tilinkotool.hintHighRefDomains"));
         }
-        if (competitor1SeoReportForDomain != null && competitor2SeoReportForDomain != null &&
-                ((domainSEOStatistics.getRefDomains() < competitor1SeoReportForDomain.getRefDomains() && domainSEOStatistics.getRefDomains() >= competitor2SeoReportForDomain.getRefDomains())
-                        || (domainSEOStatistics.getRefDomains() >= competitor1SeoReportForDomain.getRefDomains() && domainSEOStatistics.getRefDomains() < competitor2SeoReportForDomain.getRefDomains()))) {
+        if ((competitor1SeoReportForDomain != null && domainSEOStatistics.getRefDomains() < competitor1SeoReportForDomain.getRefDomains()) ||
+                (competitor2SeoReportForDomain != null && domainSEOStatistics.getRefDomains() < competitor2SeoReportForDomain.getRefDomains())) {
             domainSEOStatistics.setAnalysisMediumRefDomains(env.getProperty("tilinkotool.hintMediumRefDomain"));
         }
         if (Stream.of(domainSEOStatistics, competitor1SeoReportForDomain, competitor2SeoReportForDomain)
                 .filter(Objects::nonNull)
                 .mapToInt(DomainSEOStatistics::getRefDomains)
-                .min().getAsInt() == domainSEOStatistics.getRefDomains()
+                .max().getAsInt() == domainSEOStatistics.getRefDomains()
         ) {
-            domainSEOStatistics.setAnalysisMinimumRefDomains(env.getProperty("tilinkotool.hintMinimumRefDomain"));
+            domainSEOStatistics.setAnalysisOptimalRefDomains(env.getProperty("tilinkotool.hintOptimalRefDomain"));
         }
 
 

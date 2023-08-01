@@ -35,7 +35,7 @@ public class DomainSEOStatistics {
     private String analysisLowRefDomains;
     private String analysisHighRefDomains;
     private String analysisMediumRefDomains;
-    private String analysisMinimumRefDomains;
+    private String analysisOptimalRefDomains;
 
     private String analysisMissingDomains;
     private String analysisCompetitorComparison;
