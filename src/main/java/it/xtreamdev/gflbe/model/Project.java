@@ -81,6 +81,10 @@ public class Project {
     @Builder.Default
     private List<ProjectCommission> projectCommissions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProjectLink> projectLinks = new ArrayList<>();
+
     @Formula("domain_id is not null")
     private Boolean isDomainProject;
 

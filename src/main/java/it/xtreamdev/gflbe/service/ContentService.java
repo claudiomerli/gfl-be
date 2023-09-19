@@ -64,9 +64,6 @@ public class ContentService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${CHATGPT_API_KEY:}")
-    private String CHAT_GPT_APIKEY;
-
     public Page<Content> findAll(FindContentFilterDTO findContentFilterDTO, PageRequest pageRequest) {
         User user = userService.userInfo();
         return this.contentRepository.findAll((root, criteriaQuery, criteriaBuilder) -> {

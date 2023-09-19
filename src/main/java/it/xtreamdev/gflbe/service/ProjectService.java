@@ -2,6 +2,8 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
+import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
+import it.xtreamdev.gflbe.dto.majestic.SecondLevelCheckDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.project.*;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
@@ -13,12 +15,21 @@ import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.xlsx4j.sml.SheetData;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -27,6 +38,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +46,8 @@ import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static it.xtreamdev.gflbe.util.ExcelUtils.*;
 
@@ -57,6 +71,8 @@ public class ProjectService {
     private AttachmentRepository attachmentRepository;
     @Autowired
     private ContentPurchaseService contentPurchaseService;
+    @Autowired
+    private ProjectLinkRepository projectLinkRepository;
 
     @Autowired
     private UserService userService;
@@ -65,6 +81,12 @@ public class ProjectService {
     private NewspaperService newspaperService;
     @Autowired
     private NewspaperMapper newspaperMapper;
+    @Autowired
+    private MajesticSEOService majesticSEOService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
 
     public Project findById(Integer id) {
         User user = userService.userInfo();
@@ -498,5 +520,155 @@ public class ProjectService {
         projectCommission.setPublicationDate(wordpressPublicationDate.toLocalDate());
         projectCommission.setPublicationUrl(wordpressUrl);
         this.projectCommissionRepository.save(projectCommission);
+    }
+
+    public void addLinkToProject(Integer id, SaveProjectLinkDTO saveProjectLinkDTO) {
+        Project project = this.findById(id);
+        project.getProjectLinks().add(
+                ProjectLink.builder()
+                        .project(project)
+                        .newspaper(this.newspaperService.findById(saveProjectLinkDTO.getNewspaperId()))
+                        .year(saveProjectLinkDTO.getYear())
+                        .period(Month.valueOf(saveProjectLinkDTO.getPeriod()))
+                        .anchor(saveProjectLinkDTO.getAnchor())
+                        .url(saveProjectLinkDTO.getUrl())
+                        .publicationUrl(saveProjectLinkDTO.getPublicationUrl())
+                        .build()
+        );
+        this.projectRepository.save(project);
+    }
+
+    public void updateLinkToProject(Integer id, Integer idLink, SaveProjectLinkDTO saveProjectLinkDTO) {
+        Project project = this.findById(id);
+        project.getProjectLinks().stream().filter(projectLink -> projectLink.getId().equals(idLink)).findFirst().ifPresent(projectLink -> {
+            projectLink.setNewspaper(this.newspaperService.findById(saveProjectLinkDTO.getNewspaperId()));
+            projectLink.setYear(saveProjectLinkDTO.getYear());
+            projectLink.setPeriod(Month.valueOf(saveProjectLinkDTO.getPeriod()));
+            projectLink.setAnchor(saveProjectLinkDTO.getAnchor());
+            projectLink.setUrl(saveProjectLinkDTO.getUrl());
+            projectLink.setPublicationUrl(saveProjectLinkDTO.getPublicationUrl());
+        });
+        this.projectRepository.save(project);
+    }
+
+    public List<ProjectLink> getLinksOfProject(Integer id, Sort sort) {
+        Project project = this.findById(id);
+        return this.projectLinkRepository.findByProject(project, sort);
+    }
+
+    public void removeLink(Integer idProject, Integer idLink) {
+        Project project = this.findById(idProject);
+        project.getProjectLinks().removeIf(projectLink -> projectLink.getId().equals(idLink));
+        this.projectRepository.save(project);
+    }
+
+
+    public byte[] exportProjectLinkAnalysis(Integer idProject) {
+        Project project = this.findById(idProject);
+        List<LinkCheckDTO> linkCheckDTOS = this.startProjectLinkAnalysis(project);
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet(project.getName());
+            Row headerRow = sheet.createRow(0);
+            List<String> headerCells = List.of("Url", "Pagina", "Ancora", "Online", "Index", "Contiene link", "Contiene ancora", "Link follow");
+            IntStream.range(0, headerCells.size())
+                    .forEachOrdered(value -> {
+                        Cell cell = headerRow.createCell(value);
+                        cell.setCellValue(headerCells.get(value));
+                    });
+
+            IntStream.range(1, linkCheckDTOS.size() + 1).forEachOrdered(value -> {
+                Row row = sheet.createRow(value);
+
+                Cell cellUrl = row.createCell(0);
+                cellUrl.setCellValue(linkCheckDTOS.get(value - 1).getUrl());
+
+                Cell cellPublicationUrl = row.createCell(1);
+                cellPublicationUrl.setCellValue(linkCheckDTOS.get(value - 1).getPublicationUrl());
+
+                Cell cellAnchor = row.createCell(2);
+                cellAnchor.setCellValue(linkCheckDTOS.get(value - 1).getAnchor());
+
+                Cell cellIsOnline = row.createCell(3);
+                cellIsOnline.setCellValue(linkCheckDTOS.get(value - 1).getIsOnline() ? "SI" : "NO");
+
+                Cell cellIsIndex = row.createCell(4);
+                cellIsIndex.setCellValue(linkCheckDTOS.get(value - 1).getIsInIndex() ? "SI" : "NO");
+
+                Cell cellContainsUrl = row.createCell(5);
+                cellContainsUrl.setCellValue(linkCheckDTOS.get(value - 1).getContainsUrl() ? "SI" : "NO");
+
+                Cell cellContainsAnchor = row.createCell(6);
+                cellContainsAnchor.setCellValue(linkCheckDTOS.get(value - 1).getContainsCorrectAnchorText() ? "SI" : "NO");
+
+                Cell cellIsFollow = row.createCell(7);
+                cellIsFollow.setCellValue(linkCheckDTOS.get(value - 1).getIsFollow() ? "SI" : "NO");
+            });
+
+            IntStream.range(0, 8).forEach(sheet::autoSizeColumn);
+            workbook.write(baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public List<LinkCheckDTO> startProjectLinkAnalysis(Integer idProject) {
+        Project project = this.findById(idProject);
+        return startProjectLinkAnalysis(project);
+    }
+
+    public List<LinkCheckDTO> startProjectLinkAnalysis(Project project) {
+        return Stream.concat(
+                project.getProjectCommissions().stream()
+                        .parallel()
+                        .filter(projectCommission -> StringUtils.isNotBlank(projectCommission.getPublicationUrl()))
+                        .map(projectCommission -> startAnalysisForLink(projectCommission.getPublicationUrl(), projectCommission.getUrl(), projectCommission.getAnchor())),
+                project.getProjectLinks().stream()
+                        .parallel()
+                        .map(projectLink -> startAnalysisForLink(projectLink.getPublicationUrl(), projectLink.getUrl(), projectLink.getAnchor()))
+        ).collect(Collectors.toList());
+    }
+
+    public LinkCheckDTO startAnalysisForLink(String publicationUrl, String url, String anchor) {
+        boolean isOnline;
+        boolean isInIndex;
+        boolean containsUrl = false;
+        boolean containsCorrectAnchorText = false;
+        boolean isFollow = false;
+
+        try {
+            this.restTemplate.exchange(publicationUrl, HttpMethod.GET, RequestEntity.EMPTY, Void.class);
+            isOnline = true;
+        } catch (Exception e) {
+            isOnline = false;
+        }
+
+
+        JSONObject backlinksForUrl = this.majesticSEOService.getBacklinksForUrl(url);
+        isInIndex = backlinksForUrl.get("Code").equals("OK") && !backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").isEmpty();
+
+        if (isInIndex) {
+            for (int i = 0; i < backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").length(); i++) {
+                JSONObject jsonObject = backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").getJSONObject(i);
+                containsUrl = jsonObject.getString("SourceURL").equals(publicationUrl);
+                containsCorrectAnchorText = containsUrl && jsonObject.getString("AnchorText").equals(anchor);
+                isFollow = containsUrl && jsonObject.getNumber("FlagNoFollow").equals(0);
+                if (containsUrl) {
+                    break;
+                }
+            }
+        }
+
+        return LinkCheckDTO.builder()
+                .publicationUrl(publicationUrl)
+                .url(url)
+                .anchor(anchor)
+                .isOnline(isOnline)
+                .isInIndex(isInIndex)
+                .containsUrl(containsUrl)
+                .containsCorrectAnchorText(containsCorrectAnchorText)
+                .isFollow(isFollow)
+                .build();
     }
 }

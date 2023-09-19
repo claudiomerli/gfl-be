@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTContentResponse;
+import it.xtreamdev.gflbe.dto.majestic.SecondLevelCheckDTO;
 import it.xtreamdev.gflbe.service.ToolsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +37,13 @@ public class ToolsController {
             @RequestParam("url") String url
     ) {
         return this.toolsService.getAnchorText(url);
+    }
+
+    @GetMapping("second-level")
+    public List<SecondLevelCheckDTO> secondLevel(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getSecondLevel(url);
     }
 
 }

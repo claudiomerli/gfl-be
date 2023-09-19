@@ -1268,5 +1268,39 @@
             <column name="principal_domain" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1694369330838-1" author="claudiomerli (generated)">
+        <createTable tableName="project_link">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_project_link"/>
+            </column>
+            <column name="publication_url" type="VARCHAR(255)"/>
+            <column name="anchor_text" type="VARCHAR(255)"/>
+            <column name="url" type="VARCHAR(255)"/>
+            <column name="period" type="INT"/>
+            <column name="year" type="INT"/>
+            <column name="project_id" type="INT"/>
+            <column name="newspaper_id" type="INT"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1694369330838-15" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="project_link"
+                                 constraintName="FK_PROJECT_LINK_ON_NEWSPAPER" referencedColumnNames="id"
+                                 referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1694369330838-16" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="project_id" baseTableName="project_link"
+                                 constraintName="FK_PROJECT_LINK_ON_PROJECT" referencedColumnNames="id"
+                                 referencedTableName="project"/>
+    </changeSet>
+    <changeSet id="1694374180225-2" author="claudiomerli (generated)">
+        <addColumn tableName="project_link">
+            <column name="anchor" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1694374180225-15" author="claudiomerli (generated)">
+        <dropColumn columnName="anchor_text" tableName="project_link"/>
+    </changeSet>
 
 </databaseChangeLog>

@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTContentResponse;
 import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTResponse;
+import it.xtreamdev.gflbe.dto.majestic.SecondLevelCheckDTO;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import org.json.JSONArray;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,18 +47,31 @@ public class ToolsService {
     private void checkIsRequestCustomerDomain(String url) {
         User user = userService.userInfo();
 
-        if(user.getRole() == RoleName.CUSTOMER){
+        if (user.getRole() == RoleName.CUSTOMER) {
             String domainToCheck = extractDomain(url);
             String domainUser = user.getCustomerInfo().getUrl();
-            if(!domainToCheck.equals(domainUser)){
+            if (!domainToCheck.equals(domainUser)) {
                 throw new HttpClientErrorException(HttpStatus.FORBIDDEN);
             }
         }
     }
 
-    public List<String> getAnchorText(String url){
+    public List<String> getAnchorText(String url) {
 //        checkIsRequestCustomerDomain(url);
         return this.majesticSEOService.getAnchorTextByUrl(url);
     }
 
+    public List<SecondLevelCheckDTO> getSecondLevel(String url) {
+        JSONObject backlinksForUrl = this.majesticSEOService.getBacklinksForUrl(url);
+        List<SecondLevelCheckDTO> secondLevelCheckDTOS = new ArrayList<>();
+        backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data")
+                .forEach(o -> {
+                    JSONObject backlink = (JSONObject) o;
+                    SecondLevelCheckDTO secondLevelCheckDTO = new SecondLevelCheckDTO();
+                    secondLevelCheckDTO.setLink(backlink.getString("SourceURL"));
+                    secondLevelCheckDTO.setTrustFlow(backlink.getNumber("SourceTrustFlow").intValue());
+                    secondLevelCheckDTOS.add(secondLevelCheckDTO);
+                });
+        return secondLevelCheckDTOS;
+    }
 }

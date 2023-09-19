@@ -1,4 +1,4 @@
-package it.xtreamdev.gflbe.dto.mejestic;
+package it.xtreamdev.gflbe.dto.majestic;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

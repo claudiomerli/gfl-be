@@ -1,7 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.mejestic.DomainSEOStatistics;
-import it.xtreamdev.gflbe.dto.mejestic.FullDomainSeoStatistic;
+import it.xtreamdev.gflbe.dto.majestic.DomainSEOStatistics;
+import it.xtreamdev.gflbe.dto.majestic.FullDomainSeoStatistic;
 import it.xtreamdev.gflbe.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +34,6 @@ import static it.xtreamdev.gflbe.util.FormatUtils.percentInstanceFormatter;
 
 @Service
 @Slf4j
-@CacheConfig(cacheNames = {"analysis"})
 public class MajesticSEOService {
 
     @Autowired
@@ -79,9 +78,11 @@ public class MajesticSEOService {
     public FullDomainSeoStatistic getStatisticsByDomain(String domain, String competitor1, String competitor2, Boolean disableCache) {
         try {
             if (disableCache) {
-                Optional.ofNullable(this.cacheManager.getCache(domain)).ifPresent(Cache::clear);
-                Optional.ofNullable(this.cacheManager.getCache(competitor1)).ifPresent(Cache::clear);
-                Optional.ofNullable(this.cacheManager.getCache(competitor2)).ifPresent(Cache::clear);
+                Optional.ofNullable(this.cacheManager.getCache("analysis")).ifPresent(cache -> {
+                    cache.evictIfPresent(domain);
+                    cache.evictIfPresent(competitor1);
+                    cache.evictIfPresent(competitor2);
+                });
             }
 
             DomainSEOStatistics domainSeoReportForDomain = selfInstance.getDomainSeoReportForDomain(domain);
@@ -101,7 +102,12 @@ public class MajesticSEOService {
         }
     }
 
-    @Cacheable(key = "#p0", condition = "#p0 != null ")
+    @Cacheable(cacheNames = "analysis", key = "#p0", condition = "#p0 != null ")
+    public JSONObject getBacklinksForUrl(String url) {
+        return new JSONObject(this.restTemplate.getForEntity("https://api.majestic.com/api/json?app_api_key={majestic_api_key}&cmd=GetBackLinkData&item={item}&Count=50000&datasource=fresh", String.class, API_KEY, url).getBody());
+    }
+
+    @Cacheable(cacheNames = "analysis", key = "#p0", condition = "#p0 != null ")
     public DomainSEOStatistics getDomainSeoReportForDomain(String domain) {
         log.info("Searching stats for {}", domain);
         if (StringUtils.isBlank(domain)) {

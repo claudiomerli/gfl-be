@@ -2,11 +2,13 @@ package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
+import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.project.*;
 import it.xtreamdev.gflbe.model.ContentHintTemplate;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.ProjectCommission;
+import it.xtreamdev.gflbe.model.ProjectLink;
 import it.xtreamdev.gflbe.service.ContentHintTemplateService;
 import it.xtreamdev.gflbe.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -212,5 +214,39 @@ public class ProjectController {
     @DeleteMapping("contentHintTemplate/{id}")
     public void deleteContentHintTemplate(@PathVariable Integer id) {
         this.contentHintTemplateService.delete(id);
+    }
+
+    @GetMapping("{id}/links")
+    public List<ProjectLink> getLinkOfProject(@PathVariable Integer id) {
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(Sort.Order.desc("year"));
+        orders.add(Sort.Order.desc("period"));
+        orders.add(Sort.Order.desc("createdDate"));
+        return this.projectService.getLinksOfProject(id, Sort.by(orders.toArray(Sort.Order[]::new)));
+    }
+
+    @PostMapping("{id}/links")
+    public void addLinkToProject(@PathVariable Integer id, @RequestBody SaveProjectLinkDTO saveProjectLinkDTO) {
+        this.projectService.addLinkToProject(id, saveProjectLinkDTO);
+    }
+
+    @PutMapping("{id}/links/{idLink}")
+    public void addLinkToProject(@PathVariable Integer id, @PathVariable Integer idLink, @RequestBody SaveProjectLinkDTO saveProjectLinkDTO) {
+        this.projectService.updateLinkToProject(id, idLink, saveProjectLinkDTO);
+    }
+
+    @DeleteMapping("{id}/links/{idLink}")
+    public void addLinkToProject(@PathVariable Integer id, @PathVariable Integer idLink) {
+        this.projectService.removeLink(id, idLink);
+    }
+
+    @GetMapping("{id}/linkCheck")
+    public List<LinkCheckDTO> projectLinkCheck(@PathVariable Integer id) {
+        return this.projectService.startProjectLinkAnalysis(id);
+    }
+
+    @GetMapping("{id}/linkCheck/export")
+    public byte[] exportProjectLinkCheck(@PathVariable Integer id) {
+        return this.projectService.exportProjectLinkAnalysis(id);
     }
 }
