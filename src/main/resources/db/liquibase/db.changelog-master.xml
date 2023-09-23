@@ -1302,5 +1302,82 @@
     <changeSet id="1694374180225-15" author="claudiomerli (generated)">
         <dropColumn columnName="anchor_text" tableName="project_link"/>
     </changeSet>
+    <changeSet id="1695453022625-1" author="claudiomerli (generated)">
+        <createTable tableName="generic_booking">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_generic_booking"/>
+            </column>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="order_type" type="VARCHAR(255)"/>
+            <column name="customer_id" type="INT"/>
+            <column name="created_date" type="DATETIME"/>
+            <column name="last_modified_date" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1695453022625-15" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="generic_booking"
+                                 constraintName="FK_GENERIC_BOOKING_ON_CUSTOMER" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1695453387840-11" author="claudiomerli (generated)">
+        <addColumn tableName="generic_booking">
+            <column name="link" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1695458630711-11" author="claudiomerli (generated)">
+        <addColumn tableName="generic_booking">
+            <column name="order_level" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1695474715270-1" author="claudiomerli (generated)">
+        <createTable tableName="video_order_field">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_video_order_field"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+            <column name="order_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1695474715270-2" author="claudiomerli (generated)">
+        <createTable tableName="video_template">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_video_template"/>
+            </column>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="url" type="VARCHAR(255)"/>
+            <column name="deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1695474715270-3" author="claudiomerli (generated)">
+        <createTable tableName="video_template_field">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_video_template_field"/>
+            </column>
+            <column name="field" type="VARCHAR(255)"/>
+            <column name="template_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1695474715270-17" author="claudiomerli (generated)">
+        <addColumn tableName="generic_booking">
+            <column name="video_template_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1695474715270-18" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="video_template_id" baseTableName="generic_booking"
+                                 constraintName="FK_GENERIC_BOOKING_ON_VIDEOTEMPLATE" referencedColumnNames="id"
+                                 referencedTableName="video_template"/>
+    </changeSet>
+    <changeSet id="1695474715270-19" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="video_order_field"
+                                 constraintName="FK_VIDEO_ORDER_FIELD_ON_ORDER" referencedColumnNames="id"
+                                 referencedTableName="generic_booking"/>
+    </changeSet>
+    <changeSet id="1695474715270-20" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="template_id" baseTableName="video_template_field"
+                                 constraintName="FK_VIDEO_TEMPLATE_FIELD_ON_TEMPLATE" referencedColumnNames="id"
+                                 referencedTableName="video_template"/>
+    </changeSet>
 
 </databaseChangeLog>
