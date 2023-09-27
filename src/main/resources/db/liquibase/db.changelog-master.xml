@@ -1379,5 +1379,22 @@
                                  constraintName="FK_VIDEO_TEMPLATE_FIELD_ON_TEMPLATE" referencedColumnNames="id"
                                  referencedTableName="video_template"/>
     </changeSet>
+    <changeSet id="1695806087631-1" author="claudiomerli (generated)">
+        <createTable tableName="platform_settings">
+            <column name="code" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_platform_settings"/>
+            </column>
+            <column name="value" type="CLOB"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1695806087631-2" author="claudiomerli (generated)">
+        <insert tableName="platform_settings">
+            <column name="code">SECOND_LEVEL_BASE_DESCRIPTION</column>
+        </insert>
+        <insert tableName="platform_settings">
+            <column name="code">SECOND_LEVEL_PREMIUM_DESCRIPTION</column>
+        </insert>
+    </changeSet>
 
 </databaseChangeLog>

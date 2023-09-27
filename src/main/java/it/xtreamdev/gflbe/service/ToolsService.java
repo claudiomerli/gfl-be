@@ -64,14 +64,16 @@ public class ToolsService {
     public List<SecondLevelCheckDTO> getSecondLevel(String url) {
         JSONObject backlinksForUrl = this.majesticSEOService.getBacklinksForUrl(url);
         List<SecondLevelCheckDTO> secondLevelCheckDTOS = new ArrayList<>();
-        backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data")
-                .forEach(o -> {
-                    JSONObject backlink = (JSONObject) o;
-                    SecondLevelCheckDTO secondLevelCheckDTO = new SecondLevelCheckDTO();
-                    secondLevelCheckDTO.setLink(backlink.getString("SourceURL"));
-                    secondLevelCheckDTO.setTrustFlow(backlink.getNumber("SourceTrustFlow").intValue());
-                    secondLevelCheckDTOS.add(secondLevelCheckDTO);
-                });
+        if(backlinksForUrl.opt("DataTables") != null){
+            backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data")
+                    .forEach(o -> {
+                        JSONObject backlink = (JSONObject) o;
+                        SecondLevelCheckDTO secondLevelCheckDTO = new SecondLevelCheckDTO();
+                        secondLevelCheckDTO.setLink(backlink.getString("SourceURL"));
+                        secondLevelCheckDTO.setTrustFlow(backlink.getNumber("SourceTrustFlow").intValue());
+                        secondLevelCheckDTOS.add(secondLevelCheckDTO);
+                    });
+        }
         return secondLevelCheckDTOS;
     }
 }
