@@ -23,6 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -623,52 +624,12 @@ public class ProjectService {
                 project.getProjectCommissions().stream()
                         .parallel()
                         .filter(projectCommission -> StringUtils.isNotBlank(projectCommission.getPublicationUrl()))
-                        .map(projectCommission -> startAnalysisForLink(projectCommission.getPublicationUrl(), projectCommission.getUrl(), projectCommission.getAnchor())),
+                        .map(projectCommission -> this.majesticSEOService.startAnalysisForLink(projectCommission.getPublicationUrl(), projectCommission.getUrl(), projectCommission.getAnchor())),
                 project.getProjectLinks().stream()
                         .parallel()
-                        .map(projectLink -> startAnalysisForLink(projectLink.getPublicationUrl(), projectLink.getUrl(), projectLink.getAnchor()))
+                        .map(projectLink -> this.majesticSEOService.startAnalysisForLink(projectLink.getPublicationUrl(), projectLink.getUrl(), projectLink.getAnchor()))
         ).collect(Collectors.toList());
     }
 
-    public LinkCheckDTO startAnalysisForLink(String publicationUrl, String url, String anchor) {
-        boolean isOnline;
-        boolean isInIndex;
-        boolean containsUrl = false;
-        boolean containsCorrectAnchorText = false;
-        boolean isFollow = false;
 
-        try {
-            this.restTemplate.exchange(publicationUrl, HttpMethod.GET, RequestEntity.EMPTY, Void.class);
-            isOnline = true;
-        } catch (Exception e) {
-            isOnline = false;
-        }
-
-
-        JSONObject backlinksForUrl = this.majesticSEOService.getBacklinksForUrl(url);
-        isInIndex = backlinksForUrl.get("Code").equals("OK") && !backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").isEmpty();
-
-        if (isInIndex) {
-            for (int i = 0; i < backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").length(); i++) {
-                JSONObject jsonObject = backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").getJSONObject(i);
-                containsUrl = jsonObject.getString("SourceURL").equals(publicationUrl);
-                containsCorrectAnchorText = containsUrl && jsonObject.getString("AnchorText").equals(anchor);
-                isFollow = containsUrl && jsonObject.getNumber("FlagNoFollow").equals(0);
-                if (containsUrl) {
-                    break;
-                }
-            }
-        }
-
-        return LinkCheckDTO.builder()
-                .publicationUrl(publicationUrl)
-                .url(url)
-                .anchor(anchor)
-                .isOnline(isOnline)
-                .isInIndex(isInIndex)
-                .containsUrl(containsUrl)
-                .containsCorrectAnchorText(containsCorrectAnchorText)
-                .isFollow(isFollow)
-                .build();
-    }
 }

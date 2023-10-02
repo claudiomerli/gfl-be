@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.majestic.DomainSEOStatistics;
 import it.xtreamdev.gflbe.dto.majestic.FullDomainSeoStatistic;
+import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
 import it.xtreamdev.gflbe.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +14,9 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -343,5 +346,48 @@ public class MajesticSEOService {
                 user.getCustomerInfo().getCompetitor1(),
                 user.getCustomerInfo().getCompetitor2(),
                 false);
+    }
+
+    @Cacheable(cacheNames = "analysis")
+    public LinkCheckDTO startAnalysisForLink(String publicationUrl, String url, String anchor) {
+        boolean isOnline;
+        boolean isInIndex;
+        boolean containsUrl = false;
+        boolean containsCorrectAnchorText = false;
+        boolean isFollow = false;
+
+        try {
+            this.restTemplate.exchange(publicationUrl, HttpMethod.GET, RequestEntity.EMPTY, Void.class);
+            isOnline = true;
+        } catch (Exception e) {
+            isOnline = false;
+        }
+
+
+        JSONObject backlinksForUrl = this.majesticSEOService.getBacklinksForUrl(url);
+        isInIndex = backlinksForUrl.get("Code").equals("OK") && !backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").isEmpty();
+
+        if (isInIndex) {
+            for (int i = 0; i < backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").length(); i++) {
+                JSONObject jsonObject = backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").getJSONObject(i);
+                containsUrl = jsonObject.getString("SourceURL").equals(publicationUrl);
+                containsCorrectAnchorText = containsUrl && jsonObject.getString("AnchorText").equals(anchor);
+                isFollow = containsUrl && jsonObject.getNumber("FlagNoFollow").equals(0);
+                if (containsUrl) {
+                    break;
+                }
+            }
+        }
+
+        return LinkCheckDTO.builder()
+                .publicationUrl(publicationUrl)
+                .url(url)
+                .anchor(anchor)
+                .isOnline(isOnline)
+                .isInIndex(isInIndex)
+                .containsUrl(containsUrl)
+                .containsCorrectAnchorText(containsCorrectAnchorText)
+                .isFollow(isFollow)
+                .build();
     }
 }
