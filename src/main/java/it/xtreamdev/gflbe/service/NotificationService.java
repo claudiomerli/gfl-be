@@ -7,7 +7,6 @@ import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.NotificationType;
 import it.xtreamdev.gflbe.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Month;
@@ -26,22 +25,18 @@ public class NotificationService {
     private ProjectService projectService;
     @Autowired
     private MailService mailService;
-
-    @Value("${tilinko.customer-base-url}")
-    private String customerBaseUrl;
-
     @Autowired
     private NotificationRepository notificationRepository;
 
 
     public List<Notification> findNotDismissed() {
         User user = userService.userInfo();
-        return this.notificationRepository.findByUserAndDismissedFalse(user);
+        return this.notificationRepository.findByUserAndDismissedFalseOrderByCreatedDateDesc(user);
     }
 
     public List<Notification> findAll() {
         User user = userService.userInfo();
-        return this.notificationRepository.findByUser(user);
+        return this.notificationRepository.findByUserOrderByCreatedDateDesc(user);
     }
 
     public void dismiss(Integer id) {
@@ -56,7 +51,7 @@ public class NotificationService {
                 Notification
                         .builder()
                         .type(NotificationType.WAIT_FOR_APPROVAL)
-                        .route(customerBaseUrl + "/tools/contents/" + content.getId())
+                        .route("/tools/contents/" + content.getId())
                         .description("Contenuto in attesa di approvazione")
                         .user(content.getProjectCommission().getProject().getCustomer())
                         .build()
@@ -74,8 +69,8 @@ public class NotificationService {
                 Notification
                         .builder()
                         .type(NotificationType.MONTH_CLOSED)
-                        .route(customerBaseUrl + "/tools/projects?projectId=" + idProject) //TODO
-                        .description(String.format("È stato chiuso il mese di %s un progetto", month.getDisplayName(TextStyle.FULL, Locale.ITALIAN)))
+                        .route("/tools/projects")
+                        .description(String.format("È stato chiuso il mese di %s del progetto %s", month.getDisplayName(TextStyle.FULL, Locale.ITALIAN), project.getName()))
                         .user(project.getCustomer())
                         .build()
         );

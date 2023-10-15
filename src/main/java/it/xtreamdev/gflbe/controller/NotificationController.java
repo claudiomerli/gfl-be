@@ -26,7 +26,7 @@ public class NotificationController {
         }
     }
 
-    @GetMapping("{id}")
+    @PutMapping("{id}")
     public void dismiss(@PathVariable Integer id) {
         this.notificationService.dismiss(id);
     }
@@ -38,8 +38,8 @@ public class NotificationController {
         this.notificationService.saveWaitForApprovalContentNotification(idContent, true);
     }
 
-    @PostMapping("email/approve-content/{idProject}/{month}")
-    public void sendEmailForWaitApprovalContent(
+    @PostMapping("email/close-month/{idProject}/{month}")
+    public void sendEmailForMonthClosedContent(
             @PathVariable Integer idProject,
             @PathVariable String month
     ) {

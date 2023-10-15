@@ -127,7 +127,7 @@ public class MailService {
                             .replaceAll("\\$\\$NAME\\$\\$", user.getFullname())
                             .replaceAll("\\$\\$PROJECT\\$\\$", project.getName())
                             .replaceAll("\\$\\$MONTH\\$\\$", month.getDisplayName(TextStyle.FULL, Locale.ITALIAN))
-                            .replaceAll("\\$\\$LINK\\$\\$", customerBaseUrl + "/tools/projects?projectId=" + project.getId()),
+                            .replaceAll("\\$\\$LINK\\$\\$", customerBaseUrl + "/tools/projects"),
                     true);
             mimeMessageHelper.setFrom("no-reply - Tilinko <info@tilinkotool.it>");
             this.emailSender.send(mimeMessageHelper.getMimeMessage());
