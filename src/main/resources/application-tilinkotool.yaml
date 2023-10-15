@@ -10,3 +10,4 @@ tilinko:
   confirm-base-url: "https://customers.tilinkotool.it/confirm?code="
   confirm-email-base-url: "https://customers.tilinkotool.it/confirm-email?code="
   reset-password-base-url: "https://customers.tilinkotool.it/reset-password?code="
+  customer-base-url: "https://customers.tilinkotool.it"

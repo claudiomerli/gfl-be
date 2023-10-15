@@ -1396,5 +1396,20 @@
             <column name="code">SECOND_LEVEL_PREMIUM_DESCRIPTION</column>
         </insert>
     </changeSet>
+    <changeSet id="1697381869743-4" author="claudiomerli (generated)">
+        <addColumn tableName="notification">
+            <column name="created_date" type="DATETIME"/>
+            <column name="type" type="SMALLINT"/>
+            <column name="user_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1697381869743-17" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="notification"
+                                 constraintName="FK_NOTIFICATION_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1697381869743-18" author="claudiomerli (generated)">
+        <modifyDataType tableName="notification" newDataType="VARCHAR(255)" columnName="type"/>
+    </changeSet>
 
 </databaseChangeLog>

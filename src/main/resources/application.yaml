@@ -29,6 +29,7 @@ tilinko:
   confirm-base-url: "http://localhost:4200/confirm?code="
   confirm-email-base-url: "http://localhost:4200/confirm-email?code="
   reset-password-base-url: "http://localhost:4200/reset-password?code="
+  customer-base-url: "http://localhost:4200"
 
 tilinkotool:
   hintPositiveLinksRatio: "Dal report del tuo sito abbiamo rilevato che hai il %s link dofollow e il %s di link nofollow. Ti consigliamo di aumentare la quota di link dofollow che puntano al tuo sito."
