@@ -355,6 +355,7 @@ public class MajesticSEOService {
         boolean containsUrl = false;
         boolean containsCorrectAnchorText = false;
         boolean isFollow = false;
+        log.info("Checking publication url {} with url {} with anchor {}", publicationUrl, url, anchor);
 
         try {
             this.restTemplate.exchange(publicationUrl, HttpMethod.GET, RequestEntity.EMPTY, Void.class);
@@ -362,9 +363,9 @@ public class MajesticSEOService {
         } catch (Exception e) {
             isOnline = false;
         }
-
-
+        log.info("Checked online");
         JSONObject backlinksForUrl = this.majesticSEOService.getBacklinksForUrl(url);
+        log.info("Got majestic info");
         isInIndex = backlinksForUrl.get("Code").equals("OK") && !backlinksForUrl.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data").isEmpty();
 
         if (isInIndex) {
