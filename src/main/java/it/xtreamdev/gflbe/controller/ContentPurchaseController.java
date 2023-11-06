@@ -1,13 +1,9 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.news.FindNewsDTO;
-import it.xtreamdev.gflbe.dto.news.SaveNewsDTO;
 import it.xtreamdev.gflbe.dto.purchasecontent.FindContentPurchaseDTO;
 import it.xtreamdev.gflbe.dto.purchasecontent.SaveContentPurchaseDTO;
 import it.xtreamdev.gflbe.model.ContentPurchase;
-import it.xtreamdev.gflbe.model.News;
 import it.xtreamdev.gflbe.service.ContentPurchaseService;
-import it.xtreamdev.gflbe.service.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +26,15 @@ public class ContentPurchaseController {
             FindContentPurchaseDTO contentPurchaseDTO
     ) {
         return this.contentPurchaseService.findContentPurchase(contentPurchaseDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy));
+    }
+
+    @GetMapping("export")
+    public byte[] find(
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+            FindContentPurchaseDTO contentPurchaseDTO
+    ) {
+        return this.contentPurchaseService.exportContentPurchase(contentPurchaseDTO, PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.fromString(sortDirection), sortBy));
     }
 
     @GetMapping("{id}")
