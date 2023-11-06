@@ -164,7 +164,7 @@ public class UserService {
     }
 
     public AccessTokenDTO signinCustomer(SigninDTO signinDTO) {
-        User user = this.userRepository.findByUsernameAndRoleAndActiveTrue(signinDTO.getUsername(), RoleName.CUSTOMER).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Wrong credentials"));
+        User user = this.userRepository.findByUsernameAndRoleInAndActiveTrue(signinDTO.getUsername(), List.of(RoleName.CUSTOMER, RoleName.FINAL_CUSTOMER)).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Wrong credentials"));
 
         if (!this.passwordEncoder.matches(signinDTO.getPassword(), user.getPassword())) {
             throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Wrong credentials");

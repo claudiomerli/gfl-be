@@ -130,7 +130,7 @@ public class ContentService {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
         }
 
-        if (user.getRole() == RoleName.FINAL_CUSTOMER && !content.getProjectCommission().getProject().getFinalCustomers().stream().map(User::getId).collect(Collectors.toList()).contains(user)) {
+        if (user.getRole() == RoleName.FINAL_CUSTOMER && !content.getProjectCommission().getProject().getFinalCustomers().stream().map(User::getId).collect(Collectors.toList()).contains(user.getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Not allowed to view this content");
         }
 

@@ -12,7 +12,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
     Optional<User> findByUsername(String username);
 
-    Optional<User> findByUsernameAndRoleAndActiveTrue(String username, RoleName roleName);
+    Optional<User> findByUsernameAndRoleInAndActiveTrue(String username, List<RoleName> roleName);
 
     List<User> findByEditorInfoIsNull();
 
