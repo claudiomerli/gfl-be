@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.service;
 
 import it.xtreamdev.gflbe.dto.auth.*;
+import it.xtreamdev.gflbe.dto.user.CustomerInfoDTO;
 import it.xtreamdev.gflbe.dto.user.EditUserDTO;
 import it.xtreamdev.gflbe.dto.user.SaveUserDTO;
 import it.xtreamdev.gflbe.model.CustomerInfo;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.xtreamdev.gflbe.util.NetUtils.extractDomain;
 
@@ -130,6 +133,20 @@ public class UserService {
         userFromDB.getCustomerInfo().setCompetitor1(userUpdated.getCompetitor1());
         userFromDB.getCustomerInfo().setCompetitor2(userUpdated.getCompetitor2());
         userFromDB.getCustomerInfo().setPrincipalDomain(userUpdated.getPrincipalDomain());
+        userFromDB.getCustomerInfo().setIsAgency(userUpdated.getIsAgency());
+        userFromDB.getCustomerInfo().setPiva(userUpdated.getPiva());
+        userFromDB.getCustomerInfo().setLogo(userUpdated.getLogo());
+
+        userFromDB.getFinalCustomers().forEach(user -> {
+            user.setAgency(null);
+            this.userRepository.save(user);
+        });
+        userFromDB.getFinalCustomers().clear();
+        userFromDB.getFinalCustomers()
+                .addAll(userUpdated.getFinalCustomers().stream()
+                        .map(s -> this.findByIdAndRole(s, RoleName.FINAL_CUSTOMER))
+                        .peek(user -> user.setAgency(userFromDB))
+                        .collect(Collectors.toList()));
 
         if (StringUtils.isNotBlank(userUpdated.getPassword())) {
             userFromDB.setPassword(this.passwordEncoder.encode(userUpdated.getPassword()));
@@ -144,6 +161,11 @@ public class UserService {
 
     public User findById(Integer id) {
         return this.userRepository.findById(id)
+                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found"));
+    }
+
+    public User findByIdAndRole(Integer id, RoleName roleName) {
+        return this.userRepository.findByIdAndRole(id, roleName)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "User not found"));
     }
 
@@ -213,6 +235,8 @@ public class UserService {
                 .businessArea(saveCustomerDTO.getBusinessArea())
                 .companyDimension(saveCustomerDTO.getCompanyDimension())
                 .url(extractDomain(saveCustomerDTO.getUrl()))
+                .piva(saveCustomerDTO.getPiva())
+                .logo(saveCustomerDTO.getLogo())
                 .build());
 
         User savedUser = this.userRepository.save(userToSave);
@@ -239,6 +263,8 @@ public class UserService {
         user.getCustomerInfo().setCompanyDimension(saveCustomerDTO.getCompanyDimension());
         user.getCustomerInfo().setBusinessArea(saveCustomerDTO.getBusinessArea());
         user.getCustomerInfo().setAddress(saveCustomerDTO.getAddress());
+        user.getCustomerInfo().setPiva(saveCustomerDTO.getPiva());
+        user.getCustomerInfo().setLogo(saveCustomerDTO.getLogo());
         user.setMobilePhone(saveCustomerDTO.getMobile());
 
         this.userRepository.save(user);
@@ -272,7 +298,7 @@ public class UserService {
         User user = this.findById(id);
         User currentUser = userInfo();
 
-        if(currentUser.getRole() == RoleName.CUSTOMER && !currentUser.getId().equals(user.getId())){
+        if (currentUser.getRole() == RoleName.CUSTOMER && !currentUser.getId().equals(user.getId())) {
             throw new HttpClientErrorException(HttpStatus.FORBIDDEN, "Cannot update another customer");
         }
 
@@ -319,4 +345,20 @@ public class UserService {
     }
 
 
+    public CustomerInfoDTO getAgencyInfo() {
+        User user = this.userInfo();
+        User agency = user.getAgency();
+        if (agency != null) {
+            return CustomerInfoDTO.builder()
+                    .mobile(agency.getMobilePhone())
+                    .companyName(agency.getCustomerInfo().getCompanyName())
+                    .piva(agency.getCustomerInfo().getPiva())
+                    .logo(agency.getCustomerInfo().getLogo())
+                    .email(agency.getEmail())
+                    .address(agency.getCustomerInfo().getAddress())
+                    .build();
+        } else {
+            return null;
+        }
+    }
 }

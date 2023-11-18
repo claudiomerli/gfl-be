@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,6 +32,11 @@ public class EditUserDTO {
     private String principalDomain;
     private String competitor1;
     private String competitor2;
+
+    private Boolean isAgency;
+    private String piva;
+    private String logo;
+    private List<Integer> finalCustomers;
 
 
 }

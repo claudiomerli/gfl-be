@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Getter
 @Setter
@@ -50,6 +51,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private RoleName role;
+
+    @ManyToOne
+    @JsonIgnore
+    private User agency;
+    @OneToMany(mappedBy = "agency")
+    private List<User> finalCustomers;
 
     @JsonIgnore
     private String activationCode;

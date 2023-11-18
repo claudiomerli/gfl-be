@@ -25,5 +25,7 @@ public class SaveCustomerInfoDTO {
     private String mobile;
     @NotBlank
     private String address;
+    private String piva;
+    private String logo;
 
 }

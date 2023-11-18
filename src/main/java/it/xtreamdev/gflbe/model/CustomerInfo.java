@@ -34,5 +34,10 @@ public class CustomerInfo {
     private String principalDomain;
     private String competitor1;
     private String competitor2;
+    private Boolean isAgency;
+    private String piva;
+
+    @Lob
+    private String logo;
 
 }

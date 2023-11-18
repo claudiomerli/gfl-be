@@ -1411,5 +1411,29 @@
     <changeSet id="1697381869743-18" author="claudiomerli (generated)">
         <modifyDataType tableName="notification" newDataType="VARCHAR(255)" columnName="type"/>
     </changeSet>
+    <changeSet id="1700293992303-8" author="claudiomerli (generated)">
+        <addColumn tableName="customer_info">
+            <column name="is_agency" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1700294570621-11" author="claudiomerli (generated)">
+        <addColumn tableName="customer_info">
+            <column name="piva" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1700294760350-1" author="claudiomerli (generated)">
+        <addColumn tableName="user">
+            <column name="agency_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1700294760350-15" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="agency_id" baseTableName="user" constraintName="FK_USER_ON_AGENCY"
+                                 referencedColumnNames="id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1700300342896-11" author="claudiomerli (generated)">
+        <addColumn tableName="customer_info">
+            <column name="logo" type="CLOB"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

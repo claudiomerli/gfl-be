@@ -1,7 +1,9 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.user.CustomerInfoDTO;
 import it.xtreamdev.gflbe.dto.user.EditUserDTO;
 import it.xtreamdev.gflbe.dto.user.SaveUserDTO;
+import it.xtreamdev.gflbe.model.CustomerInfo;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +53,17 @@ public class UserController {
         return ResponseEntity.ok(this.userService.updateUser(id, editUserDTO));
     }
 
+    @GetMapping("agency-info")
+    public CustomerInfoDTO getAgencyInfo(){
+        return this.userService.getAgencyInfo();
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<User> getUser(@PathVariable Integer id) {
         return ResponseEntity.ok(this.userService.findByIdCleaned(id));
     }
+
+
 
 
 }

@@ -37,4 +37,7 @@ public class SaveCustomerDTO {
     @NotBlank
     private String address;
 
+    private String piva;
+    private String logo;
+
 }
