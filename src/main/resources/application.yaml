@@ -13,10 +13,10 @@ spring:
     enabled: true
     change-log: db/liquibase/db.changelog-master.xml
   mail:
-    host: cs03.imgwebsolutions.it
-    username: info@tilinkotool.it
+    host: mail.tilinko.it
+    username: customers@tilinko.it
     port: 465
-    password: ?1xx53nH
+    password: r[.UDPA;orXl
     properties:
       mail:
         smtp:

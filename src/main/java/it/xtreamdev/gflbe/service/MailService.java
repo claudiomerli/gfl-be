@@ -51,7 +51,7 @@ public class MailService {
             mimeMessageHelper.setText(fileContent
                     .replaceAll("\\$\\$LINK\\$\\$", confirmBaseUrl + savedUser.getActivationCode())
                     .replaceAll("\\$\\$USERNAME\\$\\$", savedUser.getUsername()), true);
-            mimeMessageHelper.setFrom("no-reply - Tilinko <info@tilinkotool.it>");
+            mimeMessageHelper.setFrom("no-reply - Tilinko <customers@tilinko.it>");
             this.emailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sending email");
@@ -68,7 +68,7 @@ public class MailService {
             mimeMessageHelper.setTo(user.getEmail());
             mimeMessageHelper.setSubject("Tilinko - Conferma email");
             mimeMessageHelper.setText(fileContent.replaceAll("\\$\\$LINK\\$\\$", confirmChangeEmailBaseUrl + user.getEmailVerificationCode()), true);
-            mimeMessageHelper.setFrom("no-reply - Tilinko <info@tilinkotool.it>");
+            mimeMessageHelper.setFrom("no-reply - Tilinko <customers@tilinko.it>");
             this.emailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sending email");
@@ -84,7 +84,7 @@ public class MailService {
             mimeMessageHelper.setTo(user.getEmail());
             mimeMessageHelper.setSubject("Tilinko - Reset Password");
             mimeMessageHelper.setText(fileContent.replaceAll("\\$\\$LINK\\$\\$", resetPasswordBaseUrl + user.getResetPasswordCode()), true);
-            mimeMessageHelper.setFrom("no-reply - Tilinko <info@tilinkotool.it>");
+            mimeMessageHelper.setFrom("no-reply - Tilinko <customers@tilinko.it>");
             this.emailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sending email");
@@ -107,7 +107,7 @@ public class MailService {
                             .replaceAll("\\$\\$TITLE\\$\\$", content.getProjectCommission().getTitle())
                             .replaceAll("\\$\\$LINK\\$\\$", customerBaseUrl + "/tools/contents/" + content.getId()),
                     true);
-            mimeMessageHelper.setFrom("no-reply - Tilinko <info@tilinkotool.it>");
+            mimeMessageHelper.setFrom("no-reply - Tilinko <customers@tilinko.it>");
             this.emailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sending email");
@@ -129,7 +129,7 @@ public class MailService {
                             .replaceAll("\\$\\$MONTH\\$\\$", month.getDisplayName(TextStyle.FULL, Locale.ITALIAN))
                             .replaceAll("\\$\\$LINK\\$\\$", customerBaseUrl + "/tools/projects"),
                     true);
-            mimeMessageHelper.setFrom("no-reply - Tilinko <info@tilinkotool.it>");
+            mimeMessageHelper.setFrom("no-reply - Tilinko <customers@tilinko.it>");
             this.emailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error sending email");
