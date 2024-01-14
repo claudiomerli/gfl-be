@@ -1435,5 +1435,30 @@
             <column name="logo" type="CLOB"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1705249877770-1" author="claudiomerli (generated)">
+        <createTable tableName="newspaper_discount">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_newspaper_discount"/>
+            </column>
+            <column name="discount_percentage" type="INT"/>
+            <column name="newspaper_id" type="INT"/>
+            <column name="customer_id" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1705249877770-15" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="newspaper_discount"
+                                 constraintName="FK_NEWSPAPER_DISCOUNT_ON_CUSTOMER" referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+    <changeSet id="1705249877770-16" author="claudiomerli (generated)">
+        <addForeignKeyConstraint baseColumnNames="newspaper_id" baseTableName="newspaper_discount"
+                                 constraintName="FK_NEWSPAPER_DISCOUNT_ON_NEWSPAPER" referencedColumnNames="id"
+                                 referencedTableName="newspaper"/>
+    </changeSet>
+    <changeSet id="1705265485127-11" author="claudiomerli (generated)">
+        <addColumn tableName="generic_booking">
+            <column name="project_id" type="INT"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

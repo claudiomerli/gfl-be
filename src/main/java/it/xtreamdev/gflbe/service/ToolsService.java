@@ -5,7 +5,6 @@ import it.xtreamdev.gflbe.dto.chatgpt.ChatGPTResponse;
 import it.xtreamdev.gflbe.dto.majestic.SecondLevelCheckDTO;
 import it.xtreamdev.gflbe.model.User;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static it.xtreamdev.gflbe.util.NetUtils.extractDomain;
 
@@ -59,6 +57,13 @@ public class ToolsService {
     public List<String> getAnchorText(String url) {
 //        checkIsRequestCustomerDomain(url);
         return this.majesticSEOService.getAnchorTextByUrl(url);
+    }
+
+    public List<Object> getRefDomainResponse(String domain){
+        return this.majesticSEOService.getRefDomainsByDomain(domain);
+    }
+    public List<Object> getAnchorTextResponse(String domain){
+        return this.majesticSEOService.getAnchorTextByDomain(domain);
     }
 
     public List<SecondLevelCheckDTO> getSecondLevel(String url) {

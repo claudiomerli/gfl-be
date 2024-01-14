@@ -1,34 +1,27 @@
 package it.xtreamdev.gflbe.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.xtreamdev.gflbe.dto.majestic.DomainSEOStatistics;
 import it.xtreamdev.gflbe.dto.majestic.FullDomainSeoStatistic;
 import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
 import it.xtreamdev.gflbe.model.User;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,16 +42,17 @@ public class MajesticSEOService {
     private MajesticSEOService majesticSEOService;
 
     @Autowired
-    private JavaMailSender emailSender;
-
-    @Autowired
     private CacheManager cacheManager;
 
     @Autowired
-    Environment env;
+    private Environment env;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private UserService userService;
+
     private static String API_KEY = "F9E9157021931F2AC3AFA598731BB06C";
     private static List<String> REF_DOMAIN_TO_CHECK = List.of("adnkronos.com", "notizie.it", "tiscali.it", "milanofinanza.it");
 
@@ -286,59 +280,6 @@ public class MajesticSEOService {
         }
     }
 
-    public void sendStatisticsByDomainAndEmail(String domain, String competitor1, String competitor2, String email) {
-        try {
-            FullDomainSeoStatistic statisticsByDomain = this.majesticSEOService.getStatisticsByDomain(domain, competitor1, competitor2, false);
-            DomainSEOStatistics principalDomainStats = statisticsByDomain.getPrincipalDomain();
-            DomainSEOStatistics competitor1DomainStats = statisticsByDomain.getCompetitor1();
-            DomainSEOStatistics competitor2DomainStats = statisticsByDomain.getCompetitor2();
-
-            MimeMessage message = emailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-            helper.setTo(email);
-            helper.setFrom("tools@tilinkotool.it");
-            helper.setSubject("Statistiche SEO per dominio: " + domain);
-            helper.setText(
-                    String.format("<h1>Statistiche SEO dominio: %s</h1>", domain) +
-                            "<h1>Report</h1>" +
-                            "<ul>" +
-                            String.format("<li>Link totali: %s</li>", principalDomainStats.getLinks()) +
-                            String.format("<li>Link DoFollow: %s</li>", principalDomainStats.getDoFollow()) +
-                            String.format("<li>Link NoFollow: %s</li>", principalDomainStats.getNoFollow()) +
-                            String.format("<li>Referring Domain: %s</li>", principalDomainStats.getRefDomains()) +
-                            String.format("<li>Anchor Text: %s</li>", principalDomainStats.getAnchorTexts()) +
-                            String.format("<li>Numero pagine che ricevono link: %s</li>", principalDomainStats.getPages()) +
-                            String.format("<li>Rapporto link NoFollow/DoFollow: %s/%s</li>", percentInstanceFormatter.format(principalDomainStats.getNoFollowRatio()), percentInstanceFormatter.format(principalDomainStats.getDoFollowRatio())) +
-                            String.format("<li>Anchor Brand: %s</li>", percentInstanceFormatter.format(principalDomainStats.getAnchorBrandRatio())) +
-                            String.format("<li>Trust Flow: %s</li>", percentInstanceFormatter.format(principalDomainStats.getTrustFlow())) +
-                            String.format("<li>Citation Flow: %s</li>", percentInstanceFormatter.format(principalDomainStats.getCitationFlow())) +
-                            String.format("<li>Metrica: %s</li>", percentInstanceFormatter.format(principalDomainStats.getMetric())) +
-                            "</ul>" +
-                            "<h1>Analisi Competitor</h1>" +
-                            "<table style=\"border: 1px solid black\">" +
-                            "<thead><tr><td>DOMINIO</td><td>LINK TOTALI</td><td>LINK DOFOLLOW</td><td>LINK NOFOLLOW</td><td>REFERRING DOMAIN</td><td>ANCHOR BRAND</td></tr></thead><tbody>" +
-                            String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", principalDomainStats.getDomain(), principalDomainStats.getLinks(), principalDomainStats.getDoFollow(), principalDomainStats.getNoFollow(), principalDomainStats.getRefDomains(), principalDomainStats.getAnchorBrandRatio()) +
-                            (competitor1 != null ? String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", competitor1DomainStats.getDomain(), competitor1DomainStats.getLinks(), competitor1DomainStats.getDoFollow(), competitor1DomainStats.getNoFollow(), competitor1DomainStats.getRefDomains(), competitor1DomainStats.getAnchorBrandRatio()) : "") +
-                            (competitor2 != null ? String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", competitor2DomainStats.getDomain(), competitor2DomainStats.getLinks(), competitor2DomainStats.getDoFollow(), competitor2DomainStats.getNoFollow(), competitor2DomainStats.getRefDomains(), competitor2DomainStats.getAnchorBrandRatio()) : "") +
-                            "</tbody></table>" +
-                            "<h1>Analisi</h1>" +
-                            "<ul>" +
-                            (StringUtils.isNotBlank(principalDomainStats.getAnalysisLinksRatio()) ? String.format("<li>%s</li>", principalDomainStats.getAnalysisLinksRatio()) : "") +
-                            (StringUtils.isNotBlank(principalDomainStats.getAnalysisTextBrandRatio()) ? String.format("<li>%s</li>", principalDomainStats.getAnalysisTextBrandRatio()) : "") +
-                            (StringUtils.isNotBlank(principalDomainStats.getAnalysisLowLinks()) ? String.format("<li>%s</li>", principalDomainStats.getAnalysisLowLinks()) : "") +
-                            (StringUtils.isNotBlank(principalDomainStats.getAnalysisLowRefDomains()) ? String.format("<li>%s</li>", principalDomainStats.getAnalysisLowRefDomains()) : "") +
-                            (StringUtils.isNotBlank(principalDomainStats.getAnalysisMissingDomains()) ? String.format("<li>%s</li>", principalDomainStats.getAnalysisMissingDomains()) : "") +
-                            (StringUtils.isNotBlank(principalDomainStats.getAnalysisCompetitorComparison()) ? String.format("<li>%s</li>", principalDomainStats.getAnalysisCompetitorComparison()) : "") +
-                            "</ul>", true);
-
-            log.info("Sending email...");
-            emailSender.send(message);
-        } catch (MessagingException e) {
-            log.error("Error sending email", e);
-            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     public FullDomainSeoStatistic getCustomerStatistics() {
         User user = this.userService.userInfo();
         return this.majesticSEOService.getStatisticsByDomain(
@@ -390,5 +331,23 @@ public class MajesticSEOService {
                 .containsCorrectAnchorText(containsCorrectAnchorText)
                 .isFollow(isFollow)
                 .build();
+    }
+
+    @SneakyThrows
+    @Cacheable(cacheNames = "analysis")
+    public List<Object> getRefDomainsByDomain(String domain){
+        JSONObject refDomainResponse = new JSONObject(this.restTemplate.getForObject(
+                "https://api.majestic.com/api/json?app_api_key={majestic_api_key}&cmd=GetRefDomains&item0={domain}&Count=30000&datasource=fresh&OrderBy1=11&OrderDir1=1&OrderBy2=1&OrderDir2=0", String.class, API_KEY, domain));
+        JSONArray jsonArray = refDomainResponse.getJSONObject("DataTables").getJSONObject("Results").getJSONArray("Data");
+        return jsonArray.toList();
+    }
+
+    @SneakyThrows
+    @Cacheable(cacheNames = "analysis")
+    public List<Object> getAnchorTextByDomain(String domain){
+        JSONObject refDomainResponse = new JSONObject(this.restTemplate.getForObject(
+                "https://api.majestic.com/api/json?app_api_key={majestic_api_key}&cmd=GetAnchorText&item={domain}&Count=30000&datasource=fresh", String.class, API_KEY, domain));
+        JSONArray jsonArray = refDomainResponse.getJSONObject("DataTables").getJSONObject("AnchorText").getJSONArray("Data");
+        return jsonArray.toList();
     }
 }

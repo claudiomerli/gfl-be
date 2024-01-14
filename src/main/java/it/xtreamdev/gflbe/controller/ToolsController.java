@@ -32,7 +32,7 @@ public class ToolsController {
         return this.toolsService.generateKeywordsForUrl(url);
     }
 
-    @GetMapping("anchor-text")
+    @GetMapping("generate-anchor-text")
     public List<String> anchorTexts(
             @RequestParam("url") String url
     ) {
@@ -44,6 +44,20 @@ public class ToolsController {
             @RequestParam("url") String url
     ) {
         return this.toolsService.getSecondLevel(url);
+    }
+
+    @GetMapping("ref-domains")
+    public List<Object> getRefDomain(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getRefDomainResponse(url);
+    }
+
+    @GetMapping("anchor-text")
+    public List<Object> getAnchorText(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getAnchorTextResponse(url);
     }
 
 }

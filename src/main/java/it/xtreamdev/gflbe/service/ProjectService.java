@@ -3,15 +3,11 @@ package it.xtreamdev.gflbe.service;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
-import it.xtreamdev.gflbe.dto.majestic.SecondLevelCheckDTO;
 import it.xtreamdev.gflbe.dto.newspaper.NewspaperDTO;
 import it.xtreamdev.gflbe.dto.project.*;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.*;
-import it.xtreamdev.gflbe.model.enumerations.ContentStatus;
-import it.xtreamdev.gflbe.model.enumerations.ProjectCommissionStatus;
-import it.xtreamdev.gflbe.model.enumerations.ProjectStatus;
-import it.xtreamdev.gflbe.model.enumerations.RoleName;
+import it.xtreamdev.gflbe.model.enumerations.*;
 import it.xtreamdev.gflbe.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,13 +17,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpMethod;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -74,6 +69,8 @@ public class ProjectService {
     private ContentPurchaseService contentPurchaseService;
     @Autowired
     private ProjectLinkRepository projectLinkRepository;
+    @Autowired
+    private GenericOrderRepository genericOrderRepository;
 
     @Autowired
     private UserService userService;
@@ -177,6 +174,16 @@ public class ProjectService {
                     .builder()
                     .projectStatus(ProjectStatus.CREATED)
                     .project(project)
+                    .build());
+        }
+
+        if (this.userService.userInfo().getRole() == RoleName.CUSTOMER) {
+            this.genericOrderRepository.save(ProjectCommissionOrder.builder()
+                    .projectId(projectId)
+                    .customer(this.userService.userInfo())
+                    .type(GenericOrderType.PROJECT_COMMISSION)
+                    .status(OrderStatus.REQUESTED)
+                    .level(GenericOrderLevel.NOT_SPECIFIED)
                     .build());
         }
 
