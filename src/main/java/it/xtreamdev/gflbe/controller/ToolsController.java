@@ -60,4 +60,32 @@ public class ToolsController {
         return this.toolsService.getAnchorTextResponse(url);
     }
 
+    @GetMapping("backlinks")
+    public List<Object> getBacklinks(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getBackLinksResponse(url);
+    }
+
+    @GetMapping("export-ref-domains")
+    public byte[] getRefDomainExport(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getRefDomainResponseExport(url);
+    }
+
+    @GetMapping("export-anchor-text")
+    public byte[] getAnchorTextExport(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getAnchorTextResponseExport(url);
+    }
+
+    @GetMapping("export-backlinks")
+    public byte[] getBacklinksExport(
+            @RequestParam("url") String url
+    ) {
+        return this.toolsService.getBackLinksResponseExport(url);
+    }
+
 }

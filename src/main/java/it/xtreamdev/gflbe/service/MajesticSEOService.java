@@ -334,7 +334,7 @@ public class MajesticSEOService {
     }
 
     @SneakyThrows
-    @Cacheable(cacheNames = "analysis")
+    @Cacheable(cacheNames = "analysis-ref-domains")
     public List<Object> getRefDomainsByDomain(String domain){
         JSONObject refDomainResponse = new JSONObject(this.restTemplate.getForObject(
                 "https://api.majestic.com/api/json?app_api_key={majestic_api_key}&cmd=GetRefDomains&item0={domain}&Count=30000&datasource=fresh&OrderBy1=11&OrderDir1=1&OrderBy2=1&OrderDir2=0", String.class, API_KEY, domain));
@@ -343,11 +343,20 @@ public class MajesticSEOService {
     }
 
     @SneakyThrows
-    @Cacheable(cacheNames = "analysis")
+    @Cacheable(cacheNames = "analysis-anchor-text")
     public List<Object> getAnchorTextByDomain(String domain){
         JSONObject refDomainResponse = new JSONObject(this.restTemplate.getForObject(
                 "https://api.majestic.com/api/json?app_api_key={majestic_api_key}&cmd=GetAnchorText&item={domain}&Count=30000&datasource=fresh", String.class, API_KEY, domain));
         JSONArray jsonArray = refDomainResponse.getJSONObject("DataTables").getJSONObject("AnchorText").getJSONArray("Data");
+        return jsonArray.toList();
+    }
+
+    @SneakyThrows
+    @Cacheable(cacheNames = "analysis-backlinks")
+    public List<Object> getBacklinksByDomain(String domain){
+        JSONObject refDomainResponse = new JSONObject(this.restTemplate.getForObject(
+                "https://api.majestic.com/api/json?app_api_key={{majestic_api_key}}&cmd=GetBackLinkData&item={domain}&Count=30000&datasource=fresh", String.class, API_KEY, domain));
+        JSONArray jsonArray = refDomainResponse.getJSONObject("DataTables").getJSONObject("BackLinks").getJSONArray("Data");
         return jsonArray.toList();
     }
 }
