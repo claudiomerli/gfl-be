@@ -22,6 +22,8 @@ public class NewspaperDiscount {
     @ManyToOne
     private Newspaper newspaper;
 
+    private Boolean allNewspaper;
+
     @ManyToOne
     private User customer;
 

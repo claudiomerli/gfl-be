@@ -33,30 +33,30 @@ public class NewspaperDiscountService {
 
     public NewspaperDiscount save(SaveNewspaperDiscount saveNewspaperDiscount) {
         User customer = this.userService.findByIdAndRole(saveNewspaperDiscount.getCustomerId(), RoleName.CUSTOMER);
-        Newspaper newspaper = this.newspaperRepository.findById(saveNewspaperDiscount.getNewspaperId()).orElseThrow();
-
-        if(this.newspaperDiscountRepository.existsByCustomerAndNewspaper(customer,newspaper)){
-            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY,"Discount already exists");
+        Newspaper newspaper = null;
+        if (saveNewspaperDiscount.getNewspaperId() != null) {
+            newspaper = this.newspaperRepository.findById(saveNewspaperDiscount.getNewspaperId()).orElseThrow();
         }
 
         return this.newspaperDiscountRepository.save(NewspaperDiscount.builder()
                 .customer(customer)
                 .newspaper(newspaper)
+                .allNewspaper(saveNewspaperDiscount.getAllNewspaper())
                 .discountPercentage(saveNewspaperDiscount.getDiscountPercentage())
                 .build());
     }
 
     public NewspaperDiscount update(Integer id, SaveNewspaperDiscount saveNewspaperDiscount) {
         User customer = this.userService.findByIdAndRole(saveNewspaperDiscount.getCustomerId(), RoleName.CUSTOMER);
-        Newspaper newspaper = this.newspaperRepository.findById(saveNewspaperDiscount.getNewspaperId()).orElseThrow();
-
-        if(this.newspaperDiscountRepository.existsByCustomerAndNewspaper(customer,newspaper)){
-            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY,"Discount already exists");
+        Newspaper newspaper = null;
+        if (saveNewspaperDiscount.getNewspaperId() != null) {
+            newspaper = this.newspaperRepository.findById(saveNewspaperDiscount.getNewspaperId()).orElseThrow();
         }
 
 
         NewspaperDiscount newspaperDiscount = this.newspaperDiscountRepository.findById(id).orElseThrow();
         newspaperDiscount.setDiscountPercentage(saveNewspaperDiscount.getDiscountPercentage());
+        newspaperDiscount.setAllNewspaper(saveNewspaperDiscount.getAllNewspaper());
         newspaperDiscount.setCustomer(customer);
         newspaperDiscount.setNewspaper(newspaper);
 

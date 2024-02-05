@@ -14,5 +14,6 @@ public class SaveNewspaperDiscount {
     private Integer discountPercentage;
     private Integer customerId;
     private Integer newspaperId;
+    private Boolean allNewspaper;
 
 }

@@ -1460,5 +1460,10 @@
             <column name="project_id" type="INT"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1707165980638-1" author="claudiomerli (generated)">
+        <addColumn tableName="newspaper_discount">
+            <column name="all_newspaper" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>
