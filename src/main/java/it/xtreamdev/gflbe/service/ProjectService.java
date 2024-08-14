@@ -570,6 +570,55 @@ public class ProjectService {
         this.projectRepository.save(project);
     }
 
+    public byte[] exportProjects(SearchProjectDTO searchProjectDTO){
+        List<ProjectListElementDTO> projects = this.find(searchProjectDTO, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
+
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Lista progetti");
+            Row headerRow = sheet.createRow(0);
+            List<String> headerCells = List.of("Nome", "Stato", "Cliente", "Scadenza", "Commissioni Avviate", "Commissioni assegnate", "Commissioni lavorate");
+            IntStream.range(0, headerCells.size())
+                    .forEachOrdered(value -> {
+                        Cell cell = headerRow.createCell(value);
+                        cell.setCellValue(headerCells.get(value));
+                    });
+
+            IntStream.range(1, projects.size() + 1).forEachOrdered(value -> {
+                Row row = sheet.createRow(value);
+
+                Cell cellUrl = row.createCell(0);
+                cellUrl.setCellValue(projects.get(value - 1).getName());
+
+                Cell cellPublicationUrl = row.createCell(1);
+                cellPublicationUrl.setCellValue(projects.get(value - 1).getStatus().toString());
+
+                Cell cellAnchor = row.createCell(2);
+                Optional.ofNullable(projects.get(value - 1).getCustomer()).ifPresent(user -> cellAnchor.setCellValue(user.getFullname()));
+
+
+                Cell cellIsOnline = row.createCell(3);
+                Optional.ofNullable(projects.get(value - 1).getExpiration()).ifPresent(localDate -> cellIsOnline.setCellValue(localDate.format(DateTimeFormatter.ISO_DATE)));
+
+
+                Cell cellIsIndex = row.createCell(4);
+                cellIsIndex.setCellValue(projects.get(value - 1).getHasStartedCommission() ? "SI" : "NO");
+
+                Cell cellContainsUrl = row.createCell(5);
+                cellContainsUrl.setCellValue(projects.get(value - 1).getHasAssignedCommission() ? "SI" : "NO");
+
+                Cell cellContainsAnchor = row.createCell(6);
+                cellContainsAnchor.setCellValue(projects.get(value - 1).getHasWorkedCommission() ? "SI" : "NO");
+            });
+
+            IntStream.range(0, 7).forEach(sheet::autoSizeColumn);
+            workbook.write(baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     public byte[] exportProjectLinkAnalysis(Integer idProject) {
         Project project = this.findById(idProject);

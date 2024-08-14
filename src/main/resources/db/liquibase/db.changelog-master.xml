@@ -1465,5 +1465,10 @@
             <column name="all_newspaper" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1723623819629-1" author="claudiomerli (generated)">
+        <addColumn tableName="newspaper">
+            <column name="nofollow" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

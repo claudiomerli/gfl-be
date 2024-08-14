@@ -25,6 +25,7 @@ public class SearchNewspaperDTO {
     private Double costSellTo;
     private Boolean hidden;
     private Boolean sensitiveTopics;
+    private Boolean nofollow;
     private Integer notUsedInProject;
 
     @Builder.Default

@@ -55,11 +55,15 @@ public class Newspaper {
     @Column(name = "hidden")
     private Boolean hidden;
 
+    @Column(name = "nofollow")
+    private Boolean nofollow;
+
     @Column(name = "sensitive_topics")
     private Boolean sensitiveTopics;
 
     @Column(name = "warning")
     private Boolean warning;
+
 
     @OneToOne(mappedBy = "newspaper")
     @JsonIgnore
@@ -70,10 +74,10 @@ public class Newspaper {
             name = "newspaper_topics",
             joinColumns = @JoinColumn(name = "newspaper_id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id"))
-    Set<Topic> topics;
+    private Set<Topic> topics;
 
     @OneToMany(mappedBy = "newspaper")
     @JsonIgnore
-    Set<ProjectCommission> projectCommissions;
+    private Set<ProjectCommission> projectCommissions;
 
 }

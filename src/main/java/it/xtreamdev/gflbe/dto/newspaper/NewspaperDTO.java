@@ -22,9 +22,11 @@ public class NewspaperDTO {
     private String note;
     private Integer za;
     private String ip;
-    Set<TopicDTO> topics;
+    private Set<TopicDTO> topics;
     private Boolean hidden;
     private Boolean sensitiveTopics;
+    private Boolean nofollow;
     private Boolean warning;
+
 
 }

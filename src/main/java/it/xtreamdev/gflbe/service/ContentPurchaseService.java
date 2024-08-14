@@ -49,8 +49,8 @@ public class ContentPurchaseService {
                         cell.setCellValue(headerCells.get(value));
                     });
 
-            IntStream.range(1, contentPurchase.getContent().size()).forEachOrdered(value -> {
-                Row row = sheet.createRow(value);
+            IntStream.range(0, contentPurchase.getContent().size()).forEachOrdered(value -> {
+                Row row = sheet.createRow(value + 1);
                 ContentPurchase contentPurchaseElement = contentPurchase.getContent().get(value);
                 Cell cellUrl = row.createCell(0);
                 cellUrl.setCellValue(contentPurchaseElement.getAmount() != null ? contentPurchaseElement.getAmount() : 0);

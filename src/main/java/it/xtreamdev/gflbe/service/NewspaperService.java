@@ -65,6 +65,7 @@ public class NewspaperService {
             }
 
             Optional.ofNullable(searchNewspaperDTO.getSensitiveTopics()).ifPresent(sensitiveTopics -> predicates.add(criteriaBuilder.equal(root.get("sensitiveTopics"), sensitiveTopics)));
+            Optional.ofNullable(searchNewspaperDTO.getNofollow()).ifPresent(nofollow -> predicates.add(criteriaBuilder.equal(root.get("nofollow"), nofollow)));
 
             Optional.ofNullable(searchNewspaperDTO.getZaFrom()).ifPresent(zaFrom -> predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("za"), zaFrom)));
             Optional.ofNullable(searchNewspaperDTO.getZaTo()).ifPresent(zaTo -> predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("za"), zaTo)));
@@ -173,6 +174,7 @@ public class NewspaperService {
                         .ip(newspaper.getIp())
                         .hidden(newspaper.getHidden())
                         .sensitiveTopics(newspaper.getSensitiveTopics())
+                        .nofollow(newspaper.getNofollow())
                         .warning(newspaper.getWarning())
                         .topics(newspaper.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()))
                         .build()
@@ -201,6 +203,7 @@ public class NewspaperService {
         persistedNewspaper.setHidden(saveNewspaperDTO.getHidden());
         persistedNewspaper.setSensitiveTopics(saveNewspaperDTO.getSensitiveTopics());
         persistedNewspaper.setWarning(saveNewspaperDTO.getWarning());
+        persistedNewspaper.setNofollow(saveNewspaperDTO.getNofollow());
 
         return newspaperMapper.mapEntityToDTO(this.newspaperRepository.save(persistedNewspaper));
     }
@@ -272,5 +275,4 @@ public class NewspaperService {
     private List<NewspaperDTO> listForExport(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
         return this.findAll(searchNewspaperDTO, pageRequest).toList();
     }
-
 }

@@ -249,4 +249,11 @@ public class ProjectController {
     public byte[] exportProjectLinkCheck(@PathVariable Integer id) {
         return this.projectService.exportProjectLinkAnalysis(id);
     }
+
+    @GetMapping("export")
+    public byte[] export(
+            SearchProjectDTO searchProjectDTO
+    ){
+        return this.projectService.exportProjects(searchProjectDTO);
+    }
 }
