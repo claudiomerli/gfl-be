@@ -1470,5 +1470,11 @@
             <column name="nofollow" type="BOOLEAN"/>
         </addColumn>
     </changeSet>
+    <changeSet id="1723623819629-2" author="claudiomerli (generated)">
+        <sql>
+            update newspaper set nofollow = false where nofollow is null
+        </sql>
+    </changeSet>
+    <include file="db/changelog/2025/01/22-01-changelog.xml"/>
 
 </databaseChangeLog>

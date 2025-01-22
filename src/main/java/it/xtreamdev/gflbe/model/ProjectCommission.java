@@ -98,6 +98,9 @@ public class ProjectCommission {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime lastModifiedDate;
 
+    @Column(name = "cost_sell")
+    private Double costSell;
+
     public ProjectListElementDTO.ProjectCommissionListElementDTO toListElement() {
         return ProjectListElementDTO.ProjectCommissionListElementDTO
                 .builder()

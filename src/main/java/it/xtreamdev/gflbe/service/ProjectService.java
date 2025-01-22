@@ -285,6 +285,15 @@ public class ProjectService {
         return this.projectRepository.save(project);
     }
 
+    public void setCostSellCommission(Integer projectId, Integer commissionId, SaveProjectCommissionCostSellDTO saveProjectCommissionCostSellDTO) {
+        Project project = this.findById(projectId);
+        ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId))
+                .findFirst().orElseThrow();
+
+        projectCommission.setCostSell(saveProjectCommissionCostSellDTO.getCostSell());
+        this.projectCommissionRepository.save(projectCommission);
+    }
+
     public Project invoiceProject(Integer projectId) {
         Project project = this.findById(projectId);
         project.setStatus(ProjectStatus.INVOICED);

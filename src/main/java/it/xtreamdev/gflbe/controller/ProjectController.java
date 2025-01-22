@@ -101,6 +101,15 @@ public class ProjectController {
         this.projectService.delete(id);
     }
 
+    @PutMapping("{id}/commission/{idCommission}/costSell")
+    public void setStatusCommission(
+            @PathVariable Integer id,
+            @PathVariable Integer idCommission,
+            @RequestBody SaveProjectCommissionCostSellDTO saveProjectCommissionCostSellDTO
+    ) {
+        this.projectService.setCostSellCommission(id, idCommission, saveProjectCommissionCostSellDTO);
+    }
+
     @PutMapping("{id}/commission/{idCommission}/{status}")
     public Project setStatusCommission(
             @PathVariable Integer id,
@@ -253,7 +262,7 @@ public class ProjectController {
     @GetMapping("export")
     public byte[] export(
             SearchProjectDTO searchProjectDTO
-    ){
+    ) {
         return this.projectService.exportProjects(searchProjectDTO);
     }
 }
