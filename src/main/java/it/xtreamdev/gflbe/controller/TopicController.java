@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -54,8 +55,9 @@ public class TopicController {
     public ResponseEntity<Topic> findById(@PathVariable Integer id) {
         return ResponseEntity.ok(this.topicService.findById(id));
     }
+
     @GetMapping("/all")
-    public ResponseEntity<Set<TopicDTO>> findAll() {
+    public ResponseEntity<List<TopicDTO>> findAll() {
         return ResponseEntity.ok(this.topicService.findAll());
     }
 

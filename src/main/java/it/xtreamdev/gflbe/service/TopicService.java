@@ -42,14 +42,15 @@ public class TopicService {
         }, pageRequest);
     }
 
-    public Set<TopicDTO> findAll() {
-        return this.topicRepository.findAll(Sort.by("name").ascending()).stream()
+    public List<TopicDTO> findAll() {
+        return this.topicRepository.findAll(Sort.by("name").ascending())
+                .stream()
                 .map(topic -> TopicDTO
                         .builder()
                         .id(topic.getId())
                         .name(topic.getName())
                         .build())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     public void save(SaveTopicDTO saveTopicDTO) {
