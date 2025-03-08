@@ -1,44 +1,40 @@
 package it.xtreamdev.gflbe.util;
 
-import org.docx4j.openpackaging.exceptions.InvalidFormatException;
-import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.docx4j.openpackaging.parts.PartName;
-import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
-import org.xlsx4j.jaxb.Context;
-import org.xlsx4j.sml.Cell;
-import org.xlsx4j.sml.Row;
-import org.xlsx4j.sml.SheetData;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Optional;
 
 public class ExcelUtils {
 
-    public static SpreadsheetMLPackage createSpreadsheet() throws InvalidFormatException {
-        return SpreadsheetMLPackage.createPackage();
+    public static XSSFWorkbook createSpreadsheet() {
+        return new XSSFWorkbook();
     }
 
-    public static SheetData addSheet(SpreadsheetMLPackage packageMlPackage, String name) throws Exception {
-        int sizeToAssign = packageMlPackage.getWorkbookPart().getJaxbElement().getSheets().getSheet().size() + 1;
-        WorksheetPart worksheetPart = packageMlPackage.createWorksheetPart(new PartName("/xl/worksheets/sheet" + sizeToAssign + ".xml"), name, sizeToAssign);
-        return worksheetPart.getContents().getSheetData();
+    public static XSSFSheet addSheet(XSSFWorkbook workbook, String name) {
+        return workbook.createSheet(name);
     }
 
-    public static Row addRow(SheetData sheet) {
-        Row row = Context.getsmlObjectFactory().createRow();
-        sheet.getRow().add(row);
-        return row;
+    public static void addEmptyRow(XSSFSheet sheet) {
+        int rowNum = sheet.getLastRowNum() + 1;
+        sheet.createRow(rowNum);
     }
 
-    public static Row addRow(SheetData sheet, Object... cells) {
-        Row row = Context.getsmlObjectFactory().createRow();
-        for (Object cellValue : cells) {
-            Cell cell = Context.getsmlObjectFactory().createCell();
-            cell.setV(String.valueOf(Optional.ofNullable(cellValue).orElse("")));
-            row.getC().add(cell);
+    public static void addRow(XSSFSheet sheet, Object... cells) {
+        int rowNum = sheet.getLastRowNum() + 1;
+        XSSFRow row = sheet.createRow(rowNum);
+
+        for (int i = 0; i < cells.length; i++) {
+            XSSFCell cell = row.createCell(i);
+            Object cellValue = Optional.ofNullable(cells[i]).orElse("");
+
+            if (cellValue instanceof Number) {
+                cell.setCellValue(((Number) cellValue).doubleValue());
+            } else {
+                cell.setCellValue(cellValue.toString());
+            }
         }
-        sheet.getRow().add(row);
-        return row;
     }
-
-
 }

@@ -8,6 +8,8 @@ import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.util.ExcelUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +83,8 @@ public class ToolsService {
     public byte[] getRefDomainResponseExport(String domain) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             List<Object> refDomainsByDomain = this.majesticSEOService.getRefDomainsByDomain(domain);
-            SpreadsheetMLPackage spreadsheet = ExcelUtils.createSpreadsheet();
-            SheetData sheetData = ExcelUtils.addSheet(spreadsheet, domain);
+            XSSFWorkbook spreadsheet = ExcelUtils.createSpreadsheet();
+            XSSFSheet sheetData = ExcelUtils.addSheet(spreadsheet, domain);
             ExcelUtils.addRow(sheetData, "Posizione", "Dominio di riferimento", "Link Totali", "Link Esterni");
             refDomainsByDomain.forEach(o -> {
                 Map<String, Object> objectMap = (Map<String, Object>) o;
@@ -94,7 +96,7 @@ public class ToolsService {
                 );
             });
 
-            spreadsheet.save(baos);
+            spreadsheet.write(baos);
             return baos.toByteArray();
         }
     }
@@ -103,8 +105,8 @@ public class ToolsService {
     public byte[] getAnchorTextResponseExport(String domain) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             List<Object> anchorTextByDomain = this.majesticSEOService.getAnchorTextByDomain(domain);
-            SpreadsheetMLPackage spreadsheet = ExcelUtils.createSpreadsheet();
-            SheetData sheetData = ExcelUtils.addSheet(spreadsheet, domain);
+            XSSFWorkbook spreadsheet = ExcelUtils.createSpreadsheet();
+            XSSFSheet sheetData = ExcelUtils.addSheet(spreadsheet, domain);
             ExcelUtils.addRow(sheetData, "Ancora", "Dominio di riferimento", "Link Totali", "Link cancellati", "Link no-follow");
             anchorTextByDomain.forEach(o -> {
                 Map<String, Object> objectMap = (Map<String, Object>) o;
@@ -117,7 +119,7 @@ public class ToolsService {
                 );
             });
 
-            spreadsheet.save(baos);
+            spreadsheet.write(baos);
             return baos.toByteArray();
         }
     }
@@ -126,8 +128,8 @@ public class ToolsService {
     public byte[] getBackLinksResponseExport(String domain) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             List<Object> backlinks = this.majesticSEOService.getBacklinksByDomain(domain);
-            SpreadsheetMLPackage spreadsheet = ExcelUtils.createSpreadsheet();
-            SheetData sheetData = ExcelUtils.addSheet(spreadsheet, domain);
+            XSSFWorkbook spreadsheet = ExcelUtils.createSpreadsheet();
+            XSSFSheet sheetData = ExcelUtils.addSheet(spreadsheet, domain);
             ExcelUtils.addRow(sheetData, "Ancora", "Titolo", "Url", "Url Trust Flow", "Url Citation Flow", "Internal Outbound Links", "External Outbound Links", "External domain");
             backlinks.forEach(o -> {
                 Map<String, Object> objectMap = (Map<String, Object>) o;
@@ -143,7 +145,7 @@ public class ToolsService {
                 );
             });
 
-            spreadsheet.save(baos);
+            spreadsheet.write(baos);
             return baos.toByteArray();
         }
     }

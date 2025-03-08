@@ -79,6 +79,14 @@ public class ProjectController {
         return this.projectService.addCommission(id, saveProjectCommissionDTO);
     }
 
+    @PostMapping("{id}/commission/massive")
+    public void saveCommissionMassive(
+            @PathVariable Integer id,
+            @RequestBody SaveProjectCommissionMassiveDTO saveProjectCommissionMassiveDTO
+    ) {
+        this.projectService.addCommissionMassive(id, saveProjectCommissionMassiveDTO);
+    }
+
     @DeleteMapping("{id}/commission/{idCommission}")
     public Project removeCommission(
             @PathVariable Integer id,

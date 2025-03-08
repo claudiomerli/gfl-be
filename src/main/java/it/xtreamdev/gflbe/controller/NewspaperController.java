@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/newspaper")
 public class NewspaperController {
@@ -46,7 +48,6 @@ public class NewspaperController {
     ) {
         return ResponseEntity.ok(this.newspaperService.findForCustomer(searchNewspaperCustomerDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy)));
     }
-
 
 
     @GetMapping("maxMinRangeAttributes")
@@ -108,6 +109,21 @@ public class NewspaperController {
     @GetMapping("/finance")
     public ResponseEntity<FinanceDTO> finance() {
         return ResponseEntity.ok(this.newspaperService.finance());
+    }
+
+    @PostMapping("/report")
+    public ResponseEntity<byte[]> report(@RequestBody List<GenerateNewspaperReportDTO> generateNewspaperReportRequest) {
+        return ResponseEntity.ok(this.newspaperService.generateReport(generateNewspaperReportRequest));
+    }
+
+    @PutMapping("{id}/description")
+    public void saveDescription(@PathVariable Integer id, @RequestBody SaveNewspaperDescriptionDTO saveNewspaperDescriptionDTO) {
+        this.newspaperService.saveDescription(id, saveNewspaperDescriptionDTO);
+    }
+
+    @GetMapping("{id}/description")
+    public NewspaperDescriptionDTO getDescription(@PathVariable Integer id) {
+        return this.newspaperService.getDescription(id);
     }
 
 }

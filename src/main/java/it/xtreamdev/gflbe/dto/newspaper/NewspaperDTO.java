@@ -27,6 +27,7 @@ public class NewspaperDTO {
     private Boolean sensitiveTopics;
     private Boolean nofollow;
     private Boolean warning;
+    private String description;
 
 
 }

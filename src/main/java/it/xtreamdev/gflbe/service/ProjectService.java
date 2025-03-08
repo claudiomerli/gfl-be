@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +133,22 @@ public class ProjectService {
         );
 
         return this.projectRepository.save(project);
+    }
+
+    public void addCommissionMassive(Integer projectId, SaveProjectCommissionMassiveDTO saveProjectCommissionMassiveDTO) {
+        saveProjectCommissionMassiveDTO.getNewspaperIds().forEach(newspaperId -> this.addCommission(projectId, SaveProjectCommissionDTO.builder()
+                .notes(saveProjectCommissionMassiveDTO.getNotes())
+                .title(saveProjectCommissionMassiveDTO.getTitle())
+                .url(saveProjectCommissionMassiveDTO.getUrl())
+                .year(saveProjectCommissionMassiveDTO.getYear())
+                .period(saveProjectCommissionMassiveDTO.getPeriod())
+                .newspaperId(newspaperId)
+                .anchor(saveProjectCommissionMassiveDTO.getAnchor())
+                .isAnchorBold(saveProjectCommissionMassiveDTO.getIsAnchorBold())
+                .isAnchorItalic(saveProjectCommissionMassiveDTO.getIsAnchorItalic())
+                .publicationDate(saveProjectCommissionMassiveDTO.getPublicationDate())
+                .publicationUrl(saveProjectCommissionMassiveDTO.getPublicationUrl())
+                .build()));
     }
 
     public Project addCommission(Integer projectId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
@@ -435,15 +452,15 @@ public class ProjectService {
         Project project = this.findById(id);
         List<ProjectCommission> projectCommissions = this.findProjectCommissions(id, sort);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            SpreadsheetMLPackage spreadsheet = createSpreadsheet();
-            SheetData sheet = addSheet(spreadsheet, project.getName());
+            XSSFWorkbook spreadsheet = createSpreadsheet();
+            XSSFSheet sheet = addSheet(spreadsheet, project.getName());
             addRow(sheet, "Testata", "Url di pubblicazione", "Data di pubblicazione", "Periodo");
             projectCommissions.forEach(projectCommission -> addRow(sheet,
                     projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getName() : null,
                     projectCommission.getPublicationUrl() != null ? projectCommission.getPublicationUrl() : null,
                     projectCommission.getPublicationDate() != null ? projectCommission.getPublicationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
                     projectCommission.getPeriod() != null ? projectCommission.getPeriod().getDisplayName(TextStyle.FULL, Locale.ITALY) : null));
-            spreadsheet.save(baos);
+            spreadsheet.write(baos);
             return baos.toByteArray();
         } catch (Exception e) {
             log.error("Error", e);
@@ -579,7 +596,7 @@ public class ProjectService {
         this.projectRepository.save(project);
     }
 
-    public byte[] exportProjects(SearchProjectDTO searchProjectDTO){
+    public byte[] exportProjects(SearchProjectDTO searchProjectDTO) {
         List<ProjectListElementDTO> projects = this.find(searchProjectDTO, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
 
         try (Workbook workbook = new XSSFWorkbook();

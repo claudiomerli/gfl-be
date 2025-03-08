@@ -80,4 +80,7 @@ public class Newspaper {
     @JsonIgnore
     private Set<ProjectCommission> projectCommissions;
 
+    @Lob
+    private String description;
+
 }

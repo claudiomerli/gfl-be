@@ -10,14 +10,14 @@ import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.repository.TopicRepository;
 import it.xtreamdev.gflbe.util.PdfUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.xlsx4j.sml.SheetData;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
@@ -123,7 +123,9 @@ public class NewspaperService {
                     if (Objects.nonNull(searchNewspaperCustomerDTO.getProjectId())) {
                         Project project = this.projectRepository.findById(searchNewspaperCustomerDTO.getProjectId()).orElseThrow();
                         List<Integer> idToExclude = project.getProjectCommissions().stream().map(ProjectCommission::getNewspaper).filter(Objects::nonNull).map(Newspaper::getId).collect(Collectors.toList());
-                        predicates.add(root.get("id").in(idToExclude).not());
+                        if (!idToExclude.isEmpty()) {
+                            predicates.add(root.get("id").in(idToExclude).not());
+                        }
                     }
 
                     if (Objects.nonNull(searchNewspaperCustomerDTO.getTopicId())) {
@@ -232,8 +234,8 @@ public class NewspaperService {
     public byte[] exportExcel(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             List<NewspaperDTO> listaDTO = listForExport(searchNewspaperDTO, pageRequest);
-            SpreadsheetMLPackage spreadsheet = createSpreadsheet();
-            SheetData exportTestate = addSheet(spreadsheet, "Export testate");
+            XSSFWorkbook spreadsheet = createSpreadsheet();
+            XSSFSheet exportTestate = addSheet(spreadsheet, "Export testate");
             addRow(exportTestate, "ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento");
 
             listaDTO.forEach(dto -> addRow(exportTestate,
@@ -247,7 +249,7 @@ public class NewspaperService {
                     dto.getRegionalGeolocalization(),
                     dto.getTopics().stream().map(TopicDTO::getName).collect(Collectors.joining(", "))
             ));
-            spreadsheet.save(baos);
+            spreadsheet.write(baos);
             return baos.toByteArray();
         } catch (Exception e) {
             throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error");
@@ -274,5 +276,50 @@ public class NewspaperService {
 
     private List<NewspaperDTO> listForExport(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) {
         return this.findAll(searchNewspaperDTO, pageRequest).toList();
+    }
+
+    public byte[] generateReport(List<GenerateNewspaperReportDTO> generateNewspaperReportRequest) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            XSSFWorkbook spreadsheet = createSpreadsheet();
+            XSSFSheet report = addSheet(spreadsheet, "Resoconto testate");
+            addRow(report, "Identificativo Testata", "Nome", "Costo di acquisto", "Costo di vendita originale", "Costo di vendita");
+
+            List<Newspaper> newspapers = new ArrayList<>();
+            generateNewspaperReportRequest.forEach(generateNewspaperReportDTO -> {
+                Newspaper newspaper = this.findById(generateNewspaperReportDTO.getId());
+                addRow(report,
+                        newspaper.getId(),
+                        newspaper.getName(),
+                        newspaper.getCostEach(),
+                        newspaper.getCostSell(),
+                        generateNewspaperReportDTO.getCostSell()
+                );
+                newspapers.add(newspaper);
+            });
+
+            double totalCostEach = newspapers.stream().mapToDouble(Newspaper::getCostEach).sum();
+            double totalCostSell = generateNewspaperReportRequest.stream().mapToDouble(GenerateNewspaperReportDTO::getCostSell).sum();
+
+            addEmptyRow(report);
+            addRow(report, "Totale Costo di acquisto", totalCostEach);
+            addRow(report, "Totale Costo di vendita", totalCostSell);
+            addRow(report, "Differenza", totalCostSell - totalCostEach);
+
+            spreadsheet.write(baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error");
+        }
+    }
+
+    public void saveDescription(Integer id, SaveNewspaperDescriptionDTO saveNewspaperDescriptionDTO) {
+        Newspaper newspaper = this.findById(id);
+        newspaper.setDescription(saveNewspaperDescriptionDTO.getDescription());
+        this.newspaperRepository.save(newspaper);
+    }
+
+    public NewspaperDescriptionDTO getDescription(Integer id) {
+        Newspaper newspaper = this.findById(id);
+        return NewspaperDescriptionDTO.builder().description(newspaper.getDescription()).build();
     }
 }
