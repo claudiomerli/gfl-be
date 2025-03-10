@@ -312,6 +312,34 @@ public class NewspaperService {
         }
     }
 
+    public byte[] generateReportCustomer(List<GenerateNewspaperCustomerReportDTO> generateNewspaperCustomerReportDTOS) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            XSSFWorkbook spreadsheet = createSpreadsheet();
+            XSSFSheet report = addSheet(spreadsheet, "Resoconto testate");
+            addRow(report,"Nome", "Costo di vendita");
+
+            List<Newspaper> newspapers = new ArrayList<>();
+            generateNewspaperCustomerReportDTOS.forEach(generateNewspaperReportDTO -> {
+                Newspaper newspaper = this.findById(generateNewspaperReportDTO.getId());
+                addRow(report,
+                        newspaper.getName(),
+                        newspaper.getCostSell()
+                );
+                newspapers.add(newspaper);
+            });
+
+            double totalCostSell = newspapers.stream().mapToDouble(Newspaper::getCostSell).sum();
+
+            addEmptyRow(report);
+            addRow(report, "Totale Costo di vendita", totalCostSell);
+
+            spreadsheet.write(baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Error");
+        }
+    }
+
     public void saveDescription(Integer id, SaveNewspaperDescriptionDTO saveNewspaperDescriptionDTO) {
         Newspaper newspaper = this.findById(id);
         newspaper.setDescription(saveNewspaperDescriptionDTO.getDescription());

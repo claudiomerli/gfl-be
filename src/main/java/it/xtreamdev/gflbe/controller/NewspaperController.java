@@ -116,6 +116,11 @@ public class NewspaperController {
         return ResponseEntity.ok(this.newspaperService.generateReport(generateNewspaperReportRequest));
     }
 
+    @PostMapping("/report/customer")
+    public ResponseEntity<byte[]> reportCustomer(@RequestBody List<GenerateNewspaperCustomerReportDTO> generateNewspaperReportRequest) {
+        return ResponseEntity.ok(this.newspaperService.generateReportCustomer(generateNewspaperReportRequest));
+    }
+
     @PutMapping("{id}/description")
     public void saveDescription(@PathVariable Integer id, @RequestBody SaveNewspaperDescriptionDTO saveNewspaperDescriptionDTO) {
         this.newspaperService.saveDescription(id, saveNewspaperDescriptionDTO);
