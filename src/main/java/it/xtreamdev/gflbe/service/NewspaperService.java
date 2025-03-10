@@ -5,6 +5,7 @@ import it.xtreamdev.gflbe.dto.topic.TopicDTO;
 import it.xtreamdev.gflbe.mapper.NewspaperMapper;
 import it.xtreamdev.gflbe.model.*;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
+import it.xtreamdev.gflbe.repository.NewspaperDiscountRepository;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.repository.TopicRepository;
@@ -43,6 +44,8 @@ public class NewspaperService {
     private NewspaperMapper newspaperMapper;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private NewspaperDiscountRepository newspaperDiscountRepository;
 
     @Autowired
     private PdfUtils pdfUtils;
@@ -313,22 +316,28 @@ public class NewspaperService {
     }
 
     public byte[] generateReportCustomer(List<GenerateNewspaperCustomerReportDTO> generateNewspaperCustomerReportDTOS) {
+        User user = userService.userInfo();
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             XSSFWorkbook spreadsheet = createSpreadsheet();
             XSSFSheet report = addSheet(spreadsheet, "Resoconto testate");
-            addRow(report,"Nome", "Costo di vendita");
+            addRow(report, "Nome", "Costo di vendita");
 
             List<Newspaper> newspapers = new ArrayList<>();
+            List<Double> prices = new ArrayList<>();
             generateNewspaperCustomerReportDTOS.forEach(generateNewspaperReportDTO -> {
                 Newspaper newspaper = this.findById(generateNewspaperReportDTO.getId());
+                Double finalCostSell = this.newspaperDiscountRepository
+                        .findByCustomerAndNewspaper(user, newspaper)
+                        .map(newspaperDiscount -> newspaper.getCostSell() - ((Double.valueOf(newspaperDiscount.getDiscountPercentage()) / 100) * newspaper.getCostSell())).orElse(newspaper.getCostSell());
+                prices.add(finalCostSell);
                 addRow(report,
                         newspaper.getName(),
-                        newspaper.getCostSell()
+                        finalCostSell
                 );
                 newspapers.add(newspaper);
             });
 
-            double totalCostSell = newspapers.stream().mapToDouble(Newspaper::getCostSell).sum();
+            double totalCostSell = prices.stream().mapToDouble(value -> value).sum();
 
             addEmptyRow(report);
             addRow(report, "Totale Costo di vendita", totalCostSell);
