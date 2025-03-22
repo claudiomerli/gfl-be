@@ -37,6 +37,9 @@ public class Newspaper {
     @Formula("(SELECT COALESCE(sum(cp.content_number - ( select count(*) from project_commission pc where pc.content_purchase_id = cp.id)),0) FROM content_purchase cp inner join content_purchase_newspaper cpn on cp.id = cpn.content_purchase_id WHERE cpn.newspapers_id = id)")
     private Integer leftContent;
 
+    @Formula("(SELECT COALESCE(sum(cp.content_number),0) from content_purchase cp inner join content_purchase_newspaper cpn on cpn.content_purchase_id = cp.id  where cpn.newspapers_id = id)")
+    private Integer purchasedContent;
+
     @Column(name = "email")
     private String email;
 
@@ -51,6 +54,18 @@ public class Newspaper {
 
     @Column(name = "za")
     private Integer za;
+
+    @Column(name = "tf")
+    private Integer tf;
+
+    @Column(name = "cf")
+    private Integer cf;
+
+    @Column(name = "dr")
+    private Integer dr;
+
+    @Column(name = "traffic")
+    private Integer traffic;
 
     @Column(name = "hidden")
     private Boolean hidden;

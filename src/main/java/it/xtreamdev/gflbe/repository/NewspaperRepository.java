@@ -5,7 +5,9 @@ import it.xtreamdev.gflbe.dto.newspaper.MaxMinRangeNewspaperAttributesDTO;
 import it.xtreamdev.gflbe.model.Newspaper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface NewspaperRepository extends JpaRepository<Newspaper, Integer>, JpaSpecificationExecutor<Newspaper> {
 
@@ -36,4 +38,15 @@ public interface NewspaperRepository extends JpaRepository<Newspaper, Integer>, 
 
     @Query("select min(n.costSell) from Newspaper n where n.hidden is false")
     Double findMinPriceForCustomer();
+
+    @Query("update Newspaper set za = :za, cf = :cf, tf = :tf, dr = :dr, traffic = :traffic where id = :id")
+    @Modifying
+    void updateNewspaperIndexes(
+            @Param("za") Integer za,
+            @Param("cf") Integer cf,
+            @Param("tf") Integer tf,
+            @Param("dr") Integer dr,
+            @Param("traffic") Integer traffic,
+            @Param("id") Integer id
+    );
 }

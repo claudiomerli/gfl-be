@@ -14,6 +14,7 @@ public class NewspaperDTO {
 
     private Integer id;
     private String name;
+    private Integer purchasedContent;
     private Integer leftContent;
     private Double costEach;
     private Double costSell;
@@ -21,6 +22,10 @@ public class NewspaperDTO {
     private String regionalGeolocalization;
     private String note;
     private Integer za;
+    private Integer tf;
+    private Integer cf;
+    private Integer dr;
+    private Integer traffic;
     private String ip;
     private Set<TopicDTO> topics;
     private Boolean hidden;

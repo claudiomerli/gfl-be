@@ -2,6 +2,7 @@ package it.xtreamdev.gflbe.controller;
 
 import it.xtreamdev.gflbe.dto.newspaper.*;
 import it.xtreamdev.gflbe.service.NewspaperService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -12,11 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("api/newspaper")
+@Slf4j
 public class NewspaperController {
 
     @Autowired
@@ -66,6 +69,18 @@ public class NewspaperController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.xlsx")
                     .body(new ByteArrayResource(this.newspaperService.exportExcel(searchNewspaperDTO, PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.valueOf(sortDirection), sortBy))));
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("import")
+    public ResponseEntity<Void> importExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            this.newspaperService.importExcel(file.getBytes());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -81,6 +96,7 @@ public class NewspaperController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=testate.pdf")
                     .body(new ByteArrayResource(this.newspaperService.exportPDF(searchNewspaperDTO, PageRequest.of(0, Integer.MAX_VALUE, Sort.Direction.valueOf(sortDirection), sortBy))));
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

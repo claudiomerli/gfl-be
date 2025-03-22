@@ -9,8 +9,11 @@ import it.xtreamdev.gflbe.repository.NewspaperDiscountRepository;
 import it.xtreamdev.gflbe.repository.NewspaperRepository;
 import it.xtreamdev.gflbe.repository.ProjectRepository;
 import it.xtreamdev.gflbe.repository.TopicRepository;
+import it.xtreamdev.gflbe.util.FormatUtils;
 import it.xtreamdev.gflbe.util.PdfUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
@@ -32,6 +37,7 @@ import java.util.stream.Collectors;
 import static it.xtreamdev.gflbe.util.ExcelUtils.*;
 
 @Service
+@Slf4j
 public class NewspaperService {
 
     @Autowired
@@ -176,6 +182,10 @@ public class NewspaperService {
                         .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                         .note(newspaper.getNote())
                         .za(newspaper.getZa())
+                        .tf(newspaper.getTf())
+                        .cf(newspaper.getCf())
+                        .dr(newspaper.getDr())
+                        .traffic(newspaper.getTraffic())
                         .ip(newspaper.getIp())
                         .hidden(newspaper.getHidden())
                         .sensitiveTopics(newspaper.getSensitiveTopics())
@@ -203,6 +213,10 @@ public class NewspaperService {
         persistedNewspaper.setNote(saveNewspaperDTO.getNote());
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
         persistedNewspaper.setZa(saveNewspaperDTO.getZa());
+        persistedNewspaper.setTf(saveNewspaperDTO.getTf());
+        persistedNewspaper.setCf(saveNewspaperDTO.getCf());
+        persistedNewspaper.setDr(saveNewspaperDTO.getDr());
+        persistedNewspaper.setTraffic(saveNewspaperDTO.getTraffic());
         persistedNewspaper.setIp(saveNewspaperDTO.getIp());
         persistedNewspaper.setTopics(saveNewspaperDTO.getTopics().stream().map(topicId -> Topic.builder().id(topicId).build()).collect(Collectors.toSet()));
         persistedNewspaper.setHidden(saveNewspaperDTO.getHidden());
@@ -239,19 +253,25 @@ public class NewspaperService {
             List<NewspaperDTO> listaDTO = listForExport(searchNewspaperDTO, pageRequest);
             XSSFWorkbook spreadsheet = createSpreadsheet();
             XSSFSheet exportTestate = addSheet(spreadsheet, "Export testate");
-            addRow(exportTestate, "ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento");
+            addRow(exportTestate, "ID", "Nome", "Redazionali acquistati", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "TF", "CF", "DR", "Traffico", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento");
 
             listaDTO.forEach(dto -> addRow(exportTestate,
                     dto.getId(),
                     dto.getName(),
+                    dto.getPurchasedContent(),
                     dto.getLeftContent(),
                     dto.getCostEach(),
                     dto.getCostSell(),
                     dto.getZa(),
+                    dto.getTf(),
+                    dto.getCf(),
+                    dto.getDr(),
+                    dto.getTraffic(),
                     dto.getEmail(),
                     dto.getRegionalGeolocalization(),
                     dto.getTopics().stream().map(TopicDTO::getName).collect(Collectors.joining(", "))
             ));
+
             spreadsheet.write(baos);
             return baos.toByteArray();
         } catch (Exception e) {
@@ -260,9 +280,30 @@ public class NewspaperService {
 
     }
 
+    @Transactional
+    public void importExcel(byte[] bytes) {
+        try (ByteArrayInputStream file = new ByteArrayInputStream(bytes)) {
+            Workbook workbook = WorkbookFactory.create(file);
+            Sheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                if(row.getRowNum() == 0) {continue;}
+                double idValue = row.getCell(0).getNumericCellValue();
+                double zaValue = row.getCell(6).getNumericCellValue();
+                double tfValue = row.getCell(7).getNumericCellValue();
+                double cfValue = row.getCell(8).getNumericCellValue();
+                double drValue = row.getCell(9).getNumericCellValue();
+                double trafficValue = row.getCell(10).getNumericCellValue();
+
+                this.newspaperRepository.updateNewspaperIndexes((int) zaValue, (int) tfValue, (int) cfValue, (int) drValue, (int) trafficValue, (int) idValue);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
     public byte[] exportPDF(SearchNewspaperDTO searchNewspaperDTO, PageRequest pageRequest) throws IOException {
         List<NewspaperDTO> listaDTO = listForExport(searchNewspaperDTO, pageRequest);
-        pdfUtils.exportPdf("Elenco testate censite", Arrays.asList("ID", "Nome", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento"));
+        pdfUtils.exportPdf("Elenco testate censite", Arrays.asList("ID", "Nome", "Redazionali rimanenti", "Costo cadauno", "Costo di vendita", "ZA", "TF", "CF", "DR", "Traffico", "E-mail di contatto", "Geolocalizzazione regionale", "Argomento"));
         listaDTO.forEach(dto -> {
             pdfUtils.setValore(dto.getId());
             pdfUtils.setValore(dto.getName());
@@ -270,6 +311,10 @@ public class NewspaperService {
             pdfUtils.setValore(dto.getCostEach());
             pdfUtils.setValore(dto.getCostSell());
             pdfUtils.setValore(dto.getZa());
+            pdfUtils.setValore(dto.getTf());
+            pdfUtils.setValore(dto.getCf());
+            pdfUtils.setValore(dto.getDr());
+            pdfUtils.setValore(dto.getTraffic() != null ? new FormatUtils.HighNumberValue(dto.getTraffic()).shortString() : null);
             pdfUtils.setValore(dto.getEmail());
             pdfUtils.setValore(dto.getRegionalGeolocalization());
             pdfUtils.setValore(dto.getTopics().stream().map(TopicDTO::getName).collect(Collectors.joining(", ")));

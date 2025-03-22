@@ -20,6 +20,10 @@ public class SaveNewspaperDTO {
     private List<Integer> topics;
     private String note;
     private Integer za;
+    private Integer tf;
+    private Integer cf;
+    private Integer dr;
+    private Integer traffic;
     private String ip;
     private Boolean hidden;
     private Boolean sensitiveTopics;

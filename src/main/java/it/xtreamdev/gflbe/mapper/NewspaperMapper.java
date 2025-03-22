@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class NewspaperMapper {
 
 
-
     public Page<NewspaperDTO> mapEntityToDTO(Page<Newspaper> newspapers) {
         return newspapers.map(this::mapEntityToDTO);
     }
@@ -25,11 +24,16 @@ public class NewspaperMapper {
                 .costEach(newspaper.getCostEach())
                 .costSell(newspaper.getCostSell())
                 .leftContent(newspaper.getLeftContent())
+                .purchasedContent(newspaper.getPurchasedContent())
                 .name(newspaper.getName())
                 .email(newspaper.getEmail())
                 .regionalGeolocalization(newspaper.getRegionalGeolocalization())
                 .note(newspaper.getNote())
                 .za(newspaper.getZa())
+                .tf(newspaper.getTf())
+                .cf(newspaper.getCf())
+                .dr(newspaper.getDr())
+                .traffic(newspaper.getTraffic())
                 .ip(newspaper.getIp())
                 .topics(newspaper.getTopics().stream().map(topic -> TopicDTO
                                 .builder()
