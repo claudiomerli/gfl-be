@@ -1478,5 +1478,9 @@
     <include file="db/changelog/2025/01/22-01-changelog.xml"/>
     <include file="db/changelog/2025/03/08-01-changelog.xml"/>
     <include file="db/changelog/2025/03/22-01-changelog.xml"/>
+    <include file="db/changelog/2025/04/06-01-changelog.xml"/>
+    <include file="db/changelog/2025/04/06-02-changelog.xml"/>
+    <include file="db/changelog/2025/04/06-03-changelog.xml"/>
+    <include file="db/changelog/2025/04/06-04-changelog.xml"/>
 
 </databaseChangeLog>

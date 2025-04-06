@@ -27,4 +27,6 @@ public class SearchProjectDTO {
     @Builder.Default
     private List<Integer> newspapers = new ArrayList<>();
 
+    private Integer customerId;
+
 }

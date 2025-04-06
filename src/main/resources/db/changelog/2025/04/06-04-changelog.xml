@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.18.xsd" objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1743939113768-15" author="claudiomerli">
+        <addColumn tableName="message">
+            <column name="visualized" type="BOOLEAN"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1743939113768-16" author="claudiomerli">
+        <dropColumn columnName="read" tableName="message"/>
+    </changeSet>
+    <changeSet id="1743941897285-1" author="claudiomerli">
+        <modifyDataType tableName="message" columnName="message" newDataType="text"/>
+    </changeSet>
+
+</databaseChangeLog>

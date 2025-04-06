@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.xlsx4j.sml.SheetData;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
@@ -352,6 +350,10 @@ public class ProjectService {
                     break;
                 case INTERNAL_NETWORK:
                     predicateList.add(criteriaBuilder.isNotNull(root.get("domain")));
+                case ADMIN:
+                    if (searchProjectDTO.getCustomerId() != null) {
+                        predicateList.add(criteriaBuilder.equal(root.get("customer"), searchProjectDTO.getCustomerId()));
+                    }
             }
 
             if (StringUtils.isNotBlank(searchProjectDTO.getGlobalSearch())) {
@@ -454,12 +456,21 @@ public class ProjectService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             XSSFWorkbook spreadsheet = createSpreadsheet();
             XSSFSheet sheet = addSheet(spreadsheet, project.getName());
-            addRow(sheet, "Testata", "Url di pubblicazione", "Data di pubblicazione", "Periodo");
+            addRow(sheet,
+                    "Testata",
+                    "Url di pubblicazione",
+                    "Data di pubblicazione",
+                    "Periodo",
+                    "Costo di vendita"
+            );
             projectCommissions.forEach(projectCommission -> addRow(sheet,
-                    projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getName() : null,
-                    projectCommission.getPublicationUrl() != null ? projectCommission.getPublicationUrl() : null,
-                    projectCommission.getPublicationDate() != null ? projectCommission.getPublicationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
-                    projectCommission.getPeriod() != null ? projectCommission.getPeriod().getDisplayName(TextStyle.FULL, Locale.ITALY) : null));
+                            projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getName() : null,
+                            projectCommission.getPublicationUrl() != null ? projectCommission.getPublicationUrl() : null,
+                            projectCommission.getPublicationDate() != null ? projectCommission.getPublicationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
+                            projectCommission.getPeriod() != null ? projectCommission.getPeriod().getDisplayName(TextStyle.FULL, Locale.ITALY) : null,
+                            projectCommission.getCostSell() != null ? projectCommission.getCostSell() : projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getCostSell() : null
+                    )
+            );
             spreadsheet.write(baos);
             return baos.toByteArray();
         } catch (Exception e) {
