@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.dto.message;
 
+import it.xtreamdev.gflbe.model.enumerations.MessageTopicType;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +19,5 @@ public class SaveMessageDTO {
     private RoleName targetRole;
     private Integer targetUserId;
     private String topicId;
-    private String topicType;
+    private MessageTopicType topicType;
 }

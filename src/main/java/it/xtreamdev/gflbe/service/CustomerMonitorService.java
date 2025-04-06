@@ -5,6 +5,8 @@ import it.xtreamdev.gflbe.dto.project.SaveCustomerMonitorDTO;
 import it.xtreamdev.gflbe.model.CustomerMonitor;
 import it.xtreamdev.gflbe.model.Project;
 import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.enumerations.CurrentlyMonthCustomerMonitorStatus;
+import it.xtreamdev.gflbe.model.enumerations.CustomerMonitorStatus;
 import it.xtreamdev.gflbe.repository.CustomerMonitorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +36,17 @@ public class CustomerMonitorService {
 
     public List<CustomerMonitor> getCustomerMonitors(Integer customerId) {
         User customer = this.userService.findById(customerId);
-        return this.customerMonitorRepository.findCustomerMonitorByCustomer(customer);
+        List<CustomerMonitor> monitors = this.customerMonitorRepository.findCustomerMonitorByCustomer(customer);
+
+        monitors.sort(Comparator.comparing(this::getPriority).thenComparing(CustomerMonitor::getLastWork, Comparator.reverseOrder()));
+
+        return monitors;
+    }
+
+    private int getPriority(CustomerMonitor cm) {
+        if (cm.getCurrentlyMonthStatus() == CurrentlyMonthCustomerMonitorStatus.WAITING_FOR_INFO) return 1; // Priorità massima (in alto)
+        if (cm.getStatus() == CustomerMonitorStatus.CLOSED) return 3; // Priorità minima (in basso)
+        return 2; // Tutti gli altri nel mezzo
     }
 
     public CustomerMonitor save(SaveCustomerMonitorDTO saveCustomerMonitorDTO) {

@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import it.xtreamdev.gflbe.model.enumerations.MessageTopicType;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import lombok.*;
 
@@ -43,5 +44,6 @@ public class Message {
 
     private String topicId;
 
-    private String topicType;
+    @Enumerated(EnumType.STRING)
+    private MessageTopicType topicType;
 }

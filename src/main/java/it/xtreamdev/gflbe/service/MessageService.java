@@ -3,9 +3,13 @@ package it.xtreamdev.gflbe.service;
 import it.xtreamdev.gflbe.dto.message.SaveMessageDTO;
 import it.xtreamdev.gflbe.dto.message.SearchMessageDTO;
 import it.xtreamdev.gflbe.model.Message;
+import it.xtreamdev.gflbe.model.Notification;
 import it.xtreamdev.gflbe.model.User;
+import it.xtreamdev.gflbe.model.enumerations.MessageTopicType;
+import it.xtreamdev.gflbe.model.enumerations.NotificationType;
 import it.xtreamdev.gflbe.model.enumerations.RoleName;
 import it.xtreamdev.gflbe.repository.MessageRepository;
+import it.xtreamdev.gflbe.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,8 +19,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -27,6 +33,9 @@ public class MessageService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     public Message saveMessage(SaveMessageDTO saveMessageDTO) {
         User user = userService.userInfo();
@@ -43,7 +52,21 @@ public class MessageService {
         message.setSourceRole(user.getRole());
         message.setSourceUser(user);
 
-        return messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+
+        if (savedMessage.getTopicType() == MessageTopicType.CUSTOMER_MONITOR && savedMessage.getTargetUser() != null && savedMessage.getTargetUser().getRole() == RoleName.CUSTOMER) {
+            this.notificationRepository.save(
+                    Notification
+                            .builder()
+                            .type(NotificationType.NEW_MESSAGE)
+                            .route("/tools/projects-monitor")
+                            .description("Hai un nuovo messaggio")
+                            .user(savedMessage.getTargetUser())
+                            .build()
+            );
+        }
+
+        return savedMessage;
     }
 
     public Page<Message> find(SearchMessageDTO searchMessageDTO, Pageable pageable) {
@@ -53,7 +76,7 @@ public class MessageService {
                 predicates.add(criteriaBuilder.equal(root.get("topicId"), searchMessageDTO.getTopicId()));
             }
             if (searchMessageDTO.getTopicType() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("topicType"), searchMessageDTO.getTopicType()));
+                predicates.add(criteriaBuilder.equal(root.get("topicType"), MessageTopicType.valueOf(searchMessageDTO.getTopicType())));
             }
 
             if (searchMessageDTO.getParticipant1Role() != null) {
