@@ -1,6 +1,7 @@
 package it.xtreamdev.gflbe.dto.project;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import it.xtreamdev.gflbe.model.enumerations.ContentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,10 @@ public class SaveProjectCommissionDTO {
     private String title;
     private String notes;
     private String publicationUrl;
-
     private LocalDate publicationDate;
+    private LocalDate deliveryDate;
+    private ContentType contentType;
+    private String publicationWorkNotes;
+    private String contentWorkNotes;
 
 }

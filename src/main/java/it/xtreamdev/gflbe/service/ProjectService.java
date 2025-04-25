@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.service;
 
+import it.xtreamdev.gflbe.dto.CommissionDashboardSearchRequest;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
@@ -81,10 +82,6 @@ public class ProjectService {
     @Autowired
     private MajesticSEOService majesticSEOService;
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-
     public Project findById(Integer id) {
         User user = userService.userInfo();
         Project project = this.projectRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "Id not found"));
@@ -96,18 +93,8 @@ public class ProjectService {
     }
 
     public void createProjectFromDomain(Domain domain) {
-        Project project = Project.builder()
-                .name(domain.getName())
-                .domain(domain)
-                .hint(ContentHint.builder().build())
-                .build();
-        project.getProjectStatusChanges().add(
-                ProjectStatusChange
-                        .builder()
-                        .project(project)
-                        .projectStatus(ProjectStatus.CREATED)
-                        .build()
-        );
+        Project project = Project.builder().name(domain.getName()).domain(domain).hint(ContentHint.builder().build()).build();
+        project.getProjectStatusChanges().add(ProjectStatusChange.builder().project(project).projectStatus(ProjectStatus.CREATED).build());
 
         this.projectRepository.save(project);
     }
@@ -118,88 +105,33 @@ public class ProjectService {
     }
 
     public Project save(SaveProjectDTO saveProjectDTO) {
-        Project project = Project.builder()
-                .name(saveProjectDTO.getName())
-                .hint(ContentHint.builder().build())
-                .build();
-        project.getProjectStatusChanges().add(
-                ProjectStatusChange
-                        .builder()
-                        .project(project)
-                        .projectStatus(ProjectStatus.CREATED)
-                        .build()
-        );
+        Project project = Project.builder().name(saveProjectDTO.getName()).hint(ContentHint.builder().build()).build();
+        project.getProjectStatusChanges().add(ProjectStatusChange.builder().project(project).projectStatus(ProjectStatus.CREATED).build());
 
         return this.projectRepository.save(project);
     }
 
     public void addCommissionMassive(Integer projectId, SaveProjectCommissionMassiveDTO saveProjectCommissionMassiveDTO) {
-        saveProjectCommissionMassiveDTO.getNewspaperIds().forEach(newspaperId -> this.addCommission(projectId, SaveProjectCommissionDTO.builder()
-                .notes(saveProjectCommissionMassiveDTO.getNotes())
-                .title(saveProjectCommissionMassiveDTO.getTitle())
-                .url(saveProjectCommissionMassiveDTO.getUrl())
-                .year(saveProjectCommissionMassiveDTO.getYear())
-                .period(saveProjectCommissionMassiveDTO.getPeriod())
-                .newspaperId(newspaperId)
-                .anchor(saveProjectCommissionMassiveDTO.getAnchor())
-                .isAnchorBold(saveProjectCommissionMassiveDTO.getIsAnchorBold())
-                .isAnchorItalic(saveProjectCommissionMassiveDTO.getIsAnchorItalic())
-                .publicationDate(saveProjectCommissionMassiveDTO.getPublicationDate())
-                .publicationUrl(saveProjectCommissionMassiveDTO.getPublicationUrl())
-                .build()));
+        saveProjectCommissionMassiveDTO.getNewspaperIds().forEach(newspaperId -> this.addCommission(projectId, SaveProjectCommissionDTO.builder().notes(saveProjectCommissionMassiveDTO.getNotes()).title(saveProjectCommissionMassiveDTO.getTitle()).url(saveProjectCommissionMassiveDTO.getUrl()).year(saveProjectCommissionMassiveDTO.getYear()).period(saveProjectCommissionMassiveDTO.getPeriod()).newspaperId(newspaperId).anchor(saveProjectCommissionMassiveDTO.getAnchor()).isAnchorBold(saveProjectCommissionMassiveDTO.getIsAnchorBold()).isAnchorItalic(saveProjectCommissionMassiveDTO.getIsAnchorItalic()).publicationDate(saveProjectCommissionMassiveDTO.getPublicationDate()).publicationUrl(saveProjectCommissionMassiveDTO.getPublicationUrl()).build()));
     }
 
     public Project addCommission(Integer projectId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
         Project project = this.findById(projectId);
-        ProjectCommission projectCommission = ProjectCommission.builder()
-                .newspaper(saveProjectCommissionDTO.getNewspaperId() != null ? this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()) : null)
-                .period(Month.valueOf(saveProjectCommissionDTO.getPeriod()))
-                .year(saveProjectCommissionDTO.getYear())
-                .anchor(saveProjectCommissionDTO.getAnchor())
-                .isAnchorBold(saveProjectCommissionDTO.getIsAnchorBold())
-                .isAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic())
-                .status(ProjectCommissionStatus.CREATED)
-                .url(saveProjectCommissionDTO.getUrl())
-                .title(saveProjectCommissionDTO.getTitle())
-                .notes(saveProjectCommissionDTO.getNotes())
-                .publicationUrl(saveProjectCommissionDTO.getPublicationUrl())
-                .publicationDate(saveProjectCommissionDTO.getPublicationDate())
-                .project(project)
-                .build();
-        projectCommission.getProjectStatusChanges().add(
-                ProjectStatusChange
-                        .builder()
-                        .projectCommissionStatus(ProjectCommissionStatus.CREATED)
-                        .projectCommission(projectCommission)
-                        .build()
-        );
+        ProjectCommission projectCommission = ProjectCommission.builder().newspaper(saveProjectCommissionDTO.getNewspaperId() != null ? this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()) : null).period(Month.valueOf(saveProjectCommissionDTO.getPeriod())).year(saveProjectCommissionDTO.getYear()).anchor(saveProjectCommissionDTO.getAnchor()).isAnchorBold(saveProjectCommissionDTO.getIsAnchorBold()).isAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic()).status(ProjectCommissionStatus.CREATED).url(saveProjectCommissionDTO.getUrl()).title(saveProjectCommissionDTO.getTitle()).notes(saveProjectCommissionDTO.getNotes()).publicationUrl(saveProjectCommissionDTO.getPublicationUrl()).publicationDate(saveProjectCommissionDTO.getPublicationDate()).project(project).deliveryDate(saveProjectCommissionDTO.getDeliveryDate()).contentType(saveProjectCommissionDTO.getContentType()).contentWorkNotes(saveProjectCommissionDTO.getContentWorkNotes()).publicationWorkNotes(saveProjectCommissionDTO.getPublicationWorkNotes()).build();
+        projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder().projectCommissionStatus(ProjectCommissionStatus.CREATED).projectCommission(projectCommission).build());
 
-        Content contentForCommission = Content.builder()
-                .contentStatus(ContentStatus.WORKING)
-                .projectCommission(projectCommission)
-                .hint(ContentHint.builder().build())
-                .build();
+        Content contentForCommission = Content.builder().contentStatus(ContentStatus.WORKING).projectCommission(projectCommission).hint(ContentHint.builder().build()).build();
 
         projectCommission.setContent(contentForCommission);
         project.getProjectCommissions().add(projectCommission);
 
         if (project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION || project.getStatus() == ProjectStatus.INVOICED) {
             project.setStatus(ProjectStatus.CREATED);
-            project.getProjectStatusChanges().add(ProjectStatusChange
-                    .builder()
-                    .projectStatus(ProjectStatus.CREATED)
-                    .project(project)
-                    .build());
+            project.getProjectStatusChanges().add(ProjectStatusChange.builder().projectStatus(ProjectStatus.CREATED).project(project).build());
         }
 
         if (this.userService.userInfo().getRole() == RoleName.CUSTOMER) {
-            this.genericOrderRepository.save(ProjectCommissionOrder.builder()
-                    .projectId(projectId)
-                    .customer(this.userService.userInfo())
-                    .type(GenericOrderType.PROJECT_COMMISSION)
-                    .status(OrderStatus.REQUESTED)
-                    .level(GenericOrderLevel.NOT_SPECIFIED)
-                    .build());
+            this.genericOrderRepository.save(ProjectCommissionOrder.builder().projectId(projectId).customer(this.userService.userInfo()).type(GenericOrderType.PROJECT_COMMISSION).status(OrderStatus.REQUESTED).level(GenericOrderLevel.NOT_SPECIFIED).build());
         }
 
         return this.projectRepository.save(project);
@@ -208,28 +140,29 @@ public class ProjectService {
 
     public Project removeCommission(Integer projectId, Integer commissionId) {
         Project project = this.findById(projectId);
-        project.getProjectCommissions()
-                .removeIf(projectCommission -> projectCommission.getId().equals(commissionId));
+        project.getProjectCommissions().removeIf(projectCommission -> projectCommission.getId().equals(commissionId));
         return this.projectRepository.save(project);
     }
 
     public Project updateCommission(Integer projectId, Integer commissionId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
         Project project = this.findById(projectId);
-        project.getProjectCommissions().stream().filter(projectCommission -> projectCommission.getId().equals(commissionId))
-                .findFirst()
-                .ifPresent(projectCommission -> {
-                    projectCommission.setNewspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()));
-                    projectCommission.setPeriod(Month.valueOf(saveProjectCommissionDTO.getPeriod()));
-                    projectCommission.setYear(saveProjectCommissionDTO.getYear());
-                    projectCommission.setAnchor(saveProjectCommissionDTO.getAnchor());
-                    projectCommission.setIsAnchorBold(saveProjectCommissionDTO.getIsAnchorBold());
-                    projectCommission.setIsAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic());
-                    projectCommission.setUrl(saveProjectCommissionDTO.getUrl());
-                    projectCommission.setTitle(saveProjectCommissionDTO.getTitle());
-                    projectCommission.setNotes(saveProjectCommissionDTO.getNotes());
-                    projectCommission.setPublicationUrl(saveProjectCommissionDTO.getPublicationUrl());
-                    projectCommission.setPublicationDate(saveProjectCommissionDTO.getPublicationDate());
-                });
+        project.getProjectCommissions().stream().filter(projectCommission -> projectCommission.getId().equals(commissionId)).findFirst().ifPresent(projectCommission -> {
+            projectCommission.setNewspaper(this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()));
+            projectCommission.setPeriod(Month.valueOf(saveProjectCommissionDTO.getPeriod()));
+            projectCommission.setYear(saveProjectCommissionDTO.getYear());
+            projectCommission.setAnchor(saveProjectCommissionDTO.getAnchor());
+            projectCommission.setIsAnchorBold(saveProjectCommissionDTO.getIsAnchorBold());
+            projectCommission.setIsAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic());
+            projectCommission.setUrl(saveProjectCommissionDTO.getUrl());
+            projectCommission.setTitle(saveProjectCommissionDTO.getTitle());
+            projectCommission.setNotes(saveProjectCommissionDTO.getNotes());
+            projectCommission.setPublicationUrl(saveProjectCommissionDTO.getPublicationUrl());
+            projectCommission.setPublicationDate(saveProjectCommissionDTO.getPublicationDate());
+            projectCommission.setDeliveryDate(saveProjectCommissionDTO.getDeliveryDate());
+            projectCommission.setContentType(saveProjectCommissionDTO.getContentType());
+            projectCommission.setContentWorkNotes(saveProjectCommissionDTO.getContentWorkNotes());
+            projectCommission.setPublicationWorkNotes(saveProjectCommissionDTO.getContentWorkNotes());
+        });
 
         return this.projectRepository.save(project);
     }
@@ -261,8 +194,7 @@ public class ProjectService {
     @Transactional
     public Project setStatusCommission(Integer projectId, Integer commissionId, String status, Map<String, String> metadata) {
         Project project = this.findById(projectId);
-        ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId))
-                .findFirst().orElseThrow();
+        ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId)).findFirst().orElseThrow();
 
         if (projectCommission.getStatus().equals(ProjectCommissionStatus.valueOf(status))) {
             return project;
@@ -270,10 +202,7 @@ public class ProjectService {
 
 
         projectCommission.setStatus(ProjectCommissionStatus.valueOf(status));
-        projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder()
-                .projectCommissionStatus(projectCommission.getStatus())
-                .projectCommission(projectCommission)
-                .build());
+        projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder().projectCommissionStatus(projectCommission.getStatus()).projectCommission(projectCommission).build());
 
         if (ProjectCommissionStatus.valueOf(status) == ProjectCommissionStatus.SENT_TO_ADMINISTRATION) {
             String contentPurchasedId = metadata.get("contentPurchasedId");
@@ -283,18 +212,10 @@ public class ProjectService {
 
         if (project.getProjectCommissions().stream().allMatch(pc -> pc.getStatus() == ProjectCommissionStatus.SENT_TO_ADMINISTRATION)) {
             project.setStatus(ProjectStatus.SENT_TO_ADMINISTRATION);
-            project.getProjectStatusChanges().add(ProjectStatusChange
-                    .builder()
-                    .projectStatus(ProjectStatus.SENT_TO_ADMINISTRATION)
-                    .project(project)
-                    .build());
+            project.getProjectStatusChanges().add(ProjectStatusChange.builder().projectStatus(ProjectStatus.SENT_TO_ADMINISTRATION).project(project).build());
         } else if (project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION) {
             project.setStatus(ProjectStatus.CREATED);
-            project.getProjectStatusChanges().add(ProjectStatusChange
-                    .builder()
-                    .projectStatus(ProjectStatus.CREATED)
-                    .project(project)
-                    .build());
+            project.getProjectStatusChanges().add(ProjectStatusChange.builder().projectStatus(ProjectStatus.CREATED).project(project).build());
         }
 
         return this.projectRepository.save(project);
@@ -302,8 +223,7 @@ public class ProjectService {
 
     public void setCostSellCommission(Integer projectId, Integer commissionId, SaveProjectCommissionCostSellDTO saveProjectCommissionCostSellDTO) {
         Project project = this.findById(projectId);
-        ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId))
-                .findFirst().orElseThrow();
+        ProjectCommission projectCommission = project.getProjectCommissions().stream().filter(pc -> pc.getId().equals(commissionId)).findFirst().orElseThrow();
 
         projectCommission.setCostSell(saveProjectCommissionCostSellDTO.getCostSell());
         this.projectCommissionRepository.save(projectCommission);
@@ -312,11 +232,7 @@ public class ProjectService {
     public Project invoiceProject(Integer projectId) {
         Project project = this.findById(projectId);
         project.setStatus(ProjectStatus.INVOICED);
-        project.getProjectStatusChanges().add(ProjectStatusChange
-                .builder()
-                .projectStatus(ProjectStatus.INVOICED)
-                .project(project)
-                .build());
+        project.getProjectStatusChanges().add(ProjectStatusChange.builder().projectStatus(ProjectStatus.INVOICED).project(project).build());
         return this.projectRepository.save(project);
     }
 
@@ -334,11 +250,11 @@ public class ProjectService {
             }
 
             switch (user.getRole()) {
-                case PUBLISHER:
-                    CriteriaBuilder.In<Object> inClausePublisher = criteriaBuilder.in(projectCommissionsJoin.get("status"));
-                    Arrays.asList(ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClausePublisher::value);
-                    predicateList.add(inClausePublisher);
-                    break;
+//                case PUBLISHER:
+//                    CriteriaBuilder.In<Object> inClausePublisher = criteriaBuilder.in(projectCommissionsJoin.get("status"));
+//                    Arrays.asList(ProjectCommissionStatus.TO_PUBLISH, ProjectCommissionStatus.SENT_TO_NEWSPAPER, ProjectCommissionStatus.STANDBY_PUBLICATION, ProjectCommissionStatus.SENT_TO_ADMINISTRATION).forEach(inClausePublisher::value);
+//                    predicateList.add(inClausePublisher);
+//                    break;
                 case ADMINISTRATION:
                     predicateList.add(criteriaBuilder.equal(root.get("status"), ProjectStatus.SENT_TO_ADMINISTRATION));
                     break;
@@ -351,6 +267,8 @@ public class ProjectService {
                 case INTERNAL_NETWORK:
                     predicateList.add(criteriaBuilder.isNotNull(root.get("domain")));
                 case ADMIN:
+                case CHIEF_EDITOR:
+                case PUBLISHER:
                     if (searchProjectDTO.getCustomerId() != null) {
                         predicateList.add(criteriaBuilder.equal(root.get("customer"), searchProjectDTO.getCustomerId()));
                     }
@@ -358,15 +276,11 @@ public class ProjectService {
 
             if (StringUtils.isNotBlank(searchProjectDTO.getGlobalSearch())) {
                 Arrays.stream(searchProjectDTO.getGlobalSearch().split(" ")).forEach(s -> {
-                    predicateList.add(criteriaBuilder.or(
-                            criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + s.toUpperCase() + "%"),
-                            criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("fullname")), "%" + s.toUpperCase() + "%")
-                    ));
+                    predicateList.add(criteriaBuilder.or(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + s.toUpperCase() + "%"), criteriaBuilder.like(criteriaBuilder.upper(customerJoin.get("fullname")), "%" + s.toUpperCase() + "%")));
                 });
             }
 
-            if (searchProjectDTO.getProjectCommissionStatus() != null &&
-                    !searchProjectDTO.getProjectCommissionStatus().isEmpty()) {
+            if (searchProjectDTO.getProjectCommissionStatus() != null && !searchProjectDTO.getProjectCommissionStatus().isEmpty()) {
                 predicateList.add(criteriaBuilder.or(searchProjectDTO.getProjectCommissionStatus().stream().map(statusFilter -> criteriaBuilder.equal(projectCommissionsJoin.get("status"), ProjectCommissionStatus.valueOf(statusFilter))).toArray(Predicate[]::new)));
             }
 
@@ -397,12 +311,7 @@ public class ProjectService {
 
     public void createMissingObjects() {
         log.info("Checking project without content");
-        Consumer<ProjectCommission> pcConsumer = projectCommission -> this.contentRepository.save(
-                Content.builder()
-                        .contentStatus(ContentStatus.WORKING)
-                        .projectCommission(projectCommission)
-                        .build()
-        );
+        Consumer<ProjectCommission> pcConsumer = projectCommission -> this.contentRepository.save(Content.builder().contentStatus(ContentStatus.WORKING).projectCommission(projectCommission).build());
         Page<ProjectCommission> pcSlice = this.projectCommissionRepository.findByContentIsNull(PageRequest.of(0, 10));
         pcSlice.forEach(pcConsumer);
         while (pcSlice.hasNext()) {
@@ -415,9 +324,7 @@ public class ProjectService {
 
         log.info("Checking content without hint");
         Consumer<Content> cConsumer = content -> {
-            content.setHint(ContentHint
-                    .builder()
-                    .build());
+            content.setHint(ContentHint.builder().build());
             this.contentRepository.save(content);
         };
         Page<Content> cSlice = this.contentRepository.findByHintIsNull(PageRequest.of(0, 10));
@@ -433,10 +340,7 @@ public class ProjectService {
 
         log.info("Checking project without hint");
         Consumer<Project> pConsumer = project -> {
-            project.setHint(ContentHint
-                    .builder()
-                    .project(project)
-                    .build());
+            project.setHint(ContentHint.builder().project(project).build());
             this.projectRepository.save(project);
         };
         Page<Project> pSlice = this.projectRepository.findByHintIsNull(PageRequest.of(0, 10));
@@ -456,21 +360,8 @@ public class ProjectService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             XSSFWorkbook spreadsheet = createSpreadsheet();
             XSSFSheet sheet = addSheet(spreadsheet, project.getName());
-            addRow(sheet,
-                    "Testata",
-                    "Url di pubblicazione",
-                    "Data di pubblicazione",
-                    "Periodo",
-                    "Costo di vendita"
-            );
-            projectCommissions.forEach(projectCommission -> addRow(sheet,
-                            projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getName() : null,
-                            projectCommission.getPublicationUrl() != null ? projectCommission.getPublicationUrl() : null,
-                            projectCommission.getPublicationDate() != null ? projectCommission.getPublicationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
-                            projectCommission.getPeriod() != null ? projectCommission.getPeriod().getDisplayName(TextStyle.FULL, Locale.ITALY) : null,
-                            projectCommission.getCostSell() != null ? projectCommission.getCostSell() : projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getCostSell() : null
-                    )
-            );
+            addRow(sheet, "Testata", "Url di pubblicazione", "Data di pubblicazione", "Periodo", "Costo di vendita");
+            projectCommissions.forEach(projectCommission -> addRow(sheet, projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getName() : null, projectCommission.getPublicationUrl() != null ? projectCommission.getPublicationUrl() : null, projectCommission.getPublicationDate() != null ? projectCommission.getPublicationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null, projectCommission.getPeriod() != null ? projectCommission.getPeriod().getDisplayName(TextStyle.FULL, Locale.ITALY) : null, projectCommission.getCostSell() != null ? projectCommission.getCostSell() : projectCommission.getNewspaper() != null ? projectCommission.getNewspaper().getCostSell() : null));
             spreadsheet.write(baos);
             return baos.toByteArray();
         } catch (Exception e) {
@@ -501,13 +392,7 @@ public class ProjectService {
 
     public void addProjectCommissionHintAttachment(Integer id, Integer idCommission, SaveAttachmentDTO saveAttachmentDTO) {
         ProjectCommission projectCommission = this.findByProjectIdAndProjectCommission(id, idCommission);
-        this.attachmentRepository.save(Attachment
-                .builder()
-                .contentHint(projectCommission.getContent().getHint())
-                .filename(saveAttachmentDTO.getFilename())
-                .payload(Base64.getDecoder().decode(saveAttachmentDTO.getBody()))
-                .build()
-        );
+        this.attachmentRepository.save(Attachment.builder().contentHint(projectCommission.getContent().getHint()).filename(saveAttachmentDTO.getFilename()).payload(Base64.getDecoder().decode(saveAttachmentDTO.getBody())).build());
     }
 
     public void deleteProjectCommissionHintAttachment(Integer id, Integer idCommission, Integer idAttachment) {
@@ -517,13 +402,7 @@ public class ProjectService {
 
     public void addProjectHintAttachment(Integer id, SaveAttachmentDTO saveAttachmentDTO) {
         Project project = this.findById(id);
-        this.attachmentRepository.save(Attachment
-                .builder()
-                .contentHint(project.getHint())
-                .filename(saveAttachmentDTO.getFilename())
-                .payload(Base64.getDecoder().decode(saveAttachmentDTO.getBody()))
-                .build()
-        );
+        this.attachmentRepository.save(Attachment.builder().contentHint(project.getHint()).filename(saveAttachmentDTO.getFilename()).payload(Base64.getDecoder().decode(saveAttachmentDTO.getBody())).build());
     }
 
     public void deleteProjectHintAttachment(Integer id, Integer idAttachment) {
@@ -569,17 +448,7 @@ public class ProjectService {
 
     public void addLinkToProject(Integer id, SaveProjectLinkDTO saveProjectLinkDTO) {
         Project project = this.findById(id);
-        project.getProjectLinks().add(
-                ProjectLink.builder()
-                        .project(project)
-                        .newspaper(this.newspaperService.findById(saveProjectLinkDTO.getNewspaperId()))
-                        .year(saveProjectLinkDTO.getYear())
-                        .period(Month.valueOf(saveProjectLinkDTO.getPeriod()))
-                        .anchor(saveProjectLinkDTO.getAnchor())
-                        .url(saveProjectLinkDTO.getUrl())
-                        .publicationUrl(saveProjectLinkDTO.getPublicationUrl())
-                        .build()
-        );
+        project.getProjectLinks().add(ProjectLink.builder().project(project).newspaper(this.newspaperService.findById(saveProjectLinkDTO.getNewspaperId())).year(saveProjectLinkDTO.getYear()).period(Month.valueOf(saveProjectLinkDTO.getPeriod())).anchor(saveProjectLinkDTO.getAnchor()).url(saveProjectLinkDTO.getUrl()).publicationUrl(saveProjectLinkDTO.getPublicationUrl()).build());
         this.projectRepository.save(project);
     }
 
@@ -610,16 +479,14 @@ public class ProjectService {
     public byte[] exportProjects(SearchProjectDTO searchProjectDTO) {
         List<ProjectListElementDTO> projects = this.find(searchProjectDTO, PageRequest.of(0, Integer.MAX_VALUE)).getContent();
 
-        try (Workbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Lista progetti");
             Row headerRow = sheet.createRow(0);
             List<String> headerCells = List.of("Nome", "Stato", "Cliente", "Scadenza", "Commissioni Avviate", "Commissioni assegnate", "Commissioni lavorate");
-            IntStream.range(0, headerCells.size())
-                    .forEachOrdered(value -> {
-                        Cell cell = headerRow.createCell(value);
-                        cell.setCellValue(headerCells.get(value));
-                    });
+            IntStream.range(0, headerCells.size()).forEachOrdered(value -> {
+                Cell cell = headerRow.createCell(value);
+                cell.setCellValue(headerCells.get(value));
+            });
 
             IntStream.range(1, projects.size() + 1).forEachOrdered(value -> {
                 Row row = sheet.createRow(value);
@@ -660,16 +527,14 @@ public class ProjectService {
     public byte[] exportProjectLinkAnalysis(Integer idProject) {
         Project project = this.findById(idProject);
         List<LinkCheckDTO> linkCheckDTOS = this.startProjectLinkAnalysis(project);
-        try (Workbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet(project.getName());
             Row headerRow = sheet.createRow(0);
             List<String> headerCells = List.of("Url", "Pagina", "Ancora", "Online", "Index", "Contiene link", "Contiene ancora", "Link follow");
-            IntStream.range(0, headerCells.size())
-                    .forEachOrdered(value -> {
-                        Cell cell = headerRow.createCell(value);
-                        cell.setCellValue(headerCells.get(value));
-                    });
+            IntStream.range(0, headerCells.size()).forEachOrdered(value -> {
+                Cell cell = headerRow.createCell(value);
+                cell.setCellValue(headerCells.get(value));
+            });
 
             IntStream.range(1, linkCheckDTOS.size() + 1).forEachOrdered(value -> {
                 Row row = sheet.createRow(value);
@@ -713,15 +578,57 @@ public class ProjectService {
     }
 
     public List<LinkCheckDTO> startProjectLinkAnalysis(Project project) {
-        return Stream.concat(
-                project.getProjectCommissions().stream()
-                        .parallel()
-                        .filter(projectCommission -> StringUtils.isNotBlank(projectCommission.getPublicationUrl()))
-                        .map(projectCommission -> this.majesticSEOService.startAnalysisForLink(projectCommission.getPublicationUrl(), projectCommission.getUrl(), projectCommission.getAnchor())),
-                project.getProjectLinks().stream()
-                        .parallel()
-                        .map(projectLink -> this.majesticSEOService.startAnalysisForLink(projectLink.getPublicationUrl(), projectLink.getUrl(), projectLink.getAnchor()))
-        ).collect(Collectors.toList());
+        return Stream.concat(project.getProjectCommissions().stream().parallel().filter(projectCommission -> StringUtils.isNotBlank(projectCommission.getPublicationUrl())).map(projectCommission -> this.majesticSEOService.startAnalysisForLink(projectCommission.getPublicationUrl(), projectCommission.getUrl(), projectCommission.getAnchor())), project.getProjectLinks().stream().parallel().map(projectLink -> this.majesticSEOService.startAnalysisForLink(projectLink.getPublicationUrl(), projectLink.getUrl(), projectLink.getAnchor()))).collect(Collectors.toList());
+    }
+
+    public Page<ProjectCommission> commissionDashboard(CommissionDashboardSearchRequest commissionDashboardSearchRequest, PageRequest pageRequest) {
+        User user = this.userService.userInfo();
+        Sort sort;
+        if (user.getRole() == RoleName.ADMIN) {
+            sort = Sort.by(Sort.Direction.ASC, "statusOrder", "periodOrder", "publicationDate");
+        } else if (user.getRole() == RoleName.PUBLISHER) {
+            sort = Sort.by(Sort.Direction.ASC, "publicationDate");
+        } else { //CHIEF EDITOR
+            sort = Sort.by(Sort.Direction.ASC, "statusOrder", "periodOrder", "deliveryDate");
+        }
+
+        return this.projectCommissionRepository.findAll(((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            Join<ProjectCommission, Project> project = root.join("project");
+
+            predicates.add(criteriaBuilder.isFalse(project.get("deleted")));
+
+            if (commissionDashboardSearchRequest.getProjectId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("project"), commissionDashboardSearchRequest.getProjectId()));
+            }
+
+            if (commissionDashboardSearchRequest.getCustomerId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("customer"), commissionDashboardSearchRequest.getCustomerId()));
+            }
+
+            if (commissionDashboardSearchRequest.getNewspaperId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("newspaper"), commissionDashboardSearchRequest.getNewspaperId()));
+            }
+
+            if (commissionDashboardSearchRequest.getDeliveryDateTo() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("deliveryDate"), commissionDashboardSearchRequest.getDeliveryDateTo()));
+            }
+
+            if (commissionDashboardSearchRequest.getDeliveryDateFrom() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("deliveryDate"), commissionDashboardSearchRequest.getDeliveryDateTo()));
+            }
+
+            if (user.getRole() == RoleName.PUBLISHER) {
+                predicates.add(criteriaBuilder.in(root.get("status")).value(ProjectCommissionStatus.TO_PUBLISH).value(ProjectCommissionStatus.STANDBY_PUBLICATION).value(ProjectCommissionStatus.SENT_TO_ADMINISTRATION));
+            }
+
+            if (user.getRole() == RoleName.CHIEF_EDITOR) {
+                predicates.add(criteriaBuilder.in(root.get("status")).value(ProjectCommissionStatus.STARTED).value(ProjectCommissionStatus.ASSIGNED).value(ProjectCommissionStatus.STANDBY_EDITORIAL).value(ProjectCommissionStatus.WORKED));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+
+        }), PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), sort));
     }
 
 

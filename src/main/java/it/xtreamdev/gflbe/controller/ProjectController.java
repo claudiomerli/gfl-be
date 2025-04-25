@@ -1,5 +1,6 @@
 package it.xtreamdev.gflbe.controller;
 
+import it.xtreamdev.gflbe.dto.CommissionDashboardSearchRequest;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
@@ -38,6 +39,15 @@ public class ProjectController {
             SearchProjectDTO searchProjectDTO
     ) {
         return this.projectService.find(searchProjectDTO, PageRequest.of(page, pageSize, Sort.Direction.fromString(sortDirection), sortBy));
+    }
+
+    @GetMapping("/commissions")
+    public Page<ProjectCommission> findCommissionDashboard(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            CommissionDashboardSearchRequest searchProjectDTO
+    ) {
+        return this.projectService.commissionDashboard(searchProjectDTO, PageRequest.of(page, pageSize));
     }
 
     @GetMapping("{id}")
