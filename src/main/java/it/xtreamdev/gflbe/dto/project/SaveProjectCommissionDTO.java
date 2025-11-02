@@ -30,5 +30,6 @@ public class SaveProjectCommissionDTO {
     private ContentType contentType;
     private String publicationWorkNotes;
     private String contentWorkNotes;
+    private Double costSell;
 
 }

@@ -1,6 +1,5 @@
 package it.xtreamdev.gflbe.controller;
 
-import it.xtreamdev.gflbe.dto.CommissionDashboardSearchRequest;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
@@ -18,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.util.*;
 
 @RestController
@@ -97,6 +98,14 @@ public class ProjectController {
             @RequestBody SaveProjectCommissionDTO saveProjectCommissionDTO
     ) {
         return this.projectService.addCommission(id, saveProjectCommissionDTO);
+    }
+
+    @PostMapping("{id}/commission/newspaper")
+    public Project addCommissionToProjectByNewspaperRequest(
+            @PathVariable Integer id,
+            @RequestBody @NotEmpty @Valid List<AddCommissionToProjectByNewspaperRequest> addCommissionToProjectByNewspaperRequest
+    ) {
+        return this.projectService.addCommissionToProjectByNewspaperRequest(id, addCommissionToProjectByNewspaperRequest);
     }
 
     @PostMapping("{id}/commission/massive")

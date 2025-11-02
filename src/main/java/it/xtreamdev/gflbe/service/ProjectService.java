@@ -1,6 +1,5 @@
 package it.xtreamdev.gflbe.service;
 
-import it.xtreamdev.gflbe.dto.CommissionDashboardSearchRequest;
 import it.xtreamdev.gflbe.dto.content.SaveAttachmentDTO;
 import it.xtreamdev.gflbe.dto.content.SaveProjectCommissionHintDTO;
 import it.xtreamdev.gflbe.dto.majestic.LinkCheckDTO;
@@ -38,6 +37,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -115,24 +115,53 @@ public class ProjectService {
 
     public Project addCommission(Integer projectId, SaveProjectCommissionDTO saveProjectCommissionDTO) {
         Project project = this.findById(projectId);
-        ProjectCommission projectCommission = ProjectCommission.builder().newspaper(saveProjectCommissionDTO.getNewspaperId() != null ? this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()) : null).period(Month.valueOf(saveProjectCommissionDTO.getPeriod())).year(saveProjectCommissionDTO.getYear()).anchor(saveProjectCommissionDTO.getAnchor()).isAnchorBold(saveProjectCommissionDTO.getIsAnchorBold()).isAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic()).status(ProjectCommissionStatus.CREATED).url(saveProjectCommissionDTO.getUrl()).title(saveProjectCommissionDTO.getTitle()).notes(saveProjectCommissionDTO.getNotes()).publicationUrl(saveProjectCommissionDTO.getPublicationUrl()).publicationDate(saveProjectCommissionDTO.getPublicationDate()).project(project).deliveryDate(saveProjectCommissionDTO.getDeliveryDate()).contentType(saveProjectCommissionDTO.getContentType()).contentWorkNotes(saveProjectCommissionDTO.getContentWorkNotes()).publicationWorkNotes(saveProjectCommissionDTO.getPublicationWorkNotes()).build();
+        ProjectCommission projectCommission = ProjectCommission
+                .builder()
+                .newspaper(saveProjectCommissionDTO.getNewspaperId() != null ? this.newspaperService.findById(saveProjectCommissionDTO.getNewspaperId()) : null)
+                .period(saveProjectCommissionDTO.getPeriod() != null ? Month.valueOf(saveProjectCommissionDTO.getPeriod()) : null)
+                .year(saveProjectCommissionDTO.getYear())
+                .anchor(saveProjectCommissionDTO.getAnchor())
+                .isAnchorBold(saveProjectCommissionDTO.getIsAnchorBold())
+                .isAnchorItalic(saveProjectCommissionDTO.getIsAnchorItalic())
+                .status(ProjectCommissionStatus.CREATED)
+                .url(saveProjectCommissionDTO.getUrl())
+                .title(saveProjectCommissionDTO.getTitle())
+                .notes(saveProjectCommissionDTO.getNotes())
+                .publicationUrl(saveProjectCommissionDTO.getPublicationUrl())
+                .publicationDate(saveProjectCommissionDTO.getPublicationDate())
+                .project(project)
+                .deliveryDate(saveProjectCommissionDTO.getDeliveryDate())
+                .contentType(saveProjectCommissionDTO.getContentType())
+                .contentWorkNotes(saveProjectCommissionDTO.getContentWorkNotes())
+                .publicationWorkNotes(saveProjectCommissionDTO.getPublicationWorkNotes())
+                .build();
         projectCommission.getProjectStatusChanges().add(ProjectStatusChange.builder().projectCommissionStatus(ProjectCommissionStatus.CREATED).projectCommission(projectCommission).build());
 
         Content contentForCommission = Content.builder().contentStatus(ContentStatus.WORKING).projectCommission(projectCommission).hint(ContentHint.builder().build()).build();
 
         projectCommission.setContent(contentForCommission);
+
+
         project.getProjectCommissions().add(projectCommission);
+
 
         if (project.getStatus() == ProjectStatus.SENT_TO_ADMINISTRATION || project.getStatus() == ProjectStatus.INVOICED) {
             project.setStatus(ProjectStatus.CREATED);
             project.getProjectStatusChanges().add(ProjectStatusChange.builder().projectStatus(ProjectStatus.CREATED).project(project).build());
         }
 
+
         if (this.userService.userInfo().getRole() == RoleName.CUSTOMER) {
             this.genericOrderRepository.save(ProjectCommissionOrder.builder().projectId(projectId).customer(this.userService.userInfo()).type(GenericOrderType.PROJECT_COMMISSION).status(OrderStatus.REQUESTED).level(GenericOrderLevel.NOT_SPECIFIED).build());
         }
 
-        return this.projectRepository.save(project);
+        Project savedProject = this.projectRepository.save(project);
+
+        if (saveProjectCommissionDTO.getCostSell() != null) {
+            this.setCostSellCommission(projectId, projectCommission.getId(), SaveProjectCommissionCostSellDTO.builder().costSell(saveProjectCommissionDTO.getCostSell()).build());
+        }
+
+        return savedProject;
     }
 
 
@@ -299,7 +328,7 @@ public class ProjectService {
             }
 
             if (!(searchProjectDTO.getIncludeArchived() != null && searchProjectDTO.getIncludeArchived())) {
-                predicateList.add(criteriaBuilder.isFalse(root.get("archived")));
+                predicateList.add(criteriaBuilder.or(criteriaBuilder.isFalse(root.get("archived")), criteriaBuilder.isNull(root.get("archived"))));
             }
 
             return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
@@ -629,7 +658,7 @@ public class ProjectService {
             }
 
             if (!(commissionDashboardSearchRequest.getIncludeArchived() != null && commissionDashboardSearchRequest.getIncludeArchived())) {
-                predicates.add(criteriaBuilder.isFalse(project.get("archived")));
+                predicates.add(criteriaBuilder.or(criteriaBuilder.isFalse(project.get("archived")), criteriaBuilder.isNull(project.get("archived"))));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -647,6 +676,19 @@ public class ProjectService {
         Project project = this.findById(projectId);
         project.setArchived(false);
         return this.projectRepository.save(project);
+    }
+
+    public Project addCommissionToProjectByNewspaperRequest(Integer projectId, List<AddCommissionToProjectByNewspaperRequest> addCommissionToProjectByNewspaperRequest) {
+        AtomicReference<Project> project = new AtomicReference<>();
+        addCommissionToProjectByNewspaperRequest.forEach(request -> {
+            project.set(this.addCommission(projectId, SaveProjectCommissionDTO
+                    .builder()
+                    .newspaperId(request.getNewspaperId())
+                    .costSell(request.getCostSell())
+                    .build()));
+        });
+
+        return project.get();
     }
 
 }
