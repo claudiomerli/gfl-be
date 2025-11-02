@@ -39,6 +39,7 @@ public class ProjectListElementDTO {
     private LocalDateTime createdDate;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime lastModifiedDate;
+    private Boolean archived;
 
     private Boolean hasStartedCommission;
     private Boolean hasAssignedCommission;

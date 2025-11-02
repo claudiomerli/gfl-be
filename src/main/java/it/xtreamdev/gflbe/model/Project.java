@@ -100,6 +100,9 @@ public class Project {
     @Builder.Default
     private Boolean deleted = false;
 
+    @Builder.Default
+    private Boolean archived = false;
+
     @ManyToMany
     private List<User> finalCustomers;
 
@@ -122,10 +125,11 @@ public class Project {
                         .stream()
                         .map(ProjectCommission::toListElement)
                         .collect(Collectors.toList()))
+                .archived(archived)
                 .build();
     }
 
-    public NewspaperCustomerFilterPopulationDTO.LazyProject toLazyProject(){
+    public NewspaperCustomerFilterPopulationDTO.LazyProject toLazyProject() {
         return NewspaperCustomerFilterPopulationDTO.LazyProject
                 .builder()
                 .id(this.id)

@@ -43,8 +43,11 @@ public class ProjectCommission {
     @JsonProperty("projectId")
     private Project project;
 
-    @Formula("(select p.name from project p  inner join project_commission pc on pc.project_id = p.id where pc.id = id)")
+    @Formula("(select p.name from project p inner join project_commission pc on pc.project_id = p.id where pc.id = id)")
     private String projectName;
+
+    @Formula("(select (p.archived = true) from project p inner join project_commission pc on pc.project_id = p.id where pc.id = id)")
+    private Boolean projectArchived;
 
     @Enumerated
     private Month period;

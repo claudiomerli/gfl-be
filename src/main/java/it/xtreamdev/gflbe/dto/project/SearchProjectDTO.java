@@ -29,4 +29,7 @@ public class SearchProjectDTO {
 
     private Integer customerId;
 
+    @Builder.Default
+    private Boolean includeArchived = false;
+
 }

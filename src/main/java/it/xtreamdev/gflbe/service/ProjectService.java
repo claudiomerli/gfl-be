@@ -26,9 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
@@ -298,6 +296,10 @@ public class ProjectService {
                     Newspaper newspaper = this.newspaperService.findById(idNewspaper);
                     return criteriaBuilder.equal(projectCommissionsJoin.get("newspaper"), newspaper);
                 }).collect(Collectors.toList()).toArray(Predicate[]::new)));
+            }
+
+            if (!(searchProjectDTO.getIncludeArchived() != null && searchProjectDTO.getIncludeArchived())) {
+                predicateList.add(criteriaBuilder.isFalse(root.get("archived")));
             }
 
             return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
@@ -626,10 +628,25 @@ public class ProjectService {
                 predicates.add(criteriaBuilder.in(root.get("status")).value(ProjectCommissionStatus.STARTED).value(ProjectCommissionStatus.ASSIGNED).value(ProjectCommissionStatus.STANDBY_EDITORIAL).value(ProjectCommissionStatus.WORKED));
             }
 
+            if (!(commissionDashboardSearchRequest.getIncludeArchived() != null && commissionDashboardSearchRequest.getIncludeArchived())) {
+                predicates.add(criteriaBuilder.isFalse(project.get("archived")));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 
         }), PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), sort));
     }
 
+    public Project archive(Integer projectId) {
+        Project project = this.findById(projectId);
+        project.setArchived(true);
+        return this.projectRepository.save(project);
+    }
+
+    public Project unarchive(Integer projectId) {
+        Project project = this.findById(projectId);
+        project.setArchived(false);
+        return this.projectRepository.save(project);
+    }
 
 }

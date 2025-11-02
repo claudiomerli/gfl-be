@@ -81,6 +81,16 @@ public class ProjectController {
         return this.projectService.update(id, saveProjectDTO);
     }
 
+    @PutMapping("{id}/archive")
+    public Project archive(@PathVariable Integer id) {
+        return this.projectService.archive(id);
+    }
+
+    @PutMapping("{id}/unarchive")
+    public Project unarchive(@PathVariable Integer id) {
+        return this.projectService.unarchive(id);
+    }
+
     @PostMapping("{id}/commission")
     public Project saveCommission(
             @PathVariable Integer id,

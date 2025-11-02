@@ -18,5 +18,7 @@ public class CommissionDashboardSearchRequest {
     private Integer customerId;
     private LocalDate deliveryDateFrom;
     private LocalDate deliveryDateTo;
+    @Builder.Default
+    private Boolean includeArchived = false;
 
 }
